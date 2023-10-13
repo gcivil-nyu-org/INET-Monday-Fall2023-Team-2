@@ -12,7 +12,7 @@ class HomeView(generic.ListView):
     def get_queryset(self):
         """Return the last five published posts."""
         return ActivityPost.objects.order_by('-timestamp')[:5]
-        
+
 class PostDetailsView(generic.DetailView):
     model = ActivityPost
     template_name = 'posts/post_details.html'
@@ -32,4 +32,9 @@ def createPost(request):
     elif action == 'post': # Posted = 2
         new_post = ActivityPost.objects.create(title=title, description=description, status=2)
     # Handle the newly created post as needed
+    return HttpResponseRedirect(reverse('posts:home'))
+
+
+def deletePost(request, post_id):
+    ActivityPost.objects.filter(pk=post_id).delete()
     return HttpResponseRedirect(reverse('posts:home'))

@@ -1,2 +1,7 @@
 <h1>{{ post.title }}</h1>
 {{ post.description }}
+<br></br>
+<form action="{% url 'posts:deletePost' post.id %}" method="delete">
+    {% csrf_token %}
+    <button type="submit" name="action" value="post">Delete</button>
+</form>
