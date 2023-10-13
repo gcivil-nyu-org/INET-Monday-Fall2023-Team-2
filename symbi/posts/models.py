@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.urls import reverse
 
 
 class ActivityTag(models.Model):
@@ -25,6 +26,9 @@ class ActivityPost(models.Model):
 
     def __str__(self) -> str:
         return self.title
+        
+    def get_absolute_url(self):
+        return reverse('post_details', args = (str(self.pk)))
 
 
 class Comment(models.Model):
