@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/macos,python,django,linux
-# Edit at https://www.toptal.com/developers/gitignore?templates=macos,python,django,linux
+# Created by https://www.toptal.com/developers/gitignore/api/macos,python,django,linux,elasticbeanstalk
+# Edit at https://www.toptal.com/developers/gitignore?templates=macos,python,django,linux,elasticbeanstalk
 
 ### Django ###
 *.log
@@ -171,6 +171,9 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+### ElasticBeanstalk ###
+.elasticbeanstalk/
+
 ### Linux ###
 *~
 
@@ -310,5 +313,5 @@ poetry.toml
 # LSP config files
 pyrightconfig.json
 
-# End of https://www.toptal.com/developers/gitignore/api/macos,python,django,linux
+# End of https://www.toptal.com/developers/gitignore/api/macos,python,django,linux,elasticbeanstalk
 
