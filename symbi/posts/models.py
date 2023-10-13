@@ -12,7 +12,8 @@ class ActivityTag(models.Model):
 
 
 class ActivityPost(models.Model):
-    poster = models.ForeignKey(User, on_delete=models.CASCADE)
+    # poster = models.ForeignKey(User, on_delete=models.CASCADE)
+    poster_id = models.CharField(max_length=20)
     timestamp = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=100)
     description = models.TextField()
@@ -27,16 +28,17 @@ class ActivityPost(models.Model):
 
     def __str__(self) -> str:
         return self.title
-        
+
     def get_absolute_url(self):
-        return reverse('post_details', args = (str(self.pk)))
+        return reverse("post_details", args=(str(self.pk)))
 
 
 class Comment(models.Model):
     post = models.ForeignKey(
         ActivityPost, on_delete=models.CASCADE, related_name="comments"
     )
-    poster = models.ForeignKey(User, on_delete=models.CASCADE)
+    # poster = models.ForeignKey(User, on_delete=models.CASCADE)
+    poster_id = models.CharField(max_length=20)
     text = models.TextField()
     timestamp = models.DateTimeField("date commented")
 
