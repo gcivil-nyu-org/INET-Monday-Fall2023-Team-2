@@ -1,5 +1,7 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.contrib.auth.models import User
+from django.urls import reverse
 
 
 class ActivityTag(models.Model):
@@ -10,7 +12,7 @@ class ActivityTag(models.Model):
 
 
 class ActivityPost(models.Model):
-    poster_id = models.CharField(max_length=20)
+    poster = models.ForeignKey(User, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=100)
     description = models.TextField()
@@ -25,13 +27,16 @@ class ActivityPost(models.Model):
 
     def __str__(self) -> str:
         return self.title
+        
+    def get_absolute_url(self):
+        return reverse('post_details', args = (str(self.pk)))
 
 
 class Comment(models.Model):
     post = models.ForeignKey(
         ActivityPost, on_delete=models.CASCADE, related_name="comments"
     )
-    poster_id = models.CharField(max_length=20)
+    poster = models.ForeignKey(User, on_delete=models.CASCADE)
     text = models.TextField()
     timestamp = models.DateTimeField("date commented")
 
