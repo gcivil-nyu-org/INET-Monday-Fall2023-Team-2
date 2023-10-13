@@ -14,7 +14,8 @@
 - `git remote -v`
 5. In the Symbi directory, create a virtual environment and activate it
 - `virtualenv .env`
-- `source .env/bin/activate`
+- on Mac: `source .env/bin/activate`
+- on Windows: `.env/Scripts/activate`
 6. Install requirements in the virtual environment
 - `pip install -r requirements.txt`
 7. Change into the directory containing the django project
