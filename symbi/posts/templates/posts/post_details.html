@@ -3,5 +3,5 @@
 <br></br>
 <form action="{% url 'posts:deletePost' post.id %}" method="delete">
     {% csrf_token %}
-    <button type="submit" name="action" value="post">Delete</button>
+    <button type="submit" name="action" value="delete">Delete</button>
 </form>
