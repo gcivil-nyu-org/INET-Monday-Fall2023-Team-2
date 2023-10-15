@@ -43,3 +43,10 @@ def createPost(request):
 def deletePost(request, post_id):
     ActivityPost.objects.filter(pk=post_id).delete()
     return HttpResponseRedirect(reverse('posts:home'))
+
+def archivePost(request, post_id):
+    currentPost = ActivityPost.objects.filter(pk=post_id)[0]
+    currentPost.status = 3
+    currentPost.save()
+    return HttpResponseRedirect(reverse('posts:home'))
+

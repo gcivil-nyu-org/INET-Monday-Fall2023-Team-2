@@ -1,7 +1,13 @@
 <h1>{{ post.title }}</h1>
 {{ post.description }}
 <br></br>
+<form action="{% url 'posts:archivePost' post.id %}" method="archive">
+    {% csrf_token %}
+    <button type="submit" name="action" value="archive">Archive</button>
+</form>
 <form action="{% url 'posts:deletePost' post.id %}" method="delete">
     {% csrf_token %}
     <button type="submit" name="action" value="delete">Delete</button>
 </form>
+
+
