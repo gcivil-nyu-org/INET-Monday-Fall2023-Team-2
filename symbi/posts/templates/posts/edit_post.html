@@ -1,0 +1,11 @@
+<h1>Edit Post</h1>
+<br>
+</br>
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="hidden"  name="post_id" value="{{ post.id }}">
+    <button type="submit"
+            formaction="{% url 'posts:edit_post' post.pk %}"
+            value="Save">Save</button>
+</form>
