@@ -1,7 +1,7 @@
 <h1>Create New Post</h1>
 <br>
 </br>
-<form action="{% url 'posts:createPost' %}" method="POST">
+<form action="{% url 'posts:create_post_object' %}" method="POST">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit" name="action" value="post">Post</button>
