@@ -3,7 +3,7 @@
         {% for post in latest_posts_list %}
             {% if post.status == 2 %}
                 <li>
-                    <a href="{% url 'posts:post_details' post.pk %}">{{ post.title }}</a>
+                    <a href="{% url 'posts:post_details_view' post.pk %}">{{ post.title }}</a>
                 </li>
             {% endif %}
         {% endfor %}
@@ -11,4 +11,4 @@
 {% else %}
     <p>No posts are available.</p>
 {% endif %}
-<a href="{% url 'posts:create_post' %}">New Post</a>
+<a href="{% url 'posts:create_post_view' %}">New Post</a>
