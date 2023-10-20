@@ -34,6 +34,7 @@ SECRET_KEY = config("SECRET_KEY")
 
 INSTALLED_APPS = [
     "posts.apps.PostsConfig",
+    "socialuser.apps.SocialuserConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
