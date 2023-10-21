@@ -30,7 +30,7 @@ class ActivityPost(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse("posts:post_details", args=(str(self.pk)))
+        return reverse("posts:post_details_view", args=(str(self.id)))
 
 
 class Comment(models.Model):
