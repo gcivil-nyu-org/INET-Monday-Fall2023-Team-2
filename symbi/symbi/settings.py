@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["django-env.eba-sctwfwa3.us-east-1.elasticbeanstalk.com", '127.0.0.1']
+ALLOWED_HOSTS = ["django-env.eba-sctwfwa3.us-east-1.elasticbeanstalk.com", '127.0.0.1', 'localhost']
 
 SECRET_KEY = config("SECRET_KEY")
 

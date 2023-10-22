@@ -1,0 +1,86 @@
+body {
+  margin: 0;
+}
+
+.profile-container {
+  background-color: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: left;
+  height: 100%;
+}
+
+.profile-card {
+  background-color: #15172b;
+  height: 70%;
+  width: 65%;
+  border-radius: 20px;
+  margin-top: 150px;
+  color: white;
+  padding: 30px;
+}
+
+.heading h1,
+.heading h3 {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.additional-details p {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.interests {
+  padding-bottom: 85px;
+}
+
+.interest-container {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.tab {
+  overflow: hidden;
+  border: 1px solid white;
+  background-color: black;
+  border-radius: 15px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* From https://www.w3schools.com/howto/howto_js_tabs.asp */
+.tablink {
+  background-color: #15172b;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  color: white;
+  width: 100%;
+}
+
+.tab button:hover {
+  background-color: #353a6e;
+}
+
+.tab button.current {
+  background-color: #353a6e;
+}
+
+.tabcontent {
+  animation: fadeEffect 1s;
+}
+
+@keyframes fadeEffect {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
