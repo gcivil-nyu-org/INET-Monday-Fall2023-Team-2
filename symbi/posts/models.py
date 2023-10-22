@@ -3,6 +3,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.models import User
 from django.urls import reverse
 
+from socialuser.models import SocialUser
+
 
 class ActivityTag(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -12,8 +14,8 @@ class ActivityTag(models.Model):
 
 
 class ActivityPost(models.Model):
-    # poster = models.ForeignKey(User, on_delete=models.CASCADE)
-    poster_id = models.CharField(max_length=20)
+    # TODO: Remove the default and use django user object once auth is implemented
+    social_user = models.ForeignKey(SocialUser, on_delete=models.CASCADE, default=1)
     timestamp = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=100)
     description = models.TextField()
