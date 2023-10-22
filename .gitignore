@@ -171,8 +171,10 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 .idea/
 
-### ElasticBeanstalk ###
+# Elastic Beanstalk Files
 .elasticbeanstalk/
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
 
 ### Linux ###
 *~

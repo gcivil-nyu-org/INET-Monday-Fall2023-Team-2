@@ -35,20 +35,3 @@ class ProfileDetailsView(generic.DetailView):
     model = SocialUser
     template_name = "socialuser/profile_details.html"
     context_object_name = "profile"
-
-
-# def create_profile(request):
-#     if request.method == "POST":
-#         name = request.POST.get("name")
-#         age = request.POST.get("age")
-#         major = request.POST.get("major")
-#         pronouns = request.POST.get("pronouns")
-#         tags = request.POST.get("tags")
-
-#         new_profile = SocialUser.objects.create(
-#             name=name, age=age, major=major, pronouns=pronouns, tags=tags
-#         )
-
-#     interest_tags = InterestTag.objects.all()
-
-#     return render(request, "create_profile.html", {"interest_tags": interest_tags})
