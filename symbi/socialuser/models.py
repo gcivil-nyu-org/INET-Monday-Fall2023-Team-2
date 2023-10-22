@@ -40,7 +40,7 @@ class SocialUser(models.Model):
     tags = models.ManyToManyField(InterestTag, related_name="tags")
 
     def __str__(self) -> str:
-        return self.title
+        return self.name
 
     def get_absolute_url(self):
         return reverse("socialuser:profile_view", args=(str(self.id)))

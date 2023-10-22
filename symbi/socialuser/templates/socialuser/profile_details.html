@@ -19,14 +19,25 @@
         <div class="tab">
             <button class="tablink"
                     onclick="openTab(event, 'active-posts')"
-                    id="default-open">Active Posts</button>
+                    id="default-open">Active Posts
+            </button>
             <button class="tablink" onclick="openTab(event, 'archived-posts')">Archived Posts</button>
             <button class="tablink" onclick="openTab(event, 'drafted-posts')">Drafts</button>
         </div>
         <!-- Tab Content -->
         <div id="active-posts" class="tabcontent">
-            <p>Active Posts</p>
             <!-- Inject Active Posts -->
+            <div class="post-container">
+                {% for post in profile.activitypost_set.all %}
+                    {% if post.status == 2 %}
+                        <div class="post">
+                            <h2 class="post-title">{{ post.title }}</h2>
+                            <p class="post-date">Published On: {{ post.timestamp }}</p>
+                            <p class="post-content">{{ post.description }}</p>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
         </div>
         <div id="archived-posts" class="tabcontent">
             <p>Archived Posts</p>
