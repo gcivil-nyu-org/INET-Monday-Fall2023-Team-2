@@ -44,8 +44,23 @@
             <!-- Inject Archived Posts -->
         </div>
         <div id="drafted-posts" class="tabcontent">
-            <p>Drafted Posts</p>
-            <!-- Inject Drafted Posts -->
+            <!-- Inject Archived Posts --> 
+            <div class="post-container">
+                {% if profile.activitypost_set.all %}
+                    {% for post in profile.activitypost_set.all %}
+                        {% if post.status == 1 %}
+                            <div class="post">
+                                <h2 class="post-title">{{ post.title }}</h2>
+                                <p class="post-date">Published On: {{ post.timestamp }}</p>
+                                <p class="post-content">{{ post.description }}</p>
+                                {% comment %}<a href="{% url 'posts:edit_post_view' post.id %}">Edit Post</a>{% endcomment %}  
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <p>No Drafts are available.</p>
+                {% endif %}   
+            </div> 
         </div>
     </div>
 </div>
