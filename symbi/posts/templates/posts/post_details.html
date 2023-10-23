@@ -8,4 +8,7 @@
     {% csrf_token %}
     <button type="submit" name="action" value="delete">Delete</button>
 </form>
-<a href="{% url 'posts:edit_post_view' post.id %}">Edit Post</a>
+<form action="{% url 'posts:edit_post_view' post.id %}" method="edit">
+    {% csrf_token %}
+    <button type="submit" name="action" value="edit">Edit</button>
+</form>
