@@ -11,5 +11,4 @@ urlpatterns = [
     path("<int:post_id>/archive_request/", views.archive_post, name="archive_post_request"),
     path("<int:pk>/edit/", views.EditPostView.as_view(), name="edit_post_view"),
     path("<int:post_id>/edit_request/", views.edit_post, name="edit_post_request"),
-    path("drafts/", views.DraftView.as_view(), name="view_drafts"),
 ]

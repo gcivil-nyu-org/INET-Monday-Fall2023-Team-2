@@ -61,12 +61,3 @@ def edit_post(request, post_id):
         post.description = description
         post.save()
     return HttpResponseRedirect(reverse("home"))
-
-
-class DraftView(generic.ListView):
-    template_name = "posts/view_drafts.html"
-    context_object_name = "latest_drafts_list"
-
-    def get_queryset(self):
-        """Return the last five published posts."""
-        return ActivityPost.objects.order_by("-timestamp")[:50]
