@@ -1,0 +1,66 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'socialuser/profile_details.css' %}">
+<script src="{% static 'socialuser/profile_details.js' %}"></script>
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="heading">
+            <h1>{{ profile.name|capfirst }},</h1>
+            <h3>{{ profile.pronouns }} pronouns</h3>
+        </div>
+        <div class="additional-details">
+            <p>{{ profile.age }} years old,</p>
+            <p>{{ profile.major|capfirst }} major</p>
+        </div>
+        <div class="interests">
+            <h2>Interests:</h2>
+            {% for tag in profile.tags.all %}<p class="interest-container">{{ tag.name|capfirst }}</p>{% endfor %}
+        </div>
+        <!-- Tab Links -->
+        <div class="tab">
+            <button class="tablink"
+                    onclick="openTab(event, 'active-posts')"
+                    id="default-open">Active Posts
+            </button>
+            <button class="tablink" onclick="openTab(event, 'archived-posts')">Archived Posts</button>
+            <button class="tablink" onclick="openTab(event, 'drafted-posts')">Drafts</button>
+        </div>
+        <!-- Tab Content -->
+        <div id="active-posts" class="tabcontent">
+            <!-- Inject Active Posts -->
+            <div class="post-container">
+                {% for post in profile.activitypost_set.all %}
+                    {% if post.status == 2 %}
+                        <div class="post">
+                            <h2 class="post-title">{{ post.title }}</h2>
+                            <p class="post-date">Published On: {{ post.timestamp }}</p>
+                            <p class="post-content">{{ post.description }}</p>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        <div id="archived-posts" class="tabcontent">
+            <p>Archived Posts</p>
+            <!-- Inject Archived Posts -->
+        </div>
+        <div id="drafted-posts" class="tabcontent">
+            <!-- Inject Archived Posts --> 
+            <div class="post-container">
+                {% if profile.activitypost_set.all %}
+                    {% for post in profile.activitypost_set.all %}
+                        {% if post.status == 1 %}
+                            <div class="post">
+                                <h2 class="post-title">{{ post.title }}</h2>
+                                <p class="post-date">Published On: {{ post.timestamp }}</p>
+                                <p class="post-content">{{ post.description }}</p>
+                                {% comment %}<a href="{% url 'posts:edit_post_view' post.id %}">Edit Post</a>{% endcomment %}  
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <p>No Drafts are available.</p>
+                {% endif %}   
+            </div> 
+        </div>
+    </div>
+</div>

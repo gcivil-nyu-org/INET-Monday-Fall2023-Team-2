@@ -16,10 +16,10 @@
 - `virtualenv .env`
 - on Mac: `source .env/bin/activate`
 - on Windows: `.env/Scripts/activate`
-6. Install requirements in the virtual environment
-- `pip install -r requirements.txt`
-7. Change into the directory containing the django project
+6. Change into the directory containing the django project
 - `cd symbi`
+7. Install requirements in the virtual environment
+- `pip install -r requirements.txt`
 8. Create a file called ‘.env’
 - `touch .env`
 9. Generate a secret key and print the output by running this command in terminal:
