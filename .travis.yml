@@ -19,3 +19,14 @@ script:
 
 after_success:
   - curl -sL https://coveralls.io/coveralls-linux.tar.gz | tar -xz && ./coveralls
+
+# deploy:
+#   provider: elasticbeanstalk
+#   access_key_id: $AWS_ACCESS_KEY_ID
+#   secret_access_key: $AWS_SECRET_ACCESS_KEY
+#   region: $AWS_REGION
+#   app: "symbi"
+#   env: $AWS_EBS_EV
+#   bucket_name: "$AWS_BUCKET_NAME"
+#   on:
+#     branch: develop
