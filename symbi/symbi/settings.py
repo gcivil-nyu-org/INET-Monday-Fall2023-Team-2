@@ -32,7 +32,7 @@ ALLOWED_HOSTS = [
     "localhost",
 ]
 
-SECRET_KEY = config("SECRET_KEY")
+SECRET_KEY = "z-tlcwj6wfoumvao%8j+r9%8khnndq*mlf9^v)l10=0gxs74y6"
 
 # Application definition
 
