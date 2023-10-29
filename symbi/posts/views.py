@@ -4,6 +4,7 @@ from django.views import generic
 
 from .models import ActivityPost
 
+
 class PostDetailsView(generic.DetailView):
     model = ActivityPost
     template_name = "posts/post_details.html"
@@ -46,7 +47,7 @@ def delete_post(request, post_id):
 
 def archive_post(request, post_id):
     currentPost = ActivityPost.objects.filter(pk=post_id)[0]
-    currentPost.status = 3 # Archived = 3
+    currentPost.status = 3  # Archived = 3
     currentPost.save()
     return HttpResponseRedirect(reverse("home"))
 
