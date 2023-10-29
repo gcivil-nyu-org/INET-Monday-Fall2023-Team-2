@@ -7,7 +7,7 @@ python:
 
 install:
   - gem install webrick
-  - pip install -r requirements.txt
+  - pip install -r symbi/requirements.txt
 
 before_script:
   - python manage.py migrate
