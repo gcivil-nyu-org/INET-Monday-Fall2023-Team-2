@@ -29,13 +29,9 @@ def create_post(request):
     description = request.POST.get("description")
     action = request.POST.get("action")
     if action == "draft":  # Draft = 1
-        new_post = ActivityPost.objects.create(
-            title=title, description=description, status=1
-        )
+        _ = ActivityPost.objects.create(title=title, description=description, status=1)
     elif action == "post":  # Posted = 2
-        new_post = ActivityPost.objects.create(
-            title=title, description=description, status=2
-        )
+        _ = ActivityPost.objects.create(title=title, description=description, status=2)
     # Handle the newly created post as needed
     return HttpResponseRedirect(reverse("home"))
 
