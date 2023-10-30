@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "symbi-env.eba-heat524t.us-east-1.elasticbeanstalk.com",
+    "symbi-prod-env.eba-imnmcswt.us-east-1.elasticbeanstalk.com",
     "127.0.0.1",
     "localhost",
 ]
