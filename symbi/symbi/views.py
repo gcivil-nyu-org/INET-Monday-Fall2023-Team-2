@@ -2,6 +2,7 @@ from django.views import generic
 
 from posts.models import ActivityPost
 
+
 class HomeView(generic.ListView):
     template_name = "symbi/home.html"
     context_object_name = "latest_posts_list"

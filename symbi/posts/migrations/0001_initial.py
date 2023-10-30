@@ -6,44 +6,82 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='ActivityPost',
+            name="ActivityPost",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('poster_id', models.CharField(max_length=20)),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('title', models.CharField(max_length=100)),
-                ('description', models.TextField()),
-                ('status', models.PositiveBigIntegerField(default=1, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(3)])),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("poster_id", models.CharField(max_length=20)),
+                ("timestamp", models.DateTimeField(auto_now_add=True)),
+                ("title", models.CharField(max_length=100)),
+                ("description", models.TextField()),
+                (
+                    "status",
+                    models.PositiveBigIntegerField(
+                        default=1,
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(3),
+                        ],
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ActivityTag',
+            name="ActivityTag",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=50, unique=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Comment',
+            name="Comment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('poster_id', models.CharField(max_length=20)),
-                ('text', models.TextField()),
-                ('timestamp', models.DateTimeField(verbose_name='date commented')),
-                ('post', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='posts.activitypost')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("poster_id", models.CharField(max_length=20)),
+                ("text", models.TextField()),
+                ("timestamp", models.DateTimeField(verbose_name="date commented")),
+                (
+                    "post",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="comments",
+                        to="posts.activitypost",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='activitypost',
-            name='tags',
-            field=models.ManyToManyField(related_name='tags', to='posts.activitytag'),
+            model_name="activitypost",
+            name="tags",
+            field=models.ManyToManyField(related_name="tags", to="posts.activitytag"),
         ),
     ]

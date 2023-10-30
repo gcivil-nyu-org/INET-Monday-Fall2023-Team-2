@@ -6,40 +6,101 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='InterestTag',
+            name="InterestTag",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=50, unique=True)),
             ],
         ),
         migrations.CreateModel(
-            name='SocialUser',
+            name="SocialUser",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('user_id', models.CharField(max_length=20)),
-                ('name', models.CharField(max_length=100)),
-                ('age', models.IntegerField(default=18, validators=[django.core.validators.MinValueValidator(18), django.core.validators.MaxValueValidator(150)])),
-                ('major', models.CharField(max_length=100)),
-                ('pronouns', models.PositiveBigIntegerField(default=1, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(4)])),
-                ('tags', models.ManyToManyField(related_name='tags', to='socialuser.interesttag')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("user_id", models.CharField(max_length=20)),
+                ("name", models.CharField(max_length=100)),
+                (
+                    "age",
+                    models.IntegerField(
+                        default=18,
+                        validators=[
+                            django.core.validators.MinValueValidator(18),
+                            django.core.validators.MaxValueValidator(150),
+                        ],
+                    ),
+                ),
+                ("major", models.CharField(max_length=100)),
+                (
+                    "pronouns",
+                    models.PositiveBigIntegerField(
+                        default=1,
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(4),
+                        ],
+                    ),
+                ),
+                (
+                    "tags",
+                    models.ManyToManyField(
+                        related_name="tags", to="socialuser.interesttag"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Connection',
+            name="Connection",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('userB_id', models.CharField(max_length=20)),
-                ('timestamp', models.DateTimeField(verbose_name='date connected')),
-                ('status', models.PositiveBigIntegerField(default=1, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(5)])),
-                ('socialuser', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='connections', to='socialuser.socialuser')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("userB_id", models.CharField(max_length=20)),
+                ("timestamp", models.DateTimeField(verbose_name="date connected")),
+                (
+                    "status",
+                    models.PositiveBigIntegerField(
+                        default=1,
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(5),
+                        ],
+                    ),
+                ),
+                (
+                    "socialuser",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="connections",
+                        to="socialuser.socialuser",
+                    ),
+                ),
             ],
         ),
     ]

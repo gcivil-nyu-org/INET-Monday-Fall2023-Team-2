@@ -7,9 +7,10 @@ python:
 
 install:
   - gem install webrick
-  - pip install -r requirements.txt
+  - pip install -r symbi/requirements.txt
 
 before_script:
+  - cd symbi
   - python manage.py migrate
 
 script:
@@ -18,7 +19,7 @@ script:
   - coverage run manage.py test
 
 after_success:
-  - curl -sL https://coveralls.io/coveralls-linux.tar.gz | tar -xz && ./coveralls
+  - curl -sL https://coveralls.io/coveralls-linux.tar.gz | tar -xz && ./coveralls -r $COVERALLS_REPO_TOKEN
 
 # deploy:
 #   provider: elasticbeanstalk

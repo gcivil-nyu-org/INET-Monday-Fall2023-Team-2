@@ -4,15 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('socialuser', '0001_initial'),
+        ("socialuser", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='socialuser',
-            name='pronouns',
-            field=models.CharField(choices=[('he/him', 'He/Him'), ('she/her', 'She/Her'), ('they/them', 'They/Them'), ('other', 'Other')], default='she/her', max_length=9),
+            model_name="socialuser",
+            name="pronouns",
+            field=models.CharField(
+                choices=[
+                    ("he/him", "He/Him"),
+                    ("she/her", "She/Her"),
+                    ("they/them", "They/Them"),
+                    ("other", "Other"),
+                ],
+                default="she/her",
+                max_length=9,
+            ),
         ),
     ]
