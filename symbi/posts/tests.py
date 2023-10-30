@@ -3,6 +3,7 @@ from django.utils import timezone
 from .models import ActivityPost
 import datetime
 
+
 # Create your tests here.
 def create_post(title, description, status):
     # Status values:
