@@ -1,5 +1,4 @@
 from django import forms
-from django.forms import TextInput, NumberInput
 
 from .models import InterestTag, SocialUser
 
