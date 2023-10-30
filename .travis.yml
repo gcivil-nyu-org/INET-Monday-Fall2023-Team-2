@@ -30,4 +30,4 @@ deploy:
   env: $AWS_EBS_EV
   bucket_name: $AWS_BUCKET_NAME
   on:
-    branch: develop
+    branch: master
