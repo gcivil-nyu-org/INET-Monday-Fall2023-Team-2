@@ -12,6 +12,7 @@ install:
 before_script:
   - cd symbi
   - python manage.py migrate
+  - python manage.py collectstatic --noinput
 
 script:
   - black --check .
@@ -30,4 +31,4 @@ deploy:
   env: $AWS_EBS_EV
   bucket_name: $AWS_BUCKET_NAME
   on:
-    branch: develop
+    branch: master
