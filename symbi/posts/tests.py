@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.utils import timezone
-from .models import ActivityPOst
-import datedate
+from .models import ActivityPost
+import datetime
 
 # Create your tests here.
 def create_post(title, description, status):
