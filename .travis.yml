@@ -12,6 +12,7 @@ install:
 before_script:
   - cd symbi
   - python manage.py migrate
+  - python manage.py collectstatic
 
 script:
   - black --check .
