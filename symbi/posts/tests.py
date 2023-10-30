@@ -15,18 +15,17 @@ def create_post(title, description, status):
         timestamp=time,
         title=title,
         description=description,
-        status=status,
-        tags="None")
+        status=status)
 
 
-class ArchivePostTests(TestCase):
-    def view_post_test(self):
-        """
-        Home page should show an empty post list if there is only 1 archive post
-        """
-        post = create_post("post", "description", 3)
+class TestHomePage(TestCase):
+    def test_no_post(self):
         response = self.client.get("")
-        self.assertQuerysetEqual(response.context["latest_posts_list"], [])
+        self.assertEqual(response.status_code, 200)
         self.assertContains(response, "No posts are available.")
+        self.assertQuerysetEqual(response.context["latest_posts_list"], [])
+
+
+
 
 
