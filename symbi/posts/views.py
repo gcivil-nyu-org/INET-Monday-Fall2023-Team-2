@@ -4,6 +4,7 @@ from django.views import generic
 
 from .models import ActivityPost
 
+
 class PostDetailsView(generic.DetailView):
     model = ActivityPost
     template_name = "posts/post_details.html"
@@ -28,13 +29,9 @@ def create_post(request):
     description = request.POST.get("description")
     action = request.POST.get("action")
     if action == "draft":  # Draft = 1
-        new_post = ActivityPost.objects.create(
-            title=title, description=description, status=1
-        )
+        _ = ActivityPost.objects.create(title=title, description=description, status=1)
     elif action == "post":  # Posted = 2
-        new_post = ActivityPost.objects.create(
-            title=title, description=description, status=2
-        )
+        _ = ActivityPost.objects.create(title=title, description=description, status=2)
     # Handle the newly created post as needed
     return HttpResponseRedirect(reverse("home"))
 
@@ -46,7 +43,7 @@ def delete_post(request, post_id):
 
 def archive_post(request, post_id):
     currentPost = ActivityPost.objects.filter(pk=post_id)[0]
-    currentPost.status = 3 # Archived = 3
+    currentPost.status = 3  # Archived = 3
     currentPost.save()
     return HttpResponseRedirect(reverse("home"))
 
