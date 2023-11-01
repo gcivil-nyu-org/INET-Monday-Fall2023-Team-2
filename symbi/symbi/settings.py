@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-from decouple import config
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -27,12 +26,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "django-env.eba-sctwfwa3.us-east-1.elasticbeanstalk.com",
+    "symbi-prod-env.eba-imnmcswt.us-east-1.elasticbeanstalk.com",
     "127.0.0.1",
     "localhost",
 ]
 
-SECRET_KEY = config("SECRET_KEY")
+SECRET_KEY = "z-tlcwj6wfoumvao%8j+r9%8khnndq*mlf9^v)l10=0gxs74y6"
 
 # Application definition
 
@@ -124,6 +123,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "static"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
