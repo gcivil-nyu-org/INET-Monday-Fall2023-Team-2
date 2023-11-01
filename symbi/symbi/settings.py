@@ -26,7 +26,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["django-env.eba-sctwfwa3.us-east-1.elasticbeanstalk.com", '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = [
+    "django-env.eba-sctwfwa3.us-east-1.elasticbeanstalk.com",
+    "127.0.0.1",
+    "localhost",
+]
 
 SECRET_KEY = config("SECRET_KEY")
 
@@ -58,7 +62,7 @@ ROOT_URLCONF = "symbi.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates", os.path.join(BASE_DIR, 'symbi', 'templates')],
+        "DIRS": [BASE_DIR / "templates", os.path.join(BASE_DIR, "symbi", "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
