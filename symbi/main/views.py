@@ -1,9 +1,8 @@
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.views import generic
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.models import User
+# from django.views import generic
+from django.shortcuts import render
+from django.contrib.auth import login
 
 from posts.models import ActivityPost
 from .forms import SignUpForm
