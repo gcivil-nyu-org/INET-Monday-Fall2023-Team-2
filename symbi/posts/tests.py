@@ -49,7 +49,7 @@ class TestEditPost(TestCase):
         )
         # Check if the response redirects to the home page
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse("home"))
+        self.assertRedirects(response, reverse("main:home"))
 
         # Check if the post has been updated
         updated_post = ActivityPost.objects.get(pk=self.post.id)
