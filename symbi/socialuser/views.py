@@ -11,7 +11,12 @@ class CreateProfileView(generic.CreateView):
     template_name = "socialuser/create_profile.html"
 
     def get_success_url(self):
-        return reverse_lazy("socialuser:profile_view", kwargs={"pk": self.user_id, },)
+        return reverse_lazy(
+            "socialuser:profile_view",
+            kwargs={
+                "pk": self.user_id,
+            },
+        )
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
