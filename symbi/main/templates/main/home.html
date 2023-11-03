@@ -1,3 +1,9 @@
+{% if user.is_authenticated %}
+<p>Logged in as {{user.username}}</p>
+<a href="/logout">Logout</a>
+{% else %}
+<a href="/login">Login</a>
+{% endif %}
 {% if latest_posts_list %}
     <ul>
         {% for post in latest_posts_list %}
@@ -12,4 +18,4 @@
     <p>No posts are available.</p>
 {% endif %}
 <a href="{% url 'posts:create_post_view' %}">New Post</a>
-<a href="{% url "socialuser:create_profile" %}">Create a Profile</a>
+<a href="{% url 'socialuser:create_profile' %}">Create a Profile</a>

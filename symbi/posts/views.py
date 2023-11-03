@@ -33,19 +33,19 @@ def create_post(request):
     elif action == "post":  # Posted = 2
         _ = ActivityPost.objects.create(title=title, description=description, status=2)
     # Handle the newly created post as needed
-    return HttpResponseRedirect(reverse("home"))
+    return HttpResponseRedirect(reverse("main:home"))
 
 
 def delete_post(request, post_id):
     ActivityPost.objects.filter(pk=post_id).delete()
-    return HttpResponseRedirect(reverse("home"))
+    return HttpResponseRedirect(reverse("main:home"))
 
 
 def archive_post(request, post_id):
     currentPost = ActivityPost.objects.filter(pk=post_id)[0]
     currentPost.status = 3  # Archived = 3
     currentPost.save()
-    return HttpResponseRedirect(reverse("home"))
+    return HttpResponseRedirect(reverse("main:home"))
 
 
 def edit_post(request, post_id):
@@ -57,4 +57,4 @@ def edit_post(request, post_id):
         post.title = title
         post.description = description
         post.save()
-    return HttpResponseRedirect(reverse("home"))
+    return HttpResponseRedirect(reverse("main:home"))

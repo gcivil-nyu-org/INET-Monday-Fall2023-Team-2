@@ -36,6 +36,7 @@ SECRET_KEY = "z-tlcwj6wfoumvao%8j+r9%8khnndq*mlf9^v)l10=0gxs74y6"
 # Application definition
 
 INSTALLED_APPS = [
+    "main.apps.MainConfig",
     "posts.apps.PostsConfig",
     "socialuser.apps.SocialuserConfig",
     "django.contrib.admin",
@@ -129,3 +130,7 @@ STATIC_ROOT = BASE_DIR / "static"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# login / logout redirects
+LOGIN_REDIRECT_URL = "main:home"
+LOGOUT_REDIRECT_URL = "/login"
