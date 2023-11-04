@@ -43,7 +43,12 @@ class SocialUser(models.Model):
 
     def get_absolute_url(self):
         return reverse("socialuser:profile_view", args=(str(self.id)))
-
+    
+    def calculate_age(date_of_birth):
+        #Calculates the age of a user from date_of_birth
+        today = date.today()
+        age = today.year - date_of_birth.year - ((today.month, today.day) < (date_of_birth.month, date_of_birth.day))
+        return age
 
 class Connection(models.Model):
     socialuser = models.ForeignKey(
@@ -64,3 +69,4 @@ class Connection(models.Model):
 
     def __str__(self) -> str:
         return self.text
+    

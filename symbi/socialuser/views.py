@@ -9,6 +9,7 @@ class CreateProfileView(generic.CreateView):
     model = SocialUser
     form_class = SocialUserForm
     template_name = "socialuser/create_profile.html"
+    redirect_to = "socialuser:profile_details"
 
     def get_success_url(self):
         return reverse_lazy(

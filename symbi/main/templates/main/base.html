@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} My Website {% endblock %}</title>
+    <style>nav a {margin: 10px;}</style>
+</head>
+<body>
+    <nav>
+        <a href="/">Home</a>
+        {% if user.is_authenticated %}
+            <a href="{% url 'posts:create_post_view' %}">New Post</a>
+            <a href="{% url 'socialuser:create_profile' %}">Create a Profile</a>
+            <a href="/posts/">My Posts</a>
+            <a href="/friends/">My Friends</a>
+            <a href="/logout/">Logout</a>
+        {% else %}
+            <a href="/login/">Login</a>
+            <a href="/signup/">Sign Up</a>
+        {% endif %}
+    </nav>
+    <main>
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+</body>
+</html>
