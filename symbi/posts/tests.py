@@ -13,8 +13,15 @@ def create_post(title, description, status):
     # 2: Posted
     # 3: Archived
     time = timezone.now() + datetime.timedelta(days=0)
+    user = SocialUser.objects.create(
+        user_id="test_user_id", name="Test User", pronouns="she/her"
+    )
     return ActivityPost.objects.create(
-        timestamp=time, title=title, description=description, status=status
+        timestamp=time,
+        title=title,
+        description=description,
+        status=status,
+        social_user=user,
     )
 
 
@@ -24,6 +31,34 @@ class TestHomePage(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "No posts are available.")
         self.assertQuerysetEqual(response.context["latest_posts_list"], [])
+
+    def test_draft_post(self):
+        draftPost = create_post("test1", "testing1", 1)
+        response = self.client.get("")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, draftPost.title)
+
+    def test_posted_post(self):
+        postedPost = create_post("test2", "testing1", 2)
+        response = self.client.get("")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, postedPost.title)
+
+    def test_archived_post(self):
+        archivedPost = create_post("test3", "testing1", 3)
+        response = self.client.get("")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, archivedPost.title)
+
+    def test_all_three_status_post(self):
+        draftPost = create_post("test1", "testing1", 1)
+        postedPost = create_post("test2", "testing1", 2)
+        archivedPost = create_post("test3", "testing1", 3)
+        response = self.client.get("")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, draftPost.title)
+        self.assertContains(response, postedPost.title)
+        self.assertNotContains(response, archivedPost.title)
 
 
 class TestEditPost(TestCase):
