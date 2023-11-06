@@ -1,10 +1,9 @@
 from django.http import HttpResponseRedirect
-from django.urls import reverse
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login
 from posts.models import ActivityPost
 from .forms import SignUpForm
-from django.contrib import messages 
+from django.contrib import messages
 
 
 def home(request):
@@ -17,33 +16,33 @@ def home(request):
     return render(request, template_name, context)
 
 
-def login(request, user):
-    context = {}
-    return render(request, "registration/login.html", context)
+# def login(request, user):
+#     context = {}
+#     return render(request, "registration/login.html", context)
 
 
 def sign_up(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = create_user(request, form)
             login(request, user)
-            messages.success(request, "User created successfully." )
-            return redirect('/')
+            messages.success(request, "User created successfully.")
+            return redirect("/")
     else:
         form = SignUpForm()
-    return render(request, 'registration/signup.html', {'form': form})
+    return render(request, "registration/signup.html", {"form": form})
 
 
-def create_user(request,form):
-    if request.method == 'POST':
+def create_user(request, form):
+    if request.method == "POST":
         user = form.save(commit=False)
-        user.username = form.cleaned_data['username']
-        user.email = form.cleaned_data['email']
-        user.date_of_birth = form.cleaned_data['date_of_birth']
-        user.set_password(form.cleaned_data['password1'])
+        user.username = form.cleaned_data["username"]
+        user.email = form.cleaned_data["email"]
+        user.date_of_birth = form.cleaned_data["date_of_birth"]
+        user.set_password(form.cleaned_data["password1"])
         user.save()
-        return HttpResponseRedirect('create_profile')
+        return HttpResponseRedirect("create_profile")
     else:
         form = SignUpForm()
-        return render(request, 'registration/signup.html', {'form': form})
+        return render(request, "registration/signup.html", {"form": form})

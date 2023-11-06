@@ -6,7 +6,9 @@ from .models import ActivityPost
 
 from socialuser.models import SocialUser
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+
+# from django.contrib.auth.mixins import LoginRequiredMixin
+
 
 class PostDetailsView(generic.DetailView):
     model = ActivityPost
@@ -29,15 +31,19 @@ class EditPostView(generic.UpdateView):
 
 @login_required
 def create_post(request):
-    user=request.user
-    social_user=SocialUser.objects.get(user=user.id)
+    user = request.user
+    social_user = SocialUser.objects.get(user=user.id)
     title = request.POST.get("title")
     description = request.POST.get("description")
     action = request.POST.get("action")
     if action == "draft":  # Draft = 1
-        _ = ActivityPost.objects.create(social_user=social_user,title=title, description=description, status=1)
+        _ = ActivityPost.objects.create(
+            social_user=social_user, title=title, description=description, status=1
+        )
     elif action == "post":  # Posted = 2
-        _ = ActivityPost.objects.create(social_user=social_user,title=title, description=description, status=2)
+        _ = ActivityPost.objects.create(
+            social_user=social_user, title=title, description=description, status=2
+        )
     # Handle the newly created post as needed
     return HttpResponseRedirect(reverse("main:home"))
 
