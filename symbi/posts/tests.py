@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.utils import timezone
 from .models import ActivityPost
-from socialuser.models import SocialUser
+from main.models import SocialUser
 import datetime
 from django.urls import reverse
 
@@ -30,12 +30,12 @@ class TestEditPost(TestCase):
     def setUp(self):
         # Create a test user
         self.user = SocialUser.objects.create(
-            user_id="test_user_id", name="Test User", pronouns="she/her"
+            first_name="Test User", pronouns="she/her"
         )
 
         # Create a test post associated with the current user
         self.post = ActivityPost.objects.create(
-            title="Test Title1", description="Test Description1", social_user=self.user
+            title="Test Title1", description="Test Description1", poster=self.user
         )
 
     def test_edit_post_saves(self):
