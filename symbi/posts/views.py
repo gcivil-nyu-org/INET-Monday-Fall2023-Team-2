@@ -4,6 +4,9 @@ from django.views import generic
 
 from .models import ActivityPost
 
+from socialuser.models import SocialUser
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 class PostDetailsView(generic.DetailView):
     model = ActivityPost
@@ -24,23 +27,28 @@ class EditPostView(generic.UpdateView):
     fields = ["title", "description"]
 
 
+@login_required
 def create_post(request):
+    user=request.user
+    social_user=SocialUser.objects.get(user=user.id)
     title = request.POST.get("title")
     description = request.POST.get("description")
     action = request.POST.get("action")
     if action == "draft":  # Draft = 1
-        _ = ActivityPost.objects.create(title=title, description=description, status=1)
+        _ = ActivityPost.objects.create(social_user=social_user,title=title, description=description, status=1)
     elif action == "post":  # Posted = 2
-        _ = ActivityPost.objects.create(title=title, description=description, status=2)
+        _ = ActivityPost.objects.create(social_user=social_user,title=title, description=description, status=2)
     # Handle the newly created post as needed
     return HttpResponseRedirect(reverse("main:home"))
 
 
+@login_required
 def delete_post(request, post_id):
     ActivityPost.objects.filter(pk=post_id).delete()
     return HttpResponseRedirect(reverse("main:home"))
 
 
+@login_required
 def archive_post(request, post_id):
     currentPost = ActivityPost.objects.filter(pk=post_id)[0]
     currentPost.status = 3  # Archived = 3
@@ -48,6 +56,7 @@ def archive_post(request, post_id):
     return HttpResponseRedirect(reverse("main:home"))
 
 
+@login_required
 def edit_post(request, post_id):
     title = request.POST.get("title")
     description = request.POST.get("description")

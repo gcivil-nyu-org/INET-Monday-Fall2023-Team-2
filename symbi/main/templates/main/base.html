@@ -10,13 +10,19 @@
     <nav>
         <a href="/">Home</a>
         {% if user.is_authenticated %}
-            <a href="{% url 'posts:create_post_view' %}">New Post</a>
-            <a href="{% url 'socialuser:create_profile' %}">Create a Profile</a>
-            <a href="/posts/">My Posts</a>
-            <a href="/friends/">My Friends</a>
+            <!-- Check if user has a proifle, then show Create Profile button -->
+            {% if user.socialuser %}
+                <a href="{% url 'socialuser:profile_view' pk=user.socialuser.pk %}">Go To Profile</a>
+            {% else %}
+            <!-- If user doesn't have a profile, then show Create Profile button -->
+                <a href="{% url 'socialuser:create_profile' %}">Create Profile</a>
+            {% endif %}
+            <a href="{% url 'posts:create_post_view' %}">Create New Post</a>
+            <a href="/friends/">Friends</a>
             <a href="/logout/">Logout</a>
+            <!-- <p>Logged in as {{user.username}}</p> -->
         {% else %}
-            <a href="/login/">Login</a>
+            <a href="{% url 'login' %}">Login</a>
             <a href="/signup/">Sign Up</a>
         {% endif %}
     </nav>

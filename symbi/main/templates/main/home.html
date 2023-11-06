@@ -1,27 +1,16 @@
-{% extends 'main/base.html' %} {% block title %}Home Page{% endblock %} 
-{% if user.is_authenticated %}
-<p>Logged in as {{user.username}}</p>
-<a href="/logout">Logout</a>
-<a href="{% url 'posts:create_post_view' %}">New Post</a>
-<a href="{% url 'socialuser:create_profile' %}">Create a Profile</a>
-{% else %}
-<div class="login-signup-buttons">
-    <a href="/login">Login</a>
-    <a href="/signup">Sign Up</a>
-</div>
-{% endif %}
-{% if latest_posts_list %}
-    <ul>
-        {% for post in latest_posts_list %}
-            {% if post.status == 2 %}
-                <li>
-                    <a href="{% url 'posts:post_details_view' post.pk %}">{{ post.title }}</a>
-                </li>
-            {% endif %}
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No posts are available.</p>
-{% endif %}
-<a href="{% url 'posts:create_post_view' %}">New Post</a>
-<a href="{% url 'socialuser:create_profile' %}">Create a Profile</a>
+{% extends 'main/base.html' %} {% block title %}Home Page{% endblock %}
+{% block content %}
+    {% if latest_posts_list %}
+        <ul>
+            {% for post in latest_posts_list %}
+                {% if post.status == 2 %}
+                    <li>
+                        <a href="{% url 'posts:post_details_view' post.pk %}">{{ post.title }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No posts are available.</p>
+    {% endif %}
+{% endblock %}
