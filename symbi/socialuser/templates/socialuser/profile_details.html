@@ -1,3 +1,5 @@
+{% extends 'main/base.html' %} {% block title %}Home Page{% endblock %}
+{% block content %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'socialuser/profile_details.css' %}">
 <script src="{% static 'socialuser/profile_details.js' %}"></script>
@@ -31,7 +33,7 @@
                 {% for post in profile.activitypost_set.all %}
                     {% if post.status == 2 %}
                         <div class="post">
-                            <h2 class="post-title">{{ post.title }}</h2>
+                            <h2 class="post-title"><a href="{% url 'posts:post_details_view' post.pk %}" style=“text-decoration:none;color:white;”>{{ post.title }}</a></h2>
                             <p class="post-date">Published On: {{ post.timestamp }}</p>
                             <p class="post-content">{{ post.description }}</p>
                         </div>
@@ -50,10 +52,9 @@
                     {% for post in profile.activitypost_set.all %}
                         {% if post.status == 1 %}
                             <div class="post">
-                                <h2 class="post-title">{{ post.title }}</h2>
+                                <h2 class="post-title"><a href="{% url 'posts:post_details_view' post.pk %}" style=“text-decoration:none;color:white;”>{{ post.title }}</a></h2>
                                 <p class="post-date">Published On: {{ post.timestamp }}</p>
                                 <p class="post-content">{{ post.description }}</p>
-                                {% comment %}<a href="{% url 'posts:edit_post_view' post.id %}">Edit Post</a>{% endcomment %}  
                             </div>
                         {% endif %}
                     {% endfor %}
@@ -64,3 +65,4 @@
         </div>
     </div>
 </div>
+{% endblock content %}

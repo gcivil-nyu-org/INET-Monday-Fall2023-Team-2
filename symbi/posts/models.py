@@ -14,7 +14,7 @@ class ActivityTag(models.Model):
 
 class ActivityPost(models.Model):
     # TODO: Remove the default and use django user object once auth is implemented
-    social_user = models.ForeignKey(SocialUser, on_delete=models.CASCADE, default=1)
+    social_user = models.ForeignKey(SocialUser, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=100)
     description = models.TextField()

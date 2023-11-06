@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} My Website {% endblock %}</title>
+    <style>nav a {margin: 10px;}</style>
+</head>
+<body>
+    <nav>
+        <a href="/">Home</a>
+        {% if user.is_authenticated %}
+            <!-- Check if user has a proifle, then show Create Profile button -->
+            {% if user.socialuser %}
+                <a href="{% url 'socialuser:profile_view' pk=user.socialuser.pk %}">Go To Profile</a>
+            {% else %}
+            <!-- If user doesn't have a profile, then show Create Profile button -->
+                <a href="{% url 'socialuser:create_profile' %}">Create Profile</a>
+            {% endif %}
+            <a href="{% url 'posts:create_post_view' %}">Create New Post</a>
+            <a href="/friends/">Friends</a>
+            <a href="/logout/">Logout</a>
+            <!-- <p>Logged in as {{user.username}}</p> -->
+        {% else %}
+            <a href="{% url 'login' %}">Login</a>
+            <a href="/signup/">Sign Up</a>
+        {% endif %}
+    </nav>
+    <main>
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+</body>
+</html>
