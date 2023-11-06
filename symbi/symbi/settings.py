@@ -38,7 +38,6 @@ SECRET_KEY = "z-tlcwj6wfoumvao%8j+r9%8khnndq*mlf9^v)l10=0gxs74y6"
 INSTALLED_APPS = [
     "main.apps.MainConfig",
     "posts.apps.PostsConfig",
-    "socialuser.apps.SocialuserConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -134,3 +133,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # login / logout redirects
 LOGIN_REDIRECT_URL = "main:home"
 LOGOUT_REDIRECT_URL = "/login"
+
+# custom user model
+AUTH_USER_MODEL = "main.socialuser"
