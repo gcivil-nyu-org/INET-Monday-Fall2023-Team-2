@@ -1,11 +1,11 @@
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-
-# from django.views import generic
+from django.views import generic
 from django.shortcuts import render
 from django.contrib.auth import login
 
 from posts.models import ActivityPost
+from .models import SocialUser
 from .forms import SignUpForm
 
 
@@ -29,3 +29,9 @@ def sign_up(request):
     else:
         form = SignUpForm()
     return render(request, template_name, {"form": form})
+
+
+class ProfileDetailsView(generic.DetailView):
+    model = SocialUser
+    template_name = "main/profile_details.html"
+    context_object_name = "profile"
