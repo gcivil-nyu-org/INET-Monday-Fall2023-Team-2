@@ -1,6 +1,6 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
-from django.contrib.auth import login
+
 from posts.models import ActivityPost
 from .forms import SignUpForm
 from django.contrib import messages
@@ -16,9 +16,9 @@ def home(request):
     return render(request, template_name, context)
 
 
-# def login(request, user):
-#     context = {}
-#     return render(request, "registration/login.html", context)
+def login(request, user):
+    context = {}
+    return render(request, "registration/login.html", context)
 
 
 def sign_up(request):

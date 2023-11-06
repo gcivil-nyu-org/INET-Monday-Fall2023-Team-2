@@ -1,5 +1,13 @@
 {% extends 'main/base.html' %} {% block title %}Home Page{% endblock %}
 {% block content %}
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    
     {% if latest_posts_list %}
         <ul>
             {% for post in latest_posts_list %}
