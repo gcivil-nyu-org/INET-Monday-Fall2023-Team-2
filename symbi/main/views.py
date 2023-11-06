@@ -1,6 +1,5 @@
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-
 from django.views import generic
 from django.shortcuts import render
 from django.contrib.auth import login
@@ -30,7 +29,7 @@ def sign_up(request):
     else:
         form = SignUpForm()
     return render(request, template_name, {"form": form})
-
+    
 
 class ProfileDetailsView(generic.DetailView):
     model = SocialUser

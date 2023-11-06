@@ -33,3 +33,13 @@ class SignUpForm(UserCreationForm):
                 "This username is already taken. Please choose a different one."
             )
         return username
+
+from django.contrib.auth.models import User
+
+
+class SignUpForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+
+    class Meta:
+        model = User
+        fields = ["username", "email", "password1", "password2"]

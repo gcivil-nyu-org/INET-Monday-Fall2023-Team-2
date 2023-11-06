@@ -1,6 +1,9 @@
 # Symbi
-[![Build](https://app.travis-ci.com/gcivil-nyu-org/INET-Monday-Fall2023-Team-2.svg?branch=develop)](https://app.travis-ci.com/github/gcivil-nyu-org/INET-Monday-Fall2023-Team-2)
-[![Coverage Status](https://coveralls.io/repos/github/gcivil-nyu-org/INET-Monday-Fall2023-Team-2/badge.svg?branch=develop)](https://coveralls.io/github/gcivil-nyu-org/INET-Monday-Fall2023-Team-2?branch=develop)
+
+| Service | Master | Develop |
+|---------|--------|---------|
+| Build Status |[![Build](https://app.travis-ci.com/gcivil-nyu-org/INET-Monday-Fall2023-Team-2.svg?branch=master)](https://app.travis-ci.com/github/gcivil-nyu-org/INET-Monday-Fall2023-Team-2) |[![Build](https://app.travis-ci.com/gcivil-nyu-org/INET-Monday-Fall2023-Team-2.svg?branch=develop)](https://app.travis-ci.com/github/gcivil-nyu-org/INET-Monday-Fall2023-Team-2) |
+| Code Coverage |[![Coverage Status](https://coveralls.io/repos/github/gcivil-nyu-org/INET-Monday-Fall2023-Team-2/badge.svg?branch=master&kill_cache=1)](https://coveralls.io/github/gcivil-nyu-org/INET-Monday-Fall2023-Team-2?branch=master) |[![Coverage Status](https://coveralls.io/repos/github/gcivil-nyu-org/INET-Monday-Fall2023-Team-2/badge.svg?branch=develop&kill_cache=1)](https://coveralls.io/github/gcivil-nyu-org/INET-Monday-Fall2023-Team-2?branch=develop) |
 
 ## Want to work on the project? Follow these steps!
 
