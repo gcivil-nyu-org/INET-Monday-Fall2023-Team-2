@@ -2,7 +2,7 @@ from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.urls import reverse
 
-from socialuser.models import SocialUser
+from main.models import SocialUser
 
 
 class ActivityTag(models.Model):
@@ -13,8 +13,7 @@ class ActivityTag(models.Model):
 
 
 class ActivityPost(models.Model):
-    # TODO: Remove the default and use django user object once auth is implemented
-    social_user = models.ForeignKey(SocialUser, on_delete=models.CASCADE, default=1)
+    poster = models.ForeignKey(SocialUser, on_delete=models.CASCADE, default=1)
     timestamp = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=100)
     description = models.TextField()
@@ -38,8 +37,7 @@ class Comment(models.Model):
     post = models.ForeignKey(
         ActivityPost, on_delete=models.CASCADE, related_name="comments"
     )
-    # poster = models.ForeignKey(User, on_delete=models.CASCADE)
-    poster_id = models.CharField(max_length=20)
+    poster = models.ForeignKey(SocialUser, on_delete=models.CASCADE, default=1)
     text = models.TextField()
     timestamp = models.DateTimeField("date commented")
 
