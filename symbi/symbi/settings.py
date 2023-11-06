@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "symbi-prod-env.eba-imnmcswt.us-east-1.elasticbeanstalk.com",
+    "symbi-env.eba-imnmcswt.us-east-1.elasticbeanstalk.com",
     "127.0.0.1",
     "localhost",
 ]
@@ -36,8 +36,8 @@ SECRET_KEY = "z-tlcwj6wfoumvao%8j+r9%8khnndq*mlf9^v)l10=0gxs74y6"
 # Application definition
 
 INSTALLED_APPS = [
+    "main.apps.MainConfig",
     "posts.apps.PostsConfig",
-    "socialuser.apps.SocialuserConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -129,3 +129,10 @@ STATIC_ROOT = BASE_DIR / "static"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# login / logout redirects
+LOGIN_REDIRECT_URL = "main:home"
+LOGOUT_REDIRECT_URL = "/login"
+
+# custom user model
+AUTH_USER_MODEL = "main.socialuser"
