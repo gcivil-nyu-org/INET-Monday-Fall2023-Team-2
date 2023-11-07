@@ -35,3 +35,7 @@ class ProfileDetailsView(generic.DetailView):
     model = SocialUser
     template_name = "main/profile_details.html"
     context_object_name = "profile"
+
+
+class ProfileCreationView(generic.CreateView):
+    model = SocialUser
