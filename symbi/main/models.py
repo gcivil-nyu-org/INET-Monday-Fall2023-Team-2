@@ -6,6 +6,10 @@ from django.db import models
 class InterestTag(models.Model):
     name = models.CharField(max_length=50, unique=True)
 
+    class Meta:
+        db_table = "interest_tags"
+        verbose_name_plural = "Interest Tags"
+
     def __str__(self) -> str:
         return self.name
 

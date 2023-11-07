@@ -1,25 +1,28 @@
 from django.db import models
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 
 from main.models import SocialUser, InterestTag
 
 
 class ActivityPost(models.Model):
-    poster = models.ForeignKey(SocialUser, on_delete=models.CASCADE, default=1)
+    class Status(models.IntegerChoices):
+        DRAFT = 1, _("Draft")
+        ACTIVE = 2, _("Active")
+        ARCHIVED = 3, _("Archived")
+
+    class Meta:
+        db_table = "activity_posts"
+        verbose_name_plural = "Activity Posts"
+
+    poster = models.ForeignKey(SocialUser, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
-    title = models.CharField(max_length=100)
-    description = models.TextField()
-    # Status values:
-    # 1: Draft
-    # 2: Posted
-    # 3: Archived
-    status = models.PositiveBigIntegerField(
-        default=1, validators=[MinValueValidator(1), MaxValueValidator(3)]
-    )
+    title = models.CharField(max_length=255)
+    description = models.TextField(max_length=1023)
+    status = models.IntegerField(default=Status.DRAFT, choices=Status.choices)
     tags = models.ManyToManyField(InterestTag)
 
-    def __str__(self) -> str:
+    def __str__(self):
         return self.title
 
     def get_absolute_url(self):
