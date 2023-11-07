@@ -2,14 +2,7 @@ from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.urls import reverse
 
-from main.models import SocialUser
-
-
-class ActivityTag(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-
-    def __str__(self) -> str:
-        return self.name
+from main.models import SocialUser, InterestTag
 
 
 class ActivityPost(models.Model):
@@ -24,7 +17,7 @@ class ActivityPost(models.Model):
     status = models.PositiveBigIntegerField(
         default=1, validators=[MinValueValidator(1), MaxValueValidator(3)]
     )
-    tags = models.ManyToManyField(ActivityTag, related_name="tags")
+    tags = models.ManyToManyField(InterestTag)
 
     def __str__(self) -> str:
         return self.title
