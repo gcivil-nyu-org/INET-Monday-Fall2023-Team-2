@@ -37,5 +37,5 @@ class Comment(models.Model):
     text = models.TextField()
     timestamp = models.DateTimeField("date commented")
 
-    def __str__(self) -> str:
+    def __str__(self):
         return self.text

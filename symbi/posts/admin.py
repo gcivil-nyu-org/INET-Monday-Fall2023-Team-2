@@ -9,4 +9,4 @@ class ActivityPostAdmin(admin.ModelAdmin):
     search_fields = ["poster", "title", "description", "status"]
 
     def display_tags(self, obj):
-        return ', '.join(tag.name for tag in obj.tags.all())
+        return ", ".join(tag.name for tag in obj.tags.all())

@@ -10,7 +10,7 @@ class InterestTag(models.Model):
         db_table = "interest_tags"
         verbose_name_plural = "Interest Tags"
 
-    def __str__(self) -> str:
+    def __str__(self):
         return self.name
 
 
