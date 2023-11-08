@@ -8,7 +8,6 @@ urlpatterns = [
     path("home/", views.home, name="home"),
     path("signup/", views.sign_up, name="signup"),
     path("profile/<int:pk>/", views.ProfileDetailsView.as_view(), name="profile"),
-
     # Search and Discovery
-    path("discover/", views.DiscoverPageView.as_view(), name="discover")
+    path("discover/", views.DiscoverPageView.as_view(), name="discover"),
 ]
