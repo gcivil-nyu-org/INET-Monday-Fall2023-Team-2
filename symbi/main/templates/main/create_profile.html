@@ -1,0 +1,21 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'main/create_profile.css' %}">
+{% block content %}
+    <div class="form-container">
+        <h2 class="header">Create Your Profile</h2>
+        <form class="form-control">
+            <div class="input-container">
+                {{ form.first_name }}
+                {{ form.last_name }}
+            </div>
+            <div class="input-container">{{ form.email }}</div>
+            <div class="input-container">
+                {{ form.date_of_birth }}
+                {{ form.pronouns }}
+            </div>
+            <div class="input-container">{{ form.major }}</div>
+            <div class="input-container">{{ form.tags }}</div>
+            <button type="submit">Create Profile</button>
+        </form>
+    </div>
+{% endblock content %}

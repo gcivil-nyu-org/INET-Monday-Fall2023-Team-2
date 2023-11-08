@@ -6,7 +6,7 @@ from django.contrib.auth import login
 
 from posts.models import ActivityPost
 from .models import SocialUser
-from .forms import SignUpForm
+from .forms import SignUpForm, ProfileCreationForm
 
 
 def home(request):
@@ -39,3 +39,5 @@ class ProfileDetailsView(generic.DetailView):
 
 class ProfileCreationView(generic.CreateView):
     model = SocialUser
+    template_name = "main/create_profile.html"
+    form_class = ProfileCreationForm
