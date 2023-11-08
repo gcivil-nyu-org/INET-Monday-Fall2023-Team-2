@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.contrib.auth import login
 
 from posts.models import ActivityPost
-from .models import SocialUser, InterestTag
+from .models import SocialUser
 from .forms import SignUpForm
 
 
