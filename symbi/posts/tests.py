@@ -29,7 +29,9 @@ class TestHomePage(TestCase):
 class TestEditPost(TestCase):
     def setUp(self):
         # Create a test user
-        self.user = SocialUser.objects.create(first_name="Test User", pronouns=1)
+        self.user = SocialUser.objects.create(
+            first_name="Test User", pronouns=SocialUser.Pronouns.SHE
+        )
 
         # Create a test post associated with the current user
         self.post = ActivityPost.objects.create(
