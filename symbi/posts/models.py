@@ -6,7 +6,7 @@ from main.models import SocialUser, InterestTag
 
 
 class ActivityPost(models.Model):
-    class Status(models.IntegerChoices):
+    class PostStatus(models.IntegerChoices):
         DRAFT = 1, _("Draft")
         ACTIVE = 2, _("Active")
         ARCHIVED = 3, _("Archived")
@@ -19,7 +19,7 @@ class ActivityPost(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=255)
     description = models.TextField(max_length=1023)
-    status = models.IntegerField(default=Status.DRAFT, choices=Status.choices)
+    status = models.IntegerField(default=PostStatus.DRAFT, choices=PostStatus.choices)
     tags = models.ManyToManyField(InterestTag)
 
     def __str__(self):
