@@ -39,15 +39,17 @@ class Connection(models.Model):
         REQUESTED_B_TO_A = 3, _("Requested B -> A")
         CONNECTED = 4, _("Connected")
         BLOCKED = 5, _("Blocked")
-            
+
     socialuser = models.ForeignKey(
         SocialUser, on_delete=models.CASCADE, related_name="connections"
     )
     userB = models.ForeignKey(
         SocialUser, on_delete=models.CASCADE, related_name="userB"
-    ) # who this connection is with
+    )  # who this connection is with
     timestamp = models.DateTimeField("date connected")
-    status = models.IntegerField(default=ConnectionStatus.NOT_CONNECTED, choices=ConnectionStatus.choices)
+    status = models.IntegerField(
+        default=ConnectionStatus.NOT_CONNECTED, choices=ConnectionStatus.choices
+    )
 
     def __str__(self) -> str:
         return self.text
