@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.contrib.auth import login
 
 from posts.models import ActivityPost
-from .models import SocialUser
+from .models import SocialUser, InterestTag
 from .forms import SignUpForm
 
 
@@ -35,3 +35,8 @@ class ProfileDetailsView(generic.DetailView):
     model = SocialUser
     template_name = "main/profile_details.html"
     context_object_name = "profile"
+
+
+class DiscoverPageView(generic.ListView):
+    model = [ActivityPost, InterestTag]
+    template_name = "main/discover.html"
