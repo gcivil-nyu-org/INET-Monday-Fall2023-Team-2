@@ -1,4 +1,5 @@
 <h1>{{ post.title }}</h1>
+<p><a href="/profile/{{ posts.poster.pk }}">{{ post.poster.username }}</a></p>
 {{ post.description }}
 <form action="{% url 'posts:archive_post_request' post.id %}" method="archive">
     {% csrf_token %}
