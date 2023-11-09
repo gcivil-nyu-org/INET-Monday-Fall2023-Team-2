@@ -2,7 +2,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views import generic
 
-from .models import ActivityPost
+from .models import ActivityPost, Comment
 
 
 class PostDetailsView(generic.DetailView):
@@ -58,3 +58,10 @@ def edit_post(request, post_id):
         post.description = description
         post.save()
     return HttpResponseRedirect(reverse("main:home"))
+
+def add_comment(request, post_id):
+    if request.method == "postComment":
+        text = request.POST.get('comment', None)
+        if text:
+            post = ActivityPost.objects.get(pk=post_id)
+            Comment.objects.create(commentPoster=request.user)
