@@ -8,4 +8,19 @@ urlpatterns = [
     path("home/", views.home, name="home"),
     path("signup/", views.sign_up, name="signup"),
     path("profile/<int:pk>/", views.ProfileDetailsView.as_view(), name="profile"),
+    path(
+        "profile/<int:pk>/request_connection/",
+        views.request_connection,
+        name="request_connection",
+    ),
+    path(
+        "profile/<int:pk>/accept_connection/",
+        views.accept_connection,
+        name="accept_connection",
+    ),
+    path(
+        "profile/<int:pk>/remove_connection/",
+        views.remove_connection,
+        name="remove_connection",
+    ),
 ]

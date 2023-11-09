@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 
 
 class InterestTag(models.Model):
@@ -30,26 +31,29 @@ class SocialUser(AbstractUser):
     major = models.CharField(max_length=100, default="undeclared")
     pronouns = models.IntegerField(default=Pronouns.OTHER, choices=Pronouns.choices)
     tags = models.ManyToManyField(InterestTag, related_name="tags")
+    connections = models.ManyToManyField("SocialUser")
 
 
 class Connection(models.Model):
     class ConnectionStatus(models.IntegerChoices):
         NOT_CONNECTED = 1, _("Not Connected")
         REQUESTED_A_TO_B = 2, _("Requested A -> B")
-        REQUESTED_B_TO_A = 3, _("Requested B -> A")
-        CONNECTED = 4, _("Connected")
-        BLOCKED = 5, _("Blocked")
+        CONNECTED = 3, _("Connected")
+        BLOCKED = 4, _("Blocked")
 
-    socialuser = models.ForeignKey(
-        SocialUser, on_delete=models.CASCADE, related_name="connections"
+    userA = models.ForeignKey(
+        SocialUser, on_delete=models.CASCADE, related_name="userA"
     )
     userB = models.ForeignKey(
         SocialUser, on_delete=models.CASCADE, related_name="userB"
-    )  # who this connection is with
-    timestamp = models.DateTimeField("date connected")
+    )
+    timestamp = models.DateTimeField("timestamp", default=timezone.now)
     status = models.IntegerField(
         default=ConnectionStatus.NOT_CONNECTED, choices=ConnectionStatus.choices
     )
+
+    class Meta:
+        unique_together = ["userA", "userB"]
 
     def __str__(self) -> str:
         return self.text
