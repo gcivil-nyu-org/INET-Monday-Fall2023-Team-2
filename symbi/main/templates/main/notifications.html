@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Notifications</title>
+</head>
+<body>
+    <h1>Notifications</h1>
+    <ul>
+        {% for notification in notifications %}
+            <li>
+                <strong>{{ notification.timestamp }}</strong><br>
+                {{ notification.content }}
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

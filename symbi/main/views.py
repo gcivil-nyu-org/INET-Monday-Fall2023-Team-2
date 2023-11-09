@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 
 from posts.models import ActivityPost
-from .models import SocialUser, Connection
+from .models import SocialUser, Connection, Notification
 from .forms import SignUpForm
 
 
@@ -49,27 +49,32 @@ class ProfileDetailsView(generic.DetailView):
                 connection_1 = Connection.objects.get(
                     userA=self.request.user, userB=viewed_user
                 )
-                connection_2 = Connection.objects.get(
-                    userA=viewed_user, userB=self.request.user
-                )
-                if (
-                    connection_1.status == Connection.ConnectionStatus.CONNECTED
-                    or connection_2.status == Connection.ConnectionStatus.CONNECTED
-                ):
-                    connection_status = Connection.ConnectionStatus.CONNECTED
-                elif (
-                    connection_1.status == Connection.ConnectionStatus.REQUESTED_A_TO_B
-                    or connection_2.status
-                    == Connection.ConnectionStatus.REQUESTED_A_TO_B
-                ):
-                    connection_status = Connection.ConnectionStatus.REQUESTED_A_TO_B
             except Connection.DoesNotExist:
-                connection_status = Connection.ConnectionStatus.NOT_CONNECTED
+                try:
+                    connection_2 = Connection.objects.get(
+                        userA=viewed_user, userB=self.request.user
+                    )
+                except Connection.DoesNotExist:
+                    print("Debug: CONNECTION DOES NOT EXIST")
+                    connection_status = Connection.ConnectionStatus.NOT_CONNECTED
+                else:
+                    if connection_2:
+                        connection_status = connection_2.status
+            else:
+                if connection_1:
+                    connection_status = connection_1.status
 
         context["connection_status"] = connection_status
         context["connection_status_choices"] = Connection.ConnectionStatus
         context["viewing_self"] = viewing_self
         return context
+
+
+@login_required
+def notifications(request, pk):
+    template_name = "main/notifications.html"
+    user_notifications = Notification.objects.filter(user=request.user)
+    return render(request, template_name, {"notifications": user_notifications})
 
 
 @login_required
@@ -81,6 +86,16 @@ def request_connection(request, pk):
         status=Connection.ConnectionStatus.REQUESTED_A_TO_B,
     )
     connection.save()
+
+    # Create a new Notification object for userB
+    notification_content = f"{request.user.username} wants to connect"
+    notification = Notification(
+        user=connection.userB,
+        content=notification_content,
+        type=Notification.NotificationType.CONNECTION_REQUEST,
+    )
+    notification.save()
+
     return HttpResponseRedirect(reverse("main:profile", args=[pk]))
 
 

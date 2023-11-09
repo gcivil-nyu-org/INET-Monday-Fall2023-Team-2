@@ -17,6 +17,7 @@
         </div>
         {% if viewing_self %}
             <p>This is your own profile.</p>
+            <a href="{% url 'main:notifications' profile.pk %}"><button>Notifications</button></a>
         {% else %}
             {% if connection_status == connection_status_choices.CONNECTED %}
                 <a href="{% url 'main:remove_connection' profile.pk %}"><button>Remove Connection</button></a>
@@ -24,6 +25,7 @@
                 <p>Pending connection</p>
             {% elif connection_status == connection_status_choices.NOT_CONNECTED %}
                 <a href="{% url 'main:request_connection' profile.pk %}"><button>Connect</button></a>
+                <p>Connection status: {{ connection_status }}</p>
             {% endif %}
         {% endif %}
         <!-- Tab Links -->

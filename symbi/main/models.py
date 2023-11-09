@@ -31,7 +31,7 @@ class SocialUser(AbstractUser):
     major = models.CharField(max_length=100, default="undeclared")
     pronouns = models.IntegerField(default=Pronouns.OTHER, choices=Pronouns.choices)
     tags = models.ManyToManyField(InterestTag, related_name="tags")
-    connections = models.ManyToManyField("SocialUser")
+    timestamp = models.DateTimeField("timestamp", default=timezone.now)
 
 
 class Connection(models.Model):
@@ -57,3 +57,15 @@ class Connection(models.Model):
 
     def __str__(self) -> str:
         return self.text
+
+
+class Notification(models.Model):
+    class NotificationType(models.TextChoices):
+        CONNECTION_REQUEST = 1, _("Connection Request")
+        NEW_COMMENT = 2, _("New Comment")
+
+    user = models.ForeignKey(SocialUser, on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField("timestamp", default=timezone.now)
+    is_read = models.BooleanField(default=False)
+    type = models.IntegerField(choices=NotificationType.choices)
