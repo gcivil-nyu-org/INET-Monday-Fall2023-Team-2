@@ -23,12 +23,13 @@ class SocialUser(AbstractUser):
     )
 
     username = models.CharField(max_length=30, unique=True)
-    date_of_birth = models.DateField(default="2000-01-01")
-    age = models.IntegerField(
-        default=18, validators=[MinValueValidator(18), MaxValueValidator(150)]
-    )
+    full_name = models.CharField(max_length=50, null=True)
+    date_of_birth = models.DateField(null=True)
     major = models.CharField(max_length=100, default="undeclared")
     pronouns = models.CharField(
         max_length=9, choices=PRONOUN_CHOICES, default="she/her"
     )
     tags = models.ManyToManyField(InterestTag, related_name="tags")
+    age = models.IntegerField(
+        default=18, validators=[MinValueValidator(18), MaxValueValidator(150)]
+    )

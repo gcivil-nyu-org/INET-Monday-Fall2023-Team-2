@@ -1,0 +1,13 @@
+{% extends 'main/base.html' %}
+{% block title %}Delete Account{% endblock %}
+{% block content %}
+  <p>Are you sure you want to delete your account?</p>
+
+  <div class="action-buttons">
+    <form action="{% url 'main:delete_account_request' %}" method="POST">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-delete">Delete Account</button>
+      <button type="button" class="btn btn-cancel" onclick="location.href='{% url 'main:home' %}'">Cancel</button>
+    </form>
+  </div>
+{% endblock %}

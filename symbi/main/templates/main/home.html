@@ -1,9 +1,11 @@
-{% if user.is_authenticated %}
+{% extends 'main/base.html' %} {% block title %}Home Page{% endblock %}
+{% comment %} {% if user.is_authenticated %}
 <p>Logged in as <a href="{% url 'main:profile' user.pk %}">{{user.username}}</a></p>
 <a href="/logout">Logout</a>
 {% else %}
 <a href="/login">Login</a>
-{% endif %}
+{% endif %} {% endcomment %}
+{% block content %}
 {% if latest_posts_list %}
     <ul>
         {% for post in latest_posts_list %}
@@ -17,4 +19,5 @@
 {% else %}
     <p>No posts are available.</p>
 {% endif %}
-<a href="{% url 'posts:create_post_view' %}">New Post</a>
+{% endblock content %}
+{% comment %} <a href="{% url 'posts:create_post_view' %}">New Post</a> {% endcomment %}

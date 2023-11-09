@@ -1,14 +1,16 @@
 <h1>{{ post.title }}</h1>
-{{ post.description }}
-<form action="{% url 'posts:archive_post_request' post.id %}" method="archive">
-    {% csrf_token %}
-    <button type="submit" name="action" value="archive">Archive</button>
-</form>
-<form action="{% url 'posts:delete_post_request' post.id %}" method="delete">
-    {% csrf_token %}
-    <button type="submit" name="action" value="delete">Delete</button>
-</form>
-<form action="{% url 'posts:edit_post_view' post.id %}" method="edit">
-    {% csrf_token %}
-    <button type="submit" name="action" value="edit">Edit</button>
-</form>
+    {{ post.description }}
+    {% if post.poster == request.user %}
+    <form action="{% url 'posts:archive_post_request' post.id %}" method="archive">
+        {% csrf_token %}
+        <button type="submit" name="action" value="archive">Archive</button>
+    </form>
+    <form action="{% url 'posts:delete_post_request' post.id %}" method="delete">
+        {% csrf_token %}
+        <button type="submit" name="action" value="delete">Delete</button>
+    </form>
+    <form action="{% url 'posts:edit_post_view' post.id %}" method="edit">
+        {% csrf_token %}
+        <button type="submit" name="action" value="edit">Edit</button>
+    </form>
+{% endif %}
