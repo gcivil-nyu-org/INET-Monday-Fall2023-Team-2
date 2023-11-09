@@ -136,3 +136,5 @@ LOGOUT_REDIRECT_URL = "/login"
 
 # custom user model
 AUTH_USER_MODEL = "main.socialuser"
+
+ALLOW_DELETED_USERS = True
