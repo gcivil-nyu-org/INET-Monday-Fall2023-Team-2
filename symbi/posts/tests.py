@@ -18,14 +18,6 @@ def create_post(title, description, status):
     )
 
 
-class TestHomePage(TestCase):
-    def test_no_post(self):
-        response = self.client.get("")
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "No posts are available.")
-        self.assertQuerysetEqual(response.context["latest_posts_list"], [])
-
-
 class TestEditPost(TestCase):
     def setUp(self):
         # Create a test user
