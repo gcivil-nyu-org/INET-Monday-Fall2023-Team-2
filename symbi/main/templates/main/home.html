@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% block title %}Home Page{% endblock %}
+{% extends 'main/base.html' %} {% block title %}Home Page{% endblock %}
 {% comment %} {% if user.is_authenticated %}
 <p>Logged in as <a href="{% url 'main:profile' user.pk %}">{{user.username}}</a></p>
 <a href="/logout">Logout</a>
