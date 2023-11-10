@@ -134,3 +134,7 @@ def remove_connection(request, pk):
     elif connection_2:
         connection_2.delete()
     return HttpResponseRedirect(reverse("main:profile", args=[pk]))
+    
+
+class DiscoverPageView(generic.TemplateView):
+    template_name = "main/discover.html"

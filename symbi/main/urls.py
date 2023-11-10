@@ -9,6 +9,7 @@ urlpatterns = [
     path("signup/", views.sign_up, name="signup"),
     path("profile/<int:pk>/", views.ProfileDetailsView.as_view(), name="profile"),
     path("profile/<int:pk>/notifications/", views.notifications, name="notifications"),
+    # Connections
     path(
         "profile/<int:pk>/connections/",
         views.ProfileDetailsView.as_view(),
@@ -29,4 +30,6 @@ urlpatterns = [
         views.remove_connection,
         name="remove_connection",
     ),
+    # Search and Discovery
+    path("discover/", views.DiscoverPageView.as_view(), name="discover"),
 ]
