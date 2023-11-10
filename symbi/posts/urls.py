@@ -17,4 +17,6 @@ urlpatterns = [
     ),
     path("<int:pk>/edit/", views.EditPostView.as_view(), name="edit_post_view"),
     path("<int:post_id>/edit_request/", views.edit_post, name="edit_post_request"),
+    path("<int:post_id>/add_comment/", views.add_comment, name="add_comment"),
+
 ]

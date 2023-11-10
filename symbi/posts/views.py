@@ -64,4 +64,5 @@ def add_comment(request, post_id):
         text = request.POST.get('comment', None)
         if text:
             post = ActivityPost.objects.get(pk=post_id)
-            Comment.objects.create(commentPoster=request.user)
+            comments = Comment.objects.create(commentPoster=request.user, post=post, text=text)
+    return HttpResponseRedirect(reverse('posts:post_details_view', args=[post_id]))
