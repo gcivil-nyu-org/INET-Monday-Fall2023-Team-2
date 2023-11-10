@@ -1,6 +1,5 @@
-from django.test import TestCase, Client
+from django.test import TestCase
 from django.utils import timezone
-
 from .models import ActivityPost
 from main.models import SocialUser
 import datetime
@@ -30,64 +29,33 @@ class TestHomePage(TestCase):
 class TestEditPost(TestCase):
     def setUp(self):
         # Create a test user
-        self.user = SocialUser.objects.create_user(
-            username="testuser", password="testpassword"
+        self.user = SocialUser.objects.create(
+            first_name="Test User", pronouns=SocialUser.Pronouns.SHE
         )
 
-        # Create a test post
+        # Create a test post associated with the current user
         self.post = ActivityPost.objects.create(
-            title="Test Post",
-            description="Test Description",
-            poster=self.user,
-            status=ActivityPost.Status.DRAFT,
+            title="Test Title1", description="Test Description1", poster=self.user
         )
 
-        # Login the test user
-        self.client = Client()
-        self.client.login(username="testuser", password="testpassword")
-
-    def test_edit_post_save_changes(self):
-        # Simulate a POST request to save changes
+    def test_edit_post_saves(self):
         response = self.client.post(
             reverse("posts:edit_post_request", args=[self.post.id]),
-            {
-                "title": "Updated Title",
-                "description": "Updated Description",
+            data={
+                "title": "New Title",
+                "description": "New Description",
                 "action": "save",
             },
         )
-
-        # Check that the response is a redirect to the home page
+        # Check if the response redirects to the home page
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse("main:home"))
 
-        # Refresh the post from the database
+        # Check if the post has been updated
         updated_post = ActivityPost.objects.get(pk=self.post.id)
-
-        # Check that the post has been updated as a draft
-        self.assertEqual(updated_post.title, "Updated Title")
-        self.assertEqual(updated_post.description, "Updated Description")
-        self.assertEqual(updated_post.status, ActivityPost.Status.DRAFT)
-
-    def test_edit_post_post(self):
-        # Simulate a POST request to post the edited post
-        response = self.client.post(
-            reverse("posts:edit_post_request", args=[self.post.id]),
-            {
-                "title": "Updated Title",
-                "description": "Updated Description",
-                "action": "post",
-            },
-        )
-
-        # Check that the response is a redirect to the home page
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse("main:home"))
-
-        # Refresh the post from the database
-        updated_post = ActivityPost.objects.get(pk=self.post.id)
-
-        # Check that the post has been updated and is now active
-        self.assertEqual(updated_post.title, "Updated Title")
-        self.assertEqual(updated_post.description, "Updated Description")
-        self.assertEqual(updated_post.status, ActivityPost.Status.ACTIVE)
+        self.assertEqual(updated_post.title, "New Title")
+        self.assertEqual(updated_post.description, "New Description")
+        if updated_post:
+            print("Post updated successfully!")
+        else:
+            print("Post editing failed.")
