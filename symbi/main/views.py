@@ -60,6 +60,10 @@ class ProfileDetailsView(generic.DetailView):
     context_object_name = "profile"
 
 
+class DiscoverPageView(generic.TemplateView):
+    template_name = "main/discover.html"
+
+
 @login_required
 def delete_account(request):
     if request.method == "POST":

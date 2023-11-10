@@ -1,6 +1,5 @@
-from django.test import TestCase, Client
+from django.test import TestCase
 from django.utils import timezone
-
 from .models import ActivityPost
 from main.models import SocialUser
 import datetime
