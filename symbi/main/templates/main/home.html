@@ -1,8 +1,8 @@
 {% if user.is_authenticated %}
-<p>Logged in as <a href="{% url 'main:profile' user.pk %}">{{user.username}}</a></p>
-<a href="/logout">Logout</a>
+    <p>Logged in as <a href="{% url 'main:profile' user.pk %}">{{ user.username }}</a></p>
+    <a href="/logout">Logout</a>
 {% else %}
-<a href="/login">Login</a>
+    <a href="/login">Login</a>
 {% endif %}
 {% if latest_posts_list %}
     <ul>

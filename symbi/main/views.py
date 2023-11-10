@@ -41,3 +41,7 @@ class ProfileCreationView(generic.CreateView):
     model = SocialUser
     template_name = "main/create_profile.html"
     form_class = ProfileCreationForm
+
+
+class DiscoverPageView(generic.TemplateView):
+    template_name = "main/discover.html"

@@ -11,7 +11,7 @@ class SignUpForm(UserCreationForm):
     date_of_birth = forms.DateField(
         widget=forms.SelectDateWidget(years=range(1970, 2030)), required=True
     )
-    pronouns = forms.ChoiceField(choices=SocialUser.PRONOUN_CHOICES, required=True)
+    pronouns = forms.ChoiceField(choices=SocialUser.Pronouns.choices, required=True)
 
     class Meta:
         model = SocialUser
