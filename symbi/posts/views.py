@@ -92,7 +92,7 @@ def edit_post(request, post_id):
         if current_post.poster_id == current_user.id:
             current_post.title = title
             current_post.description = description
-            current_post.status = ActivityPost.Status.ACTIVE
+            current_post.status = ActivityPost.PostStatus.ACTIVE
             current_post.save()
             return HttpResponseRedirect(reverse("main:home"))
         else:

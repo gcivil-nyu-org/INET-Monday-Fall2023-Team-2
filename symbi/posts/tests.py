@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.utils import timezone
 from .models import ActivityPost
 from main.models import SocialUser
@@ -38,7 +38,7 @@ class TestEditPost(TestCase):
             title="Test Post",
             description="Test Description",
             poster=self.user,
-            status=ActivityPost.Status.DRAFT,
+            status=ActivityPost.PostStatus.DRAFT.value,
         )
 
         # Login the test user
@@ -66,7 +66,7 @@ class TestEditPost(TestCase):
         # Check that the post has been updated as a draft
         self.assertEqual(updated_post.title, "Updated Title")
         self.assertEqual(updated_post.description, "Updated Description")
-        self.assertEqual(updated_post.status, ActivityPost.Status.DRAFT)
+        self.assertEqual(updated_post.status, ActivityPost.PostStatus.DRAFT.value)
 
     def test_edit_post_post(self):
         # Simulate a POST request to post the edited post
@@ -89,4 +89,4 @@ class TestEditPost(TestCase):
         # Check that the post has been updated and is now active
         self.assertEqual(updated_post.title, "Updated Title")
         self.assertEqual(updated_post.description, "Updated Description")
-        self.assertEqual(updated_post.status, ActivityPost.Status.ACTIVE)
+        self.assertEqual(updated_post.status, ActivityPost.PostStatus.ACTIVE.value)

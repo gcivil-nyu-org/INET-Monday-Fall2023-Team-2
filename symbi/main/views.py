@@ -73,8 +73,7 @@ def delete_account(request):
             return redirect("main:home")
         else:
             user.delete()
-            login(request, None)
-            return redirect("/login")
+            return redirect("login")
     else:
         context = {
             "title": "Delete Account",
