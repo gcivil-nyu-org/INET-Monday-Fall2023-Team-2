@@ -5,19 +5,20 @@
 {% else %}
 <a href="/login">Login</a>
 {% endif %} {% endcomment %}
-{% block content %}
-{% if latest_posts_list %}
-    <ul>
-        {% for post in latest_posts_list %}
-            {% if post.status == 2 %}
-                <li>
-                    <a href="{% url 'posts:post_details_view' post.pk %}">{{ post.title }}</a>
-                </li>
-            {% endif %}
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No posts are available.</p>
-{% endif %}
-{% endblock content %}
 {% comment %} <a href="{% url 'posts:create_post_view' %}">New Post</a> {% endcomment %}
+
+{#{% block content %}#}
+{#    {% if latest_posts_list %}#}
+{#        <ul>#}
+{#            {% for post in latest_posts_list %}#}
+{#                {% if post.status == 2 %}#}
+{#                    <li>#}
+{#                        <a href="{% url 'posts:post_details_view' post.pk %}">{{ post.title }}</a>#}
+{#                    </li>#}
+{#                {% endif %}#}
+{#            {% endfor %}#}
+{#        </ul>#}
+{#    {% else %}#}
+{#        <p>No posts are available.</p>#}
+{#    {% endif %}#}
+{#{% endblock content %}#}

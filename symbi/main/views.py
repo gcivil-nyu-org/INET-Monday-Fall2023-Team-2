@@ -11,6 +11,12 @@ from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 
 
+def landing(request):
+    template_name = "base.html"
+    # TODO: Check if the user is logged in, if yes, do we directly redirect to the home page?
+    return render(request, template_name)
+
+
 # @login_required
 def home(request):
     template_name = "main/home.html"
