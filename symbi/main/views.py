@@ -78,6 +78,26 @@ def notifications(request, pk):
 
 
 @login_required
+def connections(request, pk):
+    template_name = "main/connections.html"
+    # viewed_user = get_object_or_404(SocialUser, id=pk)
+    # viewing_self = request.user == viewed_user
+    # someone can only view their own connections
+    # if not viewing_self:
+    # return HttpResponseRedirect(reverse("main:profile", args=[pk]))
+    # else:
+    user_connections_1 = Connection.objects.filter(
+        userA=request.user, status=Connection.ConnectionStatus.CONNECTED
+    )
+    user_connections_2 = Connection.objects.filter(
+        userB=request.user, status=Connection.ConnectionStatus.CONNECTED
+    )
+    user_connections = list(user_connections_1) + list(user_connections_2)
+    user_connections.sort(key=lambda x: x.timestamp, reverse=True)
+    return render(request, template_name, {"connections": user_connections})
+
+
+@login_required
 def request_connection(request, pk):
     viewed_user = get_object_or_404(SocialUser, pk=pk)
     connection = Connection(
@@ -133,8 +153,8 @@ def remove_connection(request, pk):
         connection_1.delete()
     elif connection_2:
         connection_2.delete()
-    return HttpResponseRedirect(reverse("main:profile", args=[pk]))
-    
+    return HttpResponseRedirect(reverse("main:connections", args=[pk]))
+
 
 class DiscoverPageView(generic.TemplateView):
     template_name = "main/discover.html"

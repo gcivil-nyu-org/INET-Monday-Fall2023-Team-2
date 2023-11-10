@@ -30,6 +30,9 @@ class SocialUser(AbstractUser):
     )
     major = models.CharField(max_length=100, default="undeclared")
     pronouns = models.IntegerField(default=Pronouns.OTHER, choices=Pronouns.choices)
+    profile_picture = models.ImageField(
+        upload_to="profile_pics/", null=True, blank=True
+    )
     tags = models.ManyToManyField(InterestTag, related_name="tags")
     timestamp = models.DateTimeField("timestamp", default=timezone.now)
 

@@ -12,7 +12,7 @@ urlpatterns = [
     # Connections
     path(
         "profile/<int:pk>/connections/",
-        views.ProfileDetailsView.as_view(),
+        views.connections,
         name="connections",
     ),
     path(
