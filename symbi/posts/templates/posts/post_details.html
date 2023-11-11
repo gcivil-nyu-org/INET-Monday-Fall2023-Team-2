@@ -37,7 +37,6 @@
                 {{ comment.text }}
                 {% if user == comment.commentPoster %}
                     <span>
-                        <a href="{% url 'posts:edit_comment' post.id comment.id %}">Edit</a>
                         <a href="{% url 'posts:delete_comment' post.id comment.id %}">Delete</a>
                     </span>
                 {% endif %}
