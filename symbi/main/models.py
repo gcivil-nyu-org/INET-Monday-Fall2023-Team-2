@@ -37,6 +37,23 @@ class SocialUser(AbstractUser):
     timestamp = models.DateTimeField("timestamp", default=timezone.now)
 
 
+class Notification(models.Model):
+    class NotificationType(models.IntegerChoices):
+        CONNECTION_REQUEST = 1, _("Connection Request")
+        NEW_COMMENT = 2, _("New Comment")
+
+    recipient_user = models.ForeignKey(
+        SocialUser, on_delete=models.CASCADE, related_name="recipient_user"
+    )
+    from_user = models.ForeignKey(
+        SocialUser, on_delete=models.CASCADE, related_name="from_user"
+    )
+    content = models.TextField()
+    timestamp = models.DateTimeField("timestamp", default=timezone.now)
+    is_read = models.BooleanField(default=False)
+    type = models.IntegerField(choices=NotificationType.choices)
+
+
 class Connection(models.Model):
     class ConnectionStatus(models.IntegerChoices):
         NOT_CONNECTED = 1, _("Not Connected")
@@ -54,26 +71,13 @@ class Connection(models.Model):
     status = models.IntegerField(
         default=ConnectionStatus.NOT_CONNECTED, choices=ConnectionStatus.choices
     )
+    # ensure related notification is also deleted when the connection request is canceled
+    notification = models.ForeignKey(
+        Notification, on_delete=models.CASCADE, null=True, blank=True
+    )
 
     class Meta:
         unique_together = ["userA", "userB"]
 
     def __str__(self) -> str:
         return self.text
-
-
-class Notification(models.Model):
-    class NotificationType(models.IntegerChoices):
-        CONNECTION_REQUEST = 1, _("Connection Request")
-        NEW_COMMENT = 2, _("New Comment")
-
-    recipient_user = models.ForeignKey(
-        SocialUser, on_delete=models.CASCADE, related_name="recipient_user"
-    )
-    from_user = models.ForeignKey(
-        SocialUser, on_delete=models.CASCADE, related_name="from_user"
-    )
-    content = models.TextField()
-    timestamp = models.DateTimeField("timestamp", default=timezone.now)
-    is_read = models.BooleanField(default=False)
-    type = models.IntegerField(choices=NotificationType.choices)

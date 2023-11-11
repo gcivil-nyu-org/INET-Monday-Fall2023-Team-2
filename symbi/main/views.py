@@ -6,6 +6,7 @@ from django.http import Http404
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.db.models import Q
 
 from posts.models import ActivityPost
 from .models import SocialUser, Connection, Notification
@@ -48,25 +49,15 @@ class ProfileDetailsView(generic.DetailView):
 
         if self.request.user.is_authenticated and not viewing_self:
             try:
-                connection_1 = Connection.objects.get(
-                    userA=self.request.user, userB=viewed_user
+                # Check if a connection already exists in either direction
+                connection = Connection.objects.get(
+                    Q(userA=self.request.user, userB=viewed_user)
+                    | Q(userA=viewed_user, userB=self.request.user)
                 )
+                connection_status = connection.status
+                is_userA = connection.userA == self.request.user
             except Connection.DoesNotExist:
-                try:
-                    connection_2 = Connection.objects.get(
-                        userA=viewed_user, userB=self.request.user
-                    )
-                except Connection.DoesNotExist:
-                    print("Debug: CONNECTION DOES NOT EXIST")
-                    connection_status = Connection.ConnectionStatus.NOT_CONNECTED
-                else:
-                    if connection_2:
-                        connection_status = connection_2.status
-                        is_userA = False
-            else:
-                if connection_1:
-                    connection_status = connection_1.status
-                    is_userA = True
+                pass
 
         context["connection_status"] = connection_status
         context["connection_status_choices"] = Connection.ConnectionStatus
@@ -78,7 +69,8 @@ class ProfileDetailsView(generic.DetailView):
 @login_required
 def notifications(request, pk):
     template_name = "main/notifications.html"
-    user_notifications = Notification.objects.filter(recipient_user=request.user)
+    user_notifications = list(Notification.objects.filter(recipient_user=request.user))
+    user_notifications.sort(key=lambda x: x.timestamp, reverse=True)
     notification_types = Notification.NotificationType
     # format the timestamp for display
     time_differences = []
@@ -153,45 +145,38 @@ def connections(request, pk):
 @login_required
 def request_connection(request, pk):
     viewed_user = get_object_or_404(SocialUser, pk=pk)
+
+    connection = None
     try:
-        # see if connection already exists one way
-        connection_1 = Connection.objects.get(
-            userA=request.user,
-            userB=viewed_user,
+        # Check if a connection already exists in either direction
+        connection = Connection.objects.get(
+            Q(userA=request.user, userB=viewed_user)
+            | Q(userA=viewed_user, userB=request.user)
         )
     except Connection.DoesNotExist:
-        try:
-            # see if connection already exists the other way
-            connection_2 = Connection.objects.get(
-                userA=viewed_user,
-                userB=request.user,
-            )
-        except Connection.DoesNotExist:
-            # if neither connection exists, create a new one
-            connection = Connection(
-                userA=request.user,
-                userB=viewed_user,
-                status=Connection.ConnectionStatus.REQUESTED_A_TO_B,
-            )
-            connection.save()
-        else:
-            if connection_2:
-                connection_2.status = Connection.ConnectionStatus.REQUESTED_A_TO_B
-                connection_2.save()
-    else:
-        if connection_1:
-            connection_1.status = Connection.ConnectionStatus.REQUESTED_A_TO_B
-            connection_1.save()
+        # If no connection exists, create a new one
+        connection = Connection.objects.create(
+            userA=request.user,
+            userB=viewed_user,
+            status=Connection.ConnectionStatus.REQUESTED_A_TO_B,
+        )
+
+    # Update the connection status
+    connection.userA = request.user
+    connection.userB = viewed_user
+    connection.status = Connection.ConnectionStatus.REQUESTED_A_TO_B
+    connection.save()
 
     # Create a new Notification object for userB
     notification_content = f"{request.user.username} wants to connect."
-    notification = Notification(
+    notification = Notification.objects.create(
         recipient_user=connection.userB,
         from_user=request.user,
         content=notification_content,
         type=Notification.NotificationType.CONNECTION_REQUEST,
     )
-    notification.save()
+    connection.notification = notification
+    connection.save()
 
     return HttpResponseRedirect(reverse("main:profile", kwargs={"pk": pk}))
 
@@ -206,6 +191,8 @@ def cancel_connection_request(request, pk):
         status=Connection.ConnectionStatus.REQUESTED_A_TO_B,
     )
     if connection:
+        if connection.notification:
+            connection.notification.delete()
         connection.delete()
     return HttpResponseRedirect(reverse("main:profile", kwargs={"pk": pk}))
 
@@ -233,26 +220,23 @@ def accept_connection(request, pk):
 @login_required
 def remove_connection(request, pk):
     viewed_user = get_object_or_404(SocialUser, pk=pk)
-    # regardless of who first requested connection (userA), either user can remove connection
     try:
-        connection_1 = Connection.objects.get(
-            userA=request.user,
-            userB=viewed_user,
-            status=Connection.ConnectionStatus.CONNECTED,
-        )
-    except Connection.DoesNotExist:
-        try:
-            connection_2 = Connection.objects.get(
+        # Find the connection, regardless of who initiated it
+        connection = Connection.objects.get(
+            Q(
+                userA=request.user,
+                userB=viewed_user,
+                status=Connection.ConnectionStatus.CONNECTED,
+            )
+            | Q(
                 userA=viewed_user,
                 userB=request.user,
                 status=Connection.ConnectionStatus.CONNECTED,
             )
-        except Connection.DoesNotExist:
-            raise Http404("Connection not found.")
-        else:
-            connection_2.delete()
-    else:
-        connection_1.delete()
+        )
+        connection.delete()
+    except Connection.DoesNotExist:
+        raise Http404("Connection not found.")
     return HttpResponseRedirect(reverse("main:connections", kwargs={"pk": pk}))
 
 
