@@ -43,6 +43,7 @@ class ProfileDetailsView(generic.DetailView):
         viewed_user = self.get_object()
         viewing_self = self.request.user == viewed_user
         connection_status = Connection.ConnectionStatus.NOT_CONNECTED
+        is_userA = False
 
         if self.request.user.is_authenticated and not viewing_self:
             try:
@@ -60,21 +61,63 @@ class ProfileDetailsView(generic.DetailView):
                 else:
                     if connection_2:
                         connection_status = connection_2.status
+                        is_userA = False
             else:
                 if connection_1:
                     connection_status = connection_1.status
+                    is_userA = True
 
         context["connection_status"] = connection_status
         context["connection_status_choices"] = Connection.ConnectionStatus
         context["viewing_self"] = viewing_self
+        context["is_userA"] = is_userA
         return context
 
 
 @login_required
 def notifications(request, pk):
     template_name = "main/notifications.html"
-    user_notifications = Notification.objects.filter(user=request.user)
-    return render(request, template_name, {"notifications": user_notifications})
+    user_notifications = Notification.objects.filter(recipient_user=request.user)
+    notification_types = Notification.NotificationType
+    # format the timestamp for display
+    time_differences = []
+    now = timezone.now()
+    for notification in user_notifications:
+        time_difference = now - notification.timestamp
+        time_difference = format_time_difference(time_difference)
+        time_differences.append(time_difference)
+    zipped_notifications = zip(user_notifications, time_differences)
+    # add context
+    context = {
+        "zipped_notifications": zipped_notifications,
+        "notification_types": notification_types,
+    }
+    return render(request, template_name, context)
+
+
+def format_time_difference(time_difference):
+    days = time_difference.days
+    seconds = time_difference.seconds
+    years, remainder = divmod(days, 365)
+    months, days = divmod(remainder, 30)
+    weeks, days = divmod(days, 7)
+    hours, remainder = divmod(seconds, 3600)
+    minutes, _ = divmod(remainder, 60)
+
+    if years > 0:
+        return f"{years}y"
+    elif months > 0:
+        return f"{months}mo"
+    elif weeks > 0:
+        return f"{weeks}w"
+    elif days > 0:
+        return f"{days}d"
+    elif hours > 0:
+        return f"{hours}h"
+    elif minutes > 0:
+        return f"{minutes}m"
+    else:
+        return "Just now"
 
 
 @login_required
@@ -108,15 +151,29 @@ def request_connection(request, pk):
     connection.save()
 
     # Create a new Notification object for userB
-    notification_content = f"{request.user.username} wants to connect"
+    notification_content = f"{request.user.username} wants to connect."
     notification = Notification(
         user=connection.userB,
+        from_user=request.user.username,
         content=notification_content,
         type=Notification.NotificationType.CONNECTION_REQUEST,
     )
     notification.save()
 
     return HttpResponseRedirect(reverse("main:profile", args=[pk]))
+
+
+@login_required
+def cancel_connection_request(request, userB_pk):
+    userB = get_object_or_404(SocialUser, pk=userB_pk)
+    connection = Connection.objects.get(
+        userA=request.user,
+        userB=userB,
+        status=Connection.ConnectionStatus.REQUESTED_A_TO_B,
+    )
+    if connection:
+        connection.delete()
+    return HttpResponseRedirect(reverse("main:profile", kwargs={"pk": userB_pk}))
 
 
 @login_required

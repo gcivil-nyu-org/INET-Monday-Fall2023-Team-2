@@ -18,11 +18,20 @@
         {% if viewing_self %}
             <p>This is your own profile.</p>
             <a href="{% url 'main:notifications' profile.pk %}"><button>Notifications</button></a>
+            <a href="{% url 'main:connections' profile.pk %}"><button>Connections</button></a>
         {% else %}
             {% if connection_status == connection_status_choices.CONNECTED %}
                 <a href="{% url 'main:remove_connection' profile.pk %}"><button>Remove Connection</button></a>
-            {% elif connection_status == connection_status_choices.REQUESTED_A_TO_B %}
-                <p>Pending connection</p>
+            {% elif connection_status == connection_status_choices.REQUESTED_A_TO_B and is_userA %}
+                <form action="{% url 'main:cancel_connection_request' profile.pk %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">Cancel Connection Request</button>
+                </form>
+            {% elif connection_status == connection_status_choices.REQUESTED_A_TO_B and not is_userA %}
+                <form action="{% url 'main:accept_connection' profile.pk %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">Accept Connection Request</button>
+                </form>
             {% elif connection_status == connection_status_choices.NOT_CONNECTED %}
                 <a href="{% url 'main:request_connection' profile.pk %}"><button>Connect</button></a>
                 <p>Connection status: {{ connection_status }}</p>

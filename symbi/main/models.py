@@ -63,11 +63,16 @@ class Connection(models.Model):
 
 
 class Notification(models.Model):
-    class NotificationType(models.TextChoices):
+    class NotificationType(models.IntegerChoices):
         CONNECTION_REQUEST = 1, _("Connection Request")
         NEW_COMMENT = 2, _("New Comment")
 
-    user = models.ForeignKey(SocialUser, on_delete=models.CASCADE)
+    recipient_user = models.ForeignKey(
+        SocialUser, on_delete=models.CASCADE, related_name="recipient_user"
+    )
+    from_user = models.ForeignKey(
+        SocialUser, on_delete=models.CASCADE, related_name="from_user"
+    )
     content = models.TextField()
     timestamp = models.DateTimeField("timestamp", default=timezone.now)
     is_read = models.BooleanField(default=False)

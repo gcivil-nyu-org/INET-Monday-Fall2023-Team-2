@@ -21,6 +21,11 @@ urlpatterns = [
         name="request_connection",
     ),
     path(
+        "profile/<int:pk>/cancel_connection_request/",
+        views.cancel_connection_request,
+        name="cancel_connection_request",
+    ),
+    path(
         "profile/<int:pk>/accept_connection/",
         views.accept_connection,
         name="accept_connection",
