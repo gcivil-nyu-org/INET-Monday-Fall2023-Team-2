@@ -87,12 +87,35 @@ def edit_post(request, post_id):
     title = request.POST.get("title")
     description = request.POST.get("description")
     action = request.POST.get("action")
+
     if action == "save":
-        post = ActivityPost.objects.get(pk=post_id)
-        post.title = title
-        post.description = description
-        post.save()
-    return HttpResponseRedirect(reverse("main:home"))
+        current_post = ActivityPost.objects.get(pk=post_id)
+        current_user = request.user
+
+        if current_post.poster_id == current_user.id:
+            current_post.title = title
+            current_post.description = description
+            current_post.save()
+            return HttpResponseRedirect(reverse("main:home"))
+        else:
+            pass
+
+    elif action == "post":
+        current_post = ActivityPost.objects.get(pk=post_id)
+        current_user = request.user
+
+        if current_post.poster_id == current_user.id:
+            current_post.title = title
+            current_post.description = description
+            current_post.status = ActivityPost.PostStatus.ACTIVE
+            current_post.save()
+            return HttpResponseRedirect(reverse("main:home"))
+        else:
+            pass
+
+    else:
+        pass
+
 
 
 @login_required
