@@ -34,7 +34,6 @@
                 </form>
             {% elif connection_status == connection_status_choices.NOT_CONNECTED %}
                 <a href="{% url 'main:request_connection' profile.pk %}"><button>Connect</button></a>
-                <p>Connection status: {{ connection_status }}</p>
             {% endif %}
         {% endif %}
         <!-- Tab Links -->

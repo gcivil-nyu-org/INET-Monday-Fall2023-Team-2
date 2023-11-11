@@ -2,6 +2,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views import generic
 from django.shortcuts import render, get_object_or_404
+from django.http import Http404
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
@@ -123,49 +124,82 @@ def format_time_difference(time_difference):
 @login_required
 def connections(request, pk):
     template_name = "main/connections.html"
-    # viewed_user = get_object_or_404(SocialUser, id=pk)
-    # viewing_self = request.user == viewed_user
+    viewed_user = get_object_or_404(SocialUser, id=pk)
+    viewing_self = request.user == viewed_user
     # someone can only view their own connections
-    # if not viewing_self:
-    # return HttpResponseRedirect(reverse("main:profile", args=[pk]))
-    # else:
-    user_connections_1 = Connection.objects.filter(
-        userA=request.user, status=Connection.ConnectionStatus.CONNECTED
-    )
-    user_connections_2 = Connection.objects.filter(
-        userB=request.user, status=Connection.ConnectionStatus.CONNECTED
-    )
-    user_connections = list(user_connections_1) + list(user_connections_2)
-    user_connections.sort(key=lambda x: x.timestamp, reverse=True)
-    return render(request, template_name, {"connections": user_connections})
+    if not viewing_self:
+        return HttpResponseRedirect(reverse("main:profile", kwargs={"pk": pk}))
+    else:
+        user_connections_1 = Connection.objects.filter(
+            userA=request.user, status=Connection.ConnectionStatus.CONNECTED
+        )
+        user_connections_2 = Connection.objects.filter(
+            userB=request.user, status=Connection.ConnectionStatus.CONNECTED
+        )
+        user_connections = list(user_connections_1) + list(user_connections_2)
+        user_connections.sort(key=lambda x: x.timestamp, reverse=True)
+        # display the info for the other user, regardless of whether logged in user is userA or userB
+        connected_users = []
+        for connection in user_connections:
+            connected_user = (
+                connection.userB
+                if connection.userA == request.user
+                else connection.userA
+            )
+            connected_users.append(connected_user)
+    return render(request, template_name, {"connected_users": connected_users})
 
 
 @login_required
 def request_connection(request, pk):
     viewed_user = get_object_or_404(SocialUser, pk=pk)
-    connection = Connection(
-        userA=request.user,
-        userB=viewed_user,
-        status=Connection.ConnectionStatus.REQUESTED_A_TO_B,
-    )
-    connection.save()
+    try:
+        # see if connection already exists one way
+        connection_1 = Connection.objects.get(
+            userA=request.user,
+            userB=viewed_user,
+        )
+    except Connection.DoesNotExist:
+        try:
+            # see if connection already exists the other way
+            connection_2 = Connection.objects.get(
+                userA=viewed_user,
+                userB=request.user,
+            )
+        except Connection.DoesNotExist:
+            # if neither connection exists, create a new one
+            connection = Connection(
+                userA=request.user,
+                userB=viewed_user,
+                status=Connection.ConnectionStatus.REQUESTED_A_TO_B,
+            )
+            connection.save()
+        else:
+            if connection_2:
+                connection_2.status = Connection.ConnectionStatus.REQUESTED_A_TO_B
+                connection_2.save()
+    else:
+        if connection_1:
+            connection_1.status = Connection.ConnectionStatus.REQUESTED_A_TO_B
+            connection_1.save()
 
     # Create a new Notification object for userB
     notification_content = f"{request.user.username} wants to connect."
     notification = Notification(
-        user=connection.userB,
-        from_user=request.user.username,
+        recipient_user=connection.userB,
+        from_user=request.user,
         content=notification_content,
         type=Notification.NotificationType.CONNECTION_REQUEST,
     )
     notification.save()
 
-    return HttpResponseRedirect(reverse("main:profile", args=[pk]))
+    return HttpResponseRedirect(reverse("main:profile", kwargs={"pk": pk}))
 
 
 @login_required
-def cancel_connection_request(request, userB_pk):
-    userB = get_object_or_404(SocialUser, pk=userB_pk)
+def cancel_connection_request(request, pk):
+    # only userA can cancel a request they made to userB
+    userB = get_object_or_404(SocialUser, pk=pk)
     connection = Connection.objects.get(
         userA=request.user,
         userB=userB,
@@ -173,12 +207,14 @@ def cancel_connection_request(request, userB_pk):
     )
     if connection:
         connection.delete()
-    return HttpResponseRedirect(reverse("main:profile", kwargs={"pk": userB_pk}))
+    return HttpResponseRedirect(reverse("main:profile", kwargs={"pk": pk}))
 
 
 @login_required
-def accept_connection(request, userA_pk):
-    userA = get_object_or_404(SocialUser, pk=userA_pk)
+def accept_connection(request, pk):
+    # from notifications, pk = from_user (userA)
+    # only userB can accept a request made from userA
+    userA = get_object_or_404(SocialUser, pk=pk)
     connection = get_object_or_404(
         Connection,
         userA=userA,
@@ -189,28 +225,35 @@ def accept_connection(request, userA_pk):
         connection.status = Connection.ConnectionStatus.CONNECTED
         connection.timestamp = timezone.now()
         connection.save()
-    return HttpResponseRedirect(reverse("main:home"))
+    return HttpResponseRedirect(
+        reverse("main:connections", kwargs={"pk": request.user.pk})
+    )
 
 
 @login_required
 def remove_connection(request, pk):
     viewed_user = get_object_or_404(SocialUser, pk=pk)
     # regardless of who first requested connection (userA), either user can remove connection
-    connection_1 = Connection.objects.filter(
-        userA=request.user,
-        userB=viewed_user,
-        status=Connection.ConnectionStatus.CONNECTED,
-    ).first()
-    connection_2 = Connection.objects.filter(
-        userA=viewed_user,
-        userB=request.user,
-        status=Connection.ConnectionStatus.CONNECTED,
-    ).first()
-    if connection_1:
+    try:
+        connection_1 = Connection.objects.get(
+            userA=request.user,
+            userB=viewed_user,
+            status=Connection.ConnectionStatus.CONNECTED,
+        )
+    except Connection.DoesNotExist:
+        try:
+            connection_2 = Connection.objects.get(
+                userA=viewed_user,
+                userB=request.user,
+                status=Connection.ConnectionStatus.CONNECTED,
+            )
+        except Connection.DoesNotExist:
+            raise Http404("Connection not found.")
+        else:
+            connection_2.delete()
+    else:
         connection_1.delete()
-    elif connection_2:
-        connection_2.delete()
-    return HttpResponseRedirect(reverse("main:connections", args=[pk]))
+    return HttpResponseRedirect(reverse("main:connections", kwargs={"pk": pk}))
 
 
 class DiscoverPageView(generic.TemplateView):
