@@ -91,7 +91,6 @@ class CommentsTestCase(TestCase):
             post=self.post,
             commentPoster=self.user,
             text=comment_text,
-            timestamp=timezone.now(),
         )
         self.assertIsNotNone(comment)
 
