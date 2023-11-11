@@ -8,15 +8,15 @@
 <h1>{{ post.title }}</h1>
 <p><a href="/profile/{{ posts.poster.pk }}">{{ post.poster.username }}</a></p>
 {{ post.description }}
-<form action="{% url 'posts:archive_post_request' post.id %}" method="archive">
+<form action="{% url 'posts:archive_post_request' post.id %}" method="post">
     {% csrf_token %}
     <button type="submit" name="action" value="archive">Archive</button>
 </form>
-<form action="{% url 'posts:delete_post_request' post.id %}" method="delete">
+<form action="{% url 'posts:delete_post_request' post.id %}" method="post">
     {% csrf_token %}
     <button type="submit" name="action" value="delete">Delete</button>
 </form>
-<form action="{% url 'posts:edit_post_view' post.id %}" method="edit">
+<form action="{% url 'posts:edit_post_view' post.id %}" method="post">
     {% csrf_token %}
     <button type="submit" name="action" value="edit">Edit</button>
 </form>
@@ -35,6 +35,13 @@
             <li>
                 <p><a href="/profile/{{ comment.commentPoster.pk }}">{{ comment.commentPoster.username }}</a></p>
                 {{ comment.text }}
+                {% if user == comment.commentPoster %}
+                    <span>
+
+                        <a href="{% url 'posts:delete_comment' post.id comment.id %}">Delete</a>
+                    </span>
+                {% endif %}
+
             </li>
         {% endfor %}
     </ul>

@@ -13,10 +13,11 @@ class PostDetailsView(generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        post = context['post']
-        comments = Comment.objects.filter(post=post).order_by('-timestamp')
-        context[('comments')] = comments
+        post = context["post"]
+        comments = Comment.objects.filter(post=post).order_by("-timestamp")
+        context[("comments")] = comments
         return context
+
 
 class CreatePostView(generic.CreateView):
     model = ActivityPost
@@ -24,13 +25,18 @@ class CreatePostView(generic.CreateView):
     fields = ["title", "description"]
 
 
-
-
 class EditPostView(generic.UpdateView):
     model = ActivityPost
     template_name = "posts/edit_post.html"
     context_object_name = "post"
     fields = ["title", "description"]
+
+
+# class EditCommentView(generic.UpdateView):
+#     model = Comment
+#     template_name = "posts/edit_comment.html"
+#     context_object_name = "edited_comment"
+#     fields = ["text"]
 
 
 def create_post(request):
@@ -68,21 +74,35 @@ def edit_post(request, post_id):
         post.save()
     return HttpResponseRedirect(reverse("main:home"))
 
+
 def add_comment(request, post_id):
     if request.method == "POST":
-        text = request.POST.get('comment', None)
+        text = request.POST.get("comment", None)
         if text:
             post = ActivityPost.objects.get(pk=post_id)
-            comments = Comment.objects.create(commentPoster=request.user, post=post, text=text, timestamp=timezone.now())
-    return HttpResponseRedirect(reverse('posts:post_details_view', args=[post_id]))
-#
+            comments = Comment.objects.create(
+                commentPoster=request.user,
+                post=post,
+                text=text,
+                timestamp=timezone.now(),
+            )
+    return HttpResponseRedirect(reverse("posts:post_details_view", args=[post_id]))
+
+
 # def edit_comment(request, post_id, comment_id):
-#     comment = Comment.objects.filter(pk=comment_id)[0]
+#     comment = Comment.objects.filter(pk=comment_id)
 #
 #     if request.method == 'POST':
-#         new_text = request.POST.get('new_text', '')
+#         print("form submitted")
+#         new_text = request.POST.get('edited_comment', '')
 #         comment.text = new_text
 #         comment.save()
-#         return redirect('posts:post_details_view', post_id=post_id)
+#         return HttpResponseRedirect(reverse('posts:post_details_view', args=[post_id]))
 #
-#     return render(request, 'posts/edit_comment.html', {'comment': comment})
+#     return HttpResponseRedirect(reverse('posts:post_details_view', args=[post_id]))
+
+
+def delete_comment(request, post_id, comment_id):
+    comment = Comment.objects.filter(pk=comment_id)
+    comment.delete()
+    return HttpResponseRedirect(reverse("posts:post_details_view", args=[post_id]))

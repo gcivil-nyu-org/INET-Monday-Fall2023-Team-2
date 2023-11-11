@@ -18,5 +18,11 @@ urlpatterns = [
     path("<int:pk>/edit/", views.EditPostView.as_view(), name="edit_post_view"),
     path("<int:post_id>/edit_request/", views.edit_post, name="edit_post_request"),
     path("<int:post_id>/add_comment/", views.add_comment, name="add_comment"),
-
+    # path("<int:pk>/edit_comment_request/<int:comment_id>/", views.edit_comment, name="edit_comment_request"),
+    # path("<int:pk>/edit_comment/<int:comment_id>/", views.EditCommentView.as_view(), name="edit_comment"),
+    path(
+        "<int:post_id>/delete_comment/<int:comment_id>/",
+        views.delete_comment,
+        name="delete_comment",
+    ),
 ]

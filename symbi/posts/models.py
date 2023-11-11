@@ -34,7 +34,9 @@ class Comment(models.Model):
     post = models.ForeignKey(
         ActivityPost, on_delete=models.CASCADE, related_name="comments"
     )
-    commentPoster = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
+    commentPoster = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1
+    )
     text = models.TextField()
     timestamp = models.DateTimeField("date commented")
 
