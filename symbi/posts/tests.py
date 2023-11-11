@@ -2,7 +2,7 @@ from django.test import Client, TestCase
 from django.utils import timezone
 from .models import ActivityPost, Comment
 from main.models import SocialUser
-import datetime
+# import datetime
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 
