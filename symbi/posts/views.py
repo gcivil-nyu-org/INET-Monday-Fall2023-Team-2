@@ -117,7 +117,6 @@ def edit_post(request, post_id):
         pass
 
 
-
 @login_required
 def add_comment(request, post_id):
     if request.method == "POST":

@@ -93,7 +93,6 @@ class TestEditPost(TestCase):
         self.assertEqual(updated_post.status, ActivityPost.PostStatus.ACTIVE.value)
 
 
-
 class CommentsTestCase(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
