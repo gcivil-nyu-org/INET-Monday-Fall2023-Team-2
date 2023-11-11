@@ -80,7 +80,7 @@ def add_comment(request, post_id):
         text = request.POST.get("comment", None)
         if text:
             post = ActivityPost.objects.get(pk=post_id)
-            comments = Comment.objects.create(
+            Comment.objects.create(
                 commentPoster=request.user,
                 post=post,
                 text=text,
