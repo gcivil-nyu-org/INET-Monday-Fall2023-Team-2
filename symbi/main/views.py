@@ -1,7 +1,7 @@
 from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views import generic
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -10,9 +10,16 @@ from django.db.models import Q
 
 from posts.models import ActivityPost
 from .models import SocialUser, Connection, Notification
-from .forms import SignUpForm
+from .forms import SignUpForm, CreateProfileForm
 
 
+def landing(request):
+    template_name = "base.html"
+    # TODO: Check if the user is logged in, if yes, do we directly redirect to the home page?
+    return render(request, template_name)
+
+
+# @login_required
 def home(request):
     template_name = "main/home.html"
     latest_posts_list = ActivityPost.objects.order_by("-timestamp")[:50]
@@ -29,10 +36,30 @@ def sign_up(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return HttpResponseRedirect(reverse("main:home"))
+            return HttpResponseRedirect(reverse("main:create_profile"))
     else:
         form = SignUpForm()
     return render(request, template_name, {"form": form})
+
+
+class CreateProfileView(generic.CreateView):
+    model = SocialUser
+    form_class = CreateProfileForm
+    template_name = "main/create_profile.html"
+
+    def get_success_url(self):
+        social_user = SocialUser.objects.get(user=self.request.user)
+        return reverse_lazy("main:profile_view", kwargs={"pk": social_user.pk})
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.user = self.request.user
+        # self.object.age = self.request.user.age
+        self.object.save()
+
+        self.user_id = self.object.pk
+
+        return super(CreateProfileView, self).form_valid(form)
 
 
 class ProfileDetailsView(generic.DetailView):
@@ -242,3 +269,20 @@ def remove_connection(request, pk):
 
 class DiscoverPageView(generic.TemplateView):
     template_name = "main/discover.html"
+
+
+@login_required
+def delete_account(request):
+    if request.method == "POST":
+        user = SocialUser.objects.get(pk=request.user.pk)
+
+        if "cancel" in request.POST:
+            return redirect("main:home")
+        else:
+            user.delete()
+            return redirect("login")
+    else:
+        context = {
+            "title": "Delete Account",
+        }
+        return render(request, "main/delete_account.html", context)

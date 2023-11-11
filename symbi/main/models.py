@@ -24,17 +24,18 @@ class SocialUser(AbstractUser):
         OTHER = 4, _("Other")
 
     username = models.CharField(max_length=30, unique=True)
-    date_of_birth = models.DateField(default="2000-01-01")
-    age = models.IntegerField(
-        default=18, validators=[MinValueValidator(18), MaxValueValidator(150)]
-    )
+    full_name = models.CharField(max_length=50, null=True)
+    date_of_birth = models.DateField(null=True)
     major = models.CharField(max_length=100, default="undeclared")
     pronouns = models.IntegerField(default=Pronouns.OTHER, choices=Pronouns.choices)
     profile_picture = models.ImageField(
         upload_to="profile_pics/", null=True, blank=True
     )
     tags = models.ManyToManyField(InterestTag, related_name="tags")
-    timestamp = models.DateTimeField("timestamp", default=timezone.now)
+    timestamp = models.DateTimeField("timestamp", default=timezone.now) # joined
+    age = models.IntegerField(
+        default=18, validators=[MinValueValidator(18), MaxValueValidator(150)]
+    )
 
 
 class Notification(models.Model):
