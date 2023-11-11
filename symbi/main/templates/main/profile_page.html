@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+    <section class="bg-gradient-to-b from-[#0f0c29] via-[#302b63] to-[#24243e] flex font-medium items-center justify-center h-screen">
+        <section class="w-3/4 mx-auto bg-[#251D64] rounded-2xl px-8 py-6 shadow-lg">
+            <div class="flex items-center justify-between">
+                <div class="w-full px-3">
+                    <div class="mb-2">
+                        <div class="block ">
+                            <div class="flex justify-between">
+                                <button class="inline-block rounded bg-white px-8 py-3 text-sm font-medium text-[#251D64] transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-white">
+                                    Chat
+                                </button>
+                                <button class="inline-block rounded bg-white px-8 py-3 text-sm font-medium text-[#251D64] transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-white">
+                                    Connect
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-10 text-white text-center text-3xl flex flex-col items-center">
+                        <div class="flex">
+                            <h1 class="flex-shrink-0">{{ user.first_name|capfirst }} {{ user.last_name|capfirst }}</h1>
+                            <p class="ml-2">, {{ user.age }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
+    {% comment %} <div class="flex justify-center items-center h-screen w-screen">
+        <div class="w-full h-full bg-gradient-to-b from-[#0f0c29] via-[#302b63] to-[#24243e]">
+            <div class="w-3/4 h-3/4 bg-gradient-to-b from-[#0f0c29] via-[#302b63] to-[#24243e] m-auto mt-40 rounded-2xl shadow-2x1">
+                <div class="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 lg:px-8">
+                    <div class="flex items-center sm:justify-between sm:gap-4">
+                        <div class="relative hidden sm:block"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> {% endcomment %}
+{% endblock content %}
+{% comment %} from-[#251d64] via-[#4a4298] to-[#404063] {% endcomment %}

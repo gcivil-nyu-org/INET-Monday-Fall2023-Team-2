@@ -35,45 +35,45 @@ class SignUpForm(UserCreationForm):
         return username
 
 
-class ProfileCreationForm(forms.ModelForm):
-    first_name = forms.CharField(
-        max_length=30,
-        widget=forms.TextInput(attrs={"placeholder": "First Name"}),
-    )
-    last_name = forms.CharField(
-        max_length=30, widget=forms.TextInput(attrs={"placeholder": ":Last Name"})
-    )
-    email = forms.EmailField(
-        required=True, widget=forms.TextInput(attrs={"placeholder": "Email"})
-    )
-    date_of_birth = forms.DateField(
-        input_formats=["%m/%d/%m/%"],
-        widget=forms.DateInput(
-            attrs={
-                "type": "date",
-                "placeholder": "mm-dd-yyyy (DOB)",
-            }
-        ),
-    )
-    pronouns = forms.ChoiceField(
-        choices=SocialUser.PRONOUN_CHOICES,
-    )
-    major = forms.CharField(
-        max_length=100, widget=forms.TextInput(attrs={"placeholder": "Major"})
-    )
-    tags = forms.ModelMultipleChoiceField(
-        queryset=InterestTag.objects.all(),
-        widget=forms.SelectMultiple(attrs={"class": "multiselect"}),
-    )
+# class ProfileCreationForm(forms.ModelForm):
+#     first_name = forms.CharField(
+#         max_length=30,
+#         widget=forms.TextInput(attrs={"placeholder": "First Name"}),
+#     )
+#     last_name = forms.CharField(
+#         max_length=30, widget=forms.TextInput(attrs={"placeholder": ":Last Name"})
+#     )
+#     email = forms.EmailField(
+#         required=True, widget=forms.TextInput(attrs={"placeholder": "Email"})
+#     )
+#     date_of_birth = forms.DateField(
+#         input_formats=["%m/%d/%m/%"],
+#         widget=forms.DateInput(
+#             attrs={
+#                 "type": "date",
+#                 "placeholder": "mm-dd-yyyy (DOB)",
+#             }
+#         ),
+#     )
+#     pronouns = forms.ChoiceField(
+#         choices=SocialUser.PRONOUN_CHOICES,
+#     )
+#     major = forms.CharField(
+#         max_length=100, widget=forms.TextInput(attrs={"placeholder": "Major"})
+#     )
+#     tags = forms.ModelMultipleChoiceField(
+#         queryset=InterestTag.objects.all(),
+#         widget=forms.SelectMultiple(attrs={"class": "multiselect"}),
+#     )
 
-    class Meta:
-        model = SocialUser
-        fields = [
-            "first_name",
-            "last_name",
-            "pronouns",
-            "date_of_birth",
-            "major",
-            "pronouns",
-            "tags",
-        ]
+#     class Meta:
+#         model = SocialUser
+#         fields = [
+#             "first_name",
+#             "last_name",
+#             "pronouns",
+#             "date_of_birth",
+#             "major",
+#             "pronouns",
+#             "tags",
+#         ]
