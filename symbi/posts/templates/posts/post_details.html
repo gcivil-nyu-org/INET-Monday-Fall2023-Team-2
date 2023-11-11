@@ -6,7 +6,13 @@
 {% endif %}
 
 <h1>{{ post.title }}</h1>
-<p><a href="/profile/{{ posts.poster.pk }}">{{ post.poster.username }}</a></p>
+<p>
+    Posted by
+    <a href="/profile/{{ posts.poster.pk }}">{{ post.poster.username }}</a>
+    ({{ posts.poster.get_pronouns_display }})
+</p>
+<br>
+
 {{ post.description }}
 <form action="{% url 'posts:archive_post_request' post.id %}" method="post">
     {% csrf_token %}
@@ -33,7 +39,10 @@
     <ul>
         {% for comment in comments %}
             <li>
-                <p><a href="/profile/{{ comment.commentPoster.pk }}">{{ comment.commentPoster.username }}</a></p>
+                <p>
+                    <a href="/profile/{{ comment.commentPoster.pk }}">{{ comment.commentPoster.username }}</a>
+                    ({{ comment.commentPoster.get_pronouns_display }})
+                </p>
                 {{ comment.text }}
                 {% if user == comment.commentPoster %}
                     <span>
