@@ -1,6 +1,7 @@
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views import generic
+from django.utils import timezone
 
 from .models import ActivityPost, Comment
 
@@ -10,11 +11,19 @@ class PostDetailsView(generic.DetailView):
     template_name = "posts/post_details.html"
     context_object_name = "post"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        post = context['post']
+        comments = Comment.objects.filter(post=post).order_by('-timestamp')
+        context[('comments')] = comments
+        return context
 
 class CreatePostView(generic.CreateView):
     model = ActivityPost
     template_name = "posts/create_post.html"
     fields = ["title", "description"]
+
+
 
 
 class EditPostView(generic.UpdateView):
@@ -60,9 +69,20 @@ def edit_post(request, post_id):
     return HttpResponseRedirect(reverse("main:home"))
 
 def add_comment(request, post_id):
-    if request.method == "postComment":
+    if request.method == "POST":
         text = request.POST.get('comment', None)
         if text:
             post = ActivityPost.objects.get(pk=post_id)
-            comments = Comment.objects.create(commentPoster=request.user, post=post, text=text)
+            comments = Comment.objects.create(commentPoster=request.user, post=post, text=text, timestamp=timezone.now())
     return HttpResponseRedirect(reverse('posts:post_details_view', args=[post_id]))
+#
+# def edit_comment(request, post_id, comment_id):
+#     comment = Comment.objects.filter(pk=comment_id)[0]
+#
+#     if request.method == 'POST':
+#         new_text = request.POST.get('new_text', '')
+#         comment.text = new_text
+#         comment.save()
+#         return redirect('posts:post_details_view', post_id=post_id)
+#
+#     return render(request, 'posts/edit_comment.html', {'comment': comment})

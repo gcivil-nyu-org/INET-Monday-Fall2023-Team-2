@@ -1,3 +1,10 @@
+{% if user.is_authenticated %}
+    <p>Logged in as <a href="{% url 'main:profile' user.pk %}">{{ user.username }}</a></p>
+    <a href="/logout">Logout</a>
+{% else %}
+    <a href="/login">Login</a>
+{% endif %}
+
 <h1>{{ post.title }}</h1>
 <p><a href="/profile/{{ posts.poster.pk }}">{{ post.poster.username }}</a></p>
 {{ post.description }}
@@ -14,10 +21,20 @@
     <button type="submit" name="action" value="edit">Edit</button>
 </form>
 
-<h1>Comments</h1>
+<h1>Leave Your Comments</h1>
 
-<form action="{% url 'posts:add_comment' post.id %}" method = 'postComment'>
+<form action="{% url 'posts:add_comment' post.id %}" method = "post">
     {% csrf_token %}
     <input type="text" name="comment">
     <button type="submit">Add Comment</button>
 </form>
+
+<h1>Other's Comments</h1>
+    <ul>
+        {% for comment in comments %}
+            <li>
+                <p><a href="/profile/{{ comment.commentPoster.pk }}">{{ comment.commentPoster.username }}</a></p>
+                {{ comment.text }}
+            </li>
+        {% endfor %}
+    </ul>
