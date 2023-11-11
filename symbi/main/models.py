@@ -32,7 +32,7 @@ class SocialUser(AbstractUser):
         upload_to="profile_pics/", null=True, blank=True
     )
     tags = models.ManyToManyField(InterestTag, related_name="tags")
-    timestamp = models.DateTimeField("timestamp", default=timezone.now) # joined
+    timestamp = models.DateTimeField("timestamp", default=timezone.now)  # joined
     age = models.IntegerField(
         default=18, validators=[MinValueValidator(18), MaxValueValidator(150)]
     )
