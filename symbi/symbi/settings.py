@@ -79,6 +79,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "symbi.wsgi.application"
 
+
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
@@ -88,6 +89,7 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -131,7 +133,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # login / logout redirects
 LOGIN_REDIRECT_URL = "main:home"
-LOGOUT_REDIRECT_URL = "/login"
+LOGOUT_REDIRECT_URL = "main:landing"
 
 # custom user model
 AUTH_USER_MODEL = "main.SocialUser"
@@ -140,3 +142,5 @@ AUTH_USER_MODEL = "main.SocialUser"
 TAILWIND_APP_NAME = "theme"
 
 INTERNAL_IPS = ["127.0.0.1"]
+
+ALLOW_DELETED_USERS = True
