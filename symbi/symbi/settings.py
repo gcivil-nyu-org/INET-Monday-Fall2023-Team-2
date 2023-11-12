@@ -136,7 +136,7 @@ LOGIN_REDIRECT_URL = "main:home"
 LOGOUT_REDIRECT_URL = "main:landing"
 
 # custom user model
-AUTH_USER_MODEL = "main.socialuser"
+AUTH_USER_MODEL = "main.SocialUser"
 
 # Tailwind
 TAILWIND_APP_NAME = "theme"
