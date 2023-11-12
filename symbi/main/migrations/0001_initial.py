@@ -9,91 +9,275 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('auth', '0012_alter_user_first_name_max_length'),
+        ("auth", "0012_alter_user_first_name_max_length"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='SocialUser',
+            name="SocialUser",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('password', models.CharField(max_length=128, verbose_name='password')),
-                ('last_login', models.DateTimeField(blank=True, null=True, verbose_name='last login')),
-                ('is_superuser', models.BooleanField(default=False, help_text='Designates that this user has all permissions without explicitly assigning them.', verbose_name='superuser status')),
-                ('first_name', models.CharField(blank=True, max_length=150, verbose_name='first name')),
-                ('last_name', models.CharField(blank=True, max_length=150, verbose_name='last name')),
-                ('email', models.EmailField(blank=True, max_length=254, verbose_name='email address')),
-                ('is_staff', models.BooleanField(default=False, help_text='Designates whether the user can log into this admin site.', verbose_name='staff status')),
-                ('is_active', models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.', verbose_name='active')),
-                ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date joined')),
-                ('username', models.CharField(max_length=30, unique=True)),
-                ('full_name', models.CharField(max_length=50, null=True)),
-                ('date_of_birth', models.DateField(null=True)),
-                ('major', models.CharField(default='undeclared', max_length=100)),
-                ('pronouns', models.IntegerField(choices=[(1, 'She/Her'), (2, 'He/Him'), (3, 'They/Them'), (4, 'Other')], default=4)),
-                ('profile_picture', models.ImageField(blank=True, null=True, upload_to='profile_pics/')),
-                ('timestamp', models.DateTimeField(default=django.utils.timezone.now, verbose_name='timestamp')),
-                ('age', models.IntegerField(default=18, validators=[django.core.validators.MinValueValidator(18), django.core.validators.MaxValueValidator(150)])),
-                ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.group', verbose_name='groups')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("password", models.CharField(max_length=128, verbose_name="password")),
+                (
+                    "last_login",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="last login"
+                    ),
+                ),
+                (
+                    "is_superuser",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Designates that this user has all permissions without explicitly assigning them.",
+                        verbose_name="superuser status",
+                    ),
+                ),
+                (
+                    "first_name",
+                    models.CharField(
+                        blank=True, max_length=150, verbose_name="first name"
+                    ),
+                ),
+                (
+                    "last_name",
+                    models.CharField(
+                        blank=True, max_length=150, verbose_name="last name"
+                    ),
+                ),
+                (
+                    "email",
+                    models.EmailField(
+                        blank=True, max_length=254, verbose_name="email address"
+                    ),
+                ),
+                (
+                    "is_staff",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Designates whether the user can log into this admin site.",
+                        verbose_name="staff status",
+                    ),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(
+                        default=True,
+                        help_text="Designates whether this user should be treated as active. Unselect this instead of deleting accounts.",
+                        verbose_name="active",
+                    ),
+                ),
+                (
+                    "date_joined",
+                    models.DateTimeField(
+                        default=django.utils.timezone.now, verbose_name="date joined"
+                    ),
+                ),
+                ("username", models.CharField(max_length=30, unique=True)),
+                ("full_name", models.CharField(max_length=50, null=True)),
+                ("date_of_birth", models.DateField(null=True)),
+                ("major", models.CharField(default="undeclared", max_length=100)),
+                (
+                    "pronouns",
+                    models.IntegerField(
+                        choices=[
+                            (1, "She/Her"),
+                            (2, "He/Him"),
+                            (3, "They/Them"),
+                            (4, "Other"),
+                        ],
+                        default=4,
+                    ),
+                ),
+                (
+                    "profile_picture",
+                    models.ImageField(blank=True, null=True, upload_to="profile_pics/"),
+                ),
+                (
+                    "timestamp",
+                    models.DateTimeField(
+                        default=django.utils.timezone.now, verbose_name="timestamp"
+                    ),
+                ),
+                (
+                    "age",
+                    models.IntegerField(
+                        default=18,
+                        validators=[
+                            django.core.validators.MinValueValidator(18),
+                            django.core.validators.MaxValueValidator(150),
+                        ],
+                    ),
+                ),
+                (
+                    "groups",
+                    models.ManyToManyField(
+                        blank=True,
+                        help_text="The groups this user belongs to. A user will get all permissions granted to each of their groups.",
+                        related_name="user_set",
+                        related_query_name="user",
+                        to="auth.group",
+                        verbose_name="groups",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'user',
-                'verbose_name_plural': 'users',
-                'abstract': False,
+                "verbose_name": "user",
+                "verbose_name_plural": "users",
+                "abstract": False,
             },
             managers=[
-                ('objects', django.contrib.auth.models.UserManager()),
+                ("objects", django.contrib.auth.models.UserManager()),
             ],
         ),
         migrations.CreateModel(
-            name='InterestTag',
+            name="InterestTag",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=50, unique=True)),
             ],
             options={
-                'verbose_name_plural': 'Interest Tags',
-                'db_table': 'interest_tags',
+                "verbose_name_plural": "Interest Tags",
+                "db_table": "interest_tags",
             },
         ),
         migrations.CreateModel(
-            name='Notification',
+            name="Notification",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('content', models.TextField()),
-                ('timestamp', models.DateTimeField(default=django.utils.timezone.now, verbose_name='timestamp')),
-                ('is_read', models.BooleanField(default=False)),
-                ('type', models.IntegerField(choices=[(1, 'Connection Request'), (2, 'New Comment')])),
-                ('from_user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='from_user', to=settings.AUTH_USER_MODEL)),
-                ('recipient_user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='recipient_user', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("content", models.TextField()),
+                (
+                    "timestamp",
+                    models.DateTimeField(
+                        default=django.utils.timezone.now, verbose_name="timestamp"
+                    ),
+                ),
+                ("is_read", models.BooleanField(default=False)),
+                (
+                    "type",
+                    models.IntegerField(
+                        choices=[(1, "Connection Request"), (2, "New Comment")]
+                    ),
+                ),
+                (
+                    "from_user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="from_user",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "recipient_user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="recipient_user",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='socialuser',
-            name='tags',
-            field=models.ManyToManyField(related_name='tags', to='main.interesttag'),
+            model_name="socialuser",
+            name="tags",
+            field=models.ManyToManyField(related_name="tags", to="main.interesttag"),
         ),
         migrations.AddField(
-            model_name='socialuser',
-            name='user_permissions',
-            field=models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.permission', verbose_name='user permissions'),
+            model_name="socialuser",
+            name="user_permissions",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="Specific permissions for this user.",
+                related_name="user_set",
+                related_query_name="user",
+                to="auth.permission",
+                verbose_name="user permissions",
+            ),
         ),
         migrations.CreateModel(
-            name='Connection',
+            name="Connection",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('timestamp', models.DateTimeField(default=django.utils.timezone.now, verbose_name='timestamp')),
-                ('status', models.IntegerField(choices=[(1, 'Not Connected'), (2, 'Requested A -> B'), (3, 'Connected'), (4, 'Blocked')], default=1)),
-                ('notification', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='main.notification')),
-                ('userA', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='userA', to=settings.AUTH_USER_MODEL)),
-                ('userB', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='userB', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "timestamp",
+                    models.DateTimeField(
+                        default=django.utils.timezone.now, verbose_name="timestamp"
+                    ),
+                ),
+                (
+                    "status",
+                    models.IntegerField(
+                        choices=[
+                            (1, "Not Connected"),
+                            (2, "Requested A -> B"),
+                            (3, "Connected"),
+                            (4, "Blocked"),
+                        ],
+                        default=1,
+                    ),
+                ),
+                (
+                    "notification",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="main.notification",
+                    ),
+                ),
+                (
+                    "userA",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="userA",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "userB",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="userB",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('userA', 'userB')},
+                "unique_together": {("userA", "userB")},
             },
         ),
     ]
