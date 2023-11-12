@@ -8,8 +8,8 @@
 <h1>{{ post.title }}</h1>
 <p>
     Posted by
-    <a href="/profile/{{ posts.poster.pk }}">{{ post.poster.username }}</a>
-    ({{ posts.poster.get_pronouns_display }})
+    <a href="{% url 'main:profile' post.poster.pk %}">{{ post.poster.username }}</a>
+    ({{ post.poster.get_pronouns_display }})
 </p>
 <br>
 
@@ -40,7 +40,7 @@
         {% for comment in comments %}
             <li>
                 <p>
-                    <a href="/profile/{{ comment.commentPoster.pk }}">{{ comment.commentPoster.username }}</a>
+                    <a href="{% url 'main:profile' comment.commentPoster.pk %}">{{ comment.commentPoster.username }}</a>
                     ({{ comment.commentPoster.get_pronouns_display }})
                 </p>
                 {{ comment.text }}

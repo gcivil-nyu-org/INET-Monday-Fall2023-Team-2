@@ -43,8 +43,23 @@
             </div>
         </div>
         <div id="archived-posts" class="tabcontent">
-            <p>Archived Posts</p>
             <!-- Inject Archived Posts -->
+            <div class="post-container">
+                {% if profile.activitypost_set.all %}
+                    {% for post in profile.activitypost_set.all %}
+                        {% if post.status == 3 %}
+                            <div class="post">
+                                <h2 class="post-title"><a href="{% url 'posts:post_details_view' post.pk %}" style="text-decoration: none; color: white;">{{ post.title }}</a></h2>
+                                <p class="post-date">Published On: {{ post.timestamp }}</p>
+                                <p class="post-content">{{ post.description }}</p>
+                                {% comment %}<a href="{% url 'posts:edit_post_view' post.id %}">Edit Post</a>{% endcomment %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <p>No Archived Post are available.</p>
+                {% endif %}
+            </div>
         </div>
         <div id="drafted-posts" class="tabcontent">
             <!-- Inject Archived Posts --> 
