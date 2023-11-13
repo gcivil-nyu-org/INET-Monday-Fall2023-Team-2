@@ -19,7 +19,7 @@ def landing(request):
     return render(request, template_name)
 
 
-# @login_required
+@login_required
 def home(request):
     template_name = "main/home.html"
     latest_posts_list = ActivityPost.objects.order_by("-timestamp")[:50]
@@ -267,8 +267,19 @@ def remove_connection(request, pk):
     return HttpResponseRedirect(reverse("main:connections", kwargs={"pk": pk}))
 
 
-class DiscoverPageView(generic.TemplateView):
+class DiscoverView(generic.ListView):
+    model = ActivityPost
     template_name = "main/discover.html"
+
+    def get_queryset(self):
+        query = self.request.GET.get("q")
+        if query is None:
+            object_list = ActivityPost.objects.order_by("-timestamp")[:50]
+        else:
+            object_list = ActivityPost.objects.filter(
+                Q(title__contains=query) | Q(description__contains=query)
+            )
+        return object_list
 
 
 @login_required
