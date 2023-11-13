@@ -6,47 +6,60 @@ from .models import SocialUser, InterestTag
 # from django.contrib.auth.models import User
 
 
-class SignUpForm(forms.Form):
-    username = forms.CharField(
-        max_length=30,
-        widget=forms.TextInput(
-            attrs={"class": "w-full p-2 border border-gray-300 rounded"}
-        ),
-    )
-    full_name = forms.CharField(
-        max_length=30,
-        widget=forms.TextInput(
-            attrs={"class": "w-full p-2 border border-gray-300 rounded"}
-        ),
-    )
-    email = forms.EmailField(
-        required=True,
-        widget=forms.TextInput(
-            attrs={"class": "w-full p-2 border border-gray-300 rounded"}
-        ),
-    )
-    password1 = forms.CharField(
-        widget=forms.PasswordInput(
-            attrs={"class": "w-full p-2 border border-gray-300 rounded"}
-        )
-    )
-    password2 = forms.CharField(
-        widget=forms.PasswordInput(
-            attrs={"class": "w-full p-2 border border-gray-300 rounded"}
-        )
-    )
+# class SignUpForm(forms.Form):
+#     username = forms.CharField(
+#         max_length=30,
+#         widget=forms.TextInput(
+#             attrs={"class": "w-full p-2 border border-gray-300 rounded"}
+#         ),
+#     )
+#     full_name = forms.CharField(
+#         max_length=30,
+#         widget=forms.TextInput(
+#             attrs={"class": "w-full p-2 border border-gray-300 rounded"}
+#         ),
+#     )
+#     email = forms.EmailField(
+#         required=True,
+#         widget=forms.TextInput(
+#             attrs={"class": "w-full p-2 border border-gray-300 rounded"}
+#         ),
+#     )
+#     password1 = forms.CharField(
+#         widget=forms.PasswordInput(
+#             attrs={"class": "w-full p-2 border border-gray-300 rounded"}
+#         )
+#     )
+#     password2 = forms.CharField(
+#         widget=forms.PasswordInput(
+#             attrs={"class": "w-full p-2 border border-gray-300 rounded"}
+#         )
+#     )
 
-    class Meta:
-        model = SocialUser
-        fields = ["username", "full_name", "email", "password1", "password2"]
+#     class Meta:
+#         model = SocialUser
+#         fields = ["username", "full_name", "email", "password1", "password2"]
 
-    def clean_username(self):
-        username = self.cleaned_data.get("username")
-        if SocialUser.objects.filter(username=username).exists():
-            raise forms.ValidationError(
-                "This username is already taken. Please choose a different one."
-            )
-        return username
+#     def clean_username(self):
+#         username = self.cleaned_data.get("username")
+#         if SocialUser.objects.filter(username=username).exists():
+#             raise forms.ValidationError(
+#                 "This username is already taken. Please choose a different one."
+#             )
+#         return username
+
+#     def clean_email(self):
+#         email = self.cleaned_data["email"]
+#         email_domain = email.split("@")[1]
+
+#         if email_domain != "nyu.edu":
+#             raise forms.ValidationError(
+#                 "Invalid email domain. Please use an NYU email address to sign up."
+#             )
+#         elif SocialUser.objects.filter(email=email).exists():
+#             raise forms.ValidationError("Email is already associated with an account.")
+
+#         return email
 
 
 class LoginForm(forms.Form):
@@ -67,13 +80,12 @@ class LoginForm(forms.Form):
         fields = ["username", "password"]
 
 
-class ProfileCreationForm(forms.Form):
+class SignupForm(UserCreationForm):
     username = forms.CharField(
         max_length=30,
         widget=forms.TextInput(
             attrs={
                 "class": "w-full p-2 border border-gray-300 rounded",
-                "readonly": True,
             }
         ),
     )
@@ -82,22 +94,13 @@ class ProfileCreationForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "class": "w-full p-2 border border-gray-300 rounded",
-                "readonly": True,
             }
         ),
-    )
-    password = forms.CharField(
-        widget=forms.PasswordInput(
-            attrs={
-                "class": "w-full p-2 border border-gray-300 rounded",
-            }
-        )
     )
     email = forms.EmailField(
         widget=forms.EmailInput(
             attrs={
                 "class": "w-full p-2 border border-gray-300 rounded",
-                "readonly": True,
             },
         ),
     )
@@ -134,6 +137,16 @@ class ProfileCreationForm(forms.Form):
             attrs={"class": "w-full p-2 border border-gray-300 rounded"},
         ),
     )
+    password1 = forms.CharField(
+        widget=forms.PasswordInput(
+            attrs={"class": "w-full p-2 border border-gray-300 rounded"}
+        )
+    )
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(
+            attrs={"class": "w-full p-2 border border-gray-300 rounded"}
+        )
+    )
 
     class Meta:
         model = SocialUser
@@ -141,13 +154,35 @@ class ProfileCreationForm(forms.Form):
             "username",
             "full_name",
             "email",
-            "password",
             "date_of_birth",
             "major",
             "pronouns",
             "tags",
             "age",
+            "password1",
+            "password2",
         ]
+
+    def clean_username(self):
+        username = self.cleaned_data.get("username")
+        if SocialUser.objects.filter(username=username).exists():
+            raise forms.ValidationError(
+                "This username is already taken. Please choose a different one."
+            )
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data["email"]
+        email_domain = email.split("@")[1]
+
+        if email_domain != "nyu.edu":
+            raise forms.ValidationError(
+                "Invalid email domain. Please use an NYU email address to sign up."
+            )
+        elif SocialUser.objects.filter(email=email).exists():
+            raise forms.ValidationError("Email is already associated with an account.")
+
+        return email
 
 
 # class ProfileCreationForm(forms.ModelForm):

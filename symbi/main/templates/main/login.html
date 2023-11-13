@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block content %}
+{% block not_logged_in_content %}
     <div class="bg-white rounded-lg shadow-lg p-8 mx-auto max-w-md">
         <h2 class="text-2xl font-semibold mb-6">Login</h2>
         <form action="{% url 'login' %}" method="post">
@@ -27,4 +27,4 @@
                     class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-700">Log In</button>
         </form>
     </div>
-{% endblock content %}
+{% endblock not_logged_in_content %}

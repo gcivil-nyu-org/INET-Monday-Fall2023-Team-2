@@ -1,41 +1,203 @@
 {% extends "base.html" %}
 {% block content %}
-    <section class="bg-gradient-to-b from-[#0f0c29] via-[#302b63] to-[#24243e] flex font-medium items-center justify-center h-screen">
-        <section class="w-3/4 mx-auto bg-[#251D64] rounded-2xl px-8 py-6 shadow-lg">
-            <div class="flex items-center justify-between">
-                <div class="w-full px-3">
-                    <div class="mb-2">
-                        <div class="block ">
-                            <div class="flex justify-between">
-                                <button class="inline-block rounded bg-white px-8 py-3 text-sm font-medium text-[#251D64] transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-white">
+    <div class="container mx-auto my-60">
+        <div>
+            <div class="bg-white relative shadow rounded-lg w-5/6 md:w-5/6  lg:w-4/6 xl:w-3/6 mx-auto">
+                <div class="flex justify-center">
+                    <div class="rounded-full bg-[#ff6a45] flex items-center justify-center ml-2 mx-auto absolute -top-20 w-32 h-32 shadow-md border-4 border-white transition duration-200 transform hover:scale-110">
+                        <span class="text-white text-3xl">{{ profile.full_name|first|capfirst }}</span>
+                    </div>
+                    <div class="mt-16">
+                        <h1 class="font-bold text-center text-3xl text-gray-900">{{ profile.username|capfirst }}</h1>
+                        <p class="text-center text-sm text-gray-400 font-medium">
+                            Pronouns:
+                            {% if profile.pronouns == profile.Pronouns.SHE %}
+                                She/Her
+                            {% elif profile.pronouns == profile.Pronouns.HE %}
+                                He/Him
+                            {% elif profile.pronouns == profile.Pronouns.THEY %}
+                                They/Them
+                            {% elif profile.pronouns == profile.Pronouns.OTHER %}
+                                Other
+                            {% endif %}
+                        </p>
+                        <p class="text-center text-sm text-gray-400 font-medium">
+                            Interested in:
+                            {% for tag in profile.tags.all %}
+                                {{ tag.name|capfirst }}
+                                {% if not forloop.last %},{% endif %}
+                            {% endfor %}
+                        </p>
+                        <p>
+                            <span></span>
+                        </p>
+                        {% if not viewing_self %}
+                            <div class="flex justify-between items-center my-5 px-6">
+                                {% if connection_status == connection_status_choices.CONNECTED %}
+                                    <a href="{% url 'main:remove_connection' profile.pk %}"
+                                       class="flex mx-10 w-full h-full text-white rounded-lg text-center font-medium leading-6 px-6 py-3 bg-blue-500 hover:bg-blue-200 hover:text-black transition">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                             fill="none"
+                                             viewBox="0 0 24 24"
+                                             stroke-width="1.5"
+                                             stroke="currentColor"
+                                             class="w-6 h-6 mx-1">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 01-.657.643 48.39 48.39 0 01-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 01-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 00-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 01-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 00.657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 01-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 005.427-.63 48.05 48.05 0 00.582-4.717.532.532 0 00-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.96.401v0a.656.656 0 00.658-.663 48.422 48.422 0 00-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 01-.61-.58v0z" />
+                                        </svg>
+                                        Remove Connection
+                                    </a>
+                                {% elif connection_status == connection_status_choices.REQUESTED_A_TO_B and is_userA %}
+                                    <form action="{% url 'main:cancel_connection_request' profile.pk %}"
+                                          method="post">
+                                        {% csrf_token %}
+                                        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">Cancel Connection Request</button>
+                                    </form>
+                                {% elif connection_status == connection_status_choices.REQUESTED_A_TO_B and not is_userA %}
+                                    <form action="{% url 'main:accept_connection' profile.id %}" method="post">
+                                        {% csrf_token %}
+                                        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">Accept Connection Request</button>
+                                    </form>
+                                {% elif connection_status == connection_status_choices.NOT_CONNECTED %}
+                                    <a href="{% url 'main:request_connection' profile.pk %}"
+                                       class="flex mx-10 w-full h-full text-white rounded-lg text-center font-medium leading-6 px-6 py-3 bg-blue-500 hover:bg-blue-200 hover:text-black transition">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                             fill="none"
+                                             viewBox="0 0 24 24"
+                                             stroke-width="1.5"
+                                             stroke="currentColor"
+                                             class="w-6 h-6 mx-1">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 01-.657.643 48.39 48.39 0 01-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 01-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 00-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 01-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 00.657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 01-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 005.427-.63 48.05 48.05 0 00.582-4.717.532.532 0 00-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.96.401v0a.656.656 0 00.658-.663 48.422 48.422 0 00-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 01-.61-.58v0z" />
+                                        </svg>
+                                        Connect
+                                    </a>
+                                {% endif %}
+                                <a href="#"
+                                   class="flex mx-10 w-full h-full text-white rounded-lg text-center font-medium leading-6 px-6 py-3 bg-green-500 hover:bg-green-200 hover:text-black transition">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         stroke-width="1.5"
+                                         stroke="currentColor"
+                                         class="w-6 h-6 mx-1">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" />
+                                    </svg>
                                     Chat
-                                </button>
-                                <button class="inline-block rounded bg-white px-8 py-3 text-sm font-medium text-[#251D64] transition hover:scale-110 hover:shadow-xl focus:outline-none focus:ring active:bg-white">
-                                    Connect
-                                </button>
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if viewing_self %}
+                    <div class="flex flex-wrap mx-5" id="tabs-id">
+                        <div class="w-full">
+                            <ul class="flex mb-0 list-none flex-wrap pt-3 pb-4 flex-row">
+                                <li class="-mb-px mr-2 last:mr-0 flex-auto text-center">
+                                    <a class="text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal text-white bg-[#ff6a45]"
+                                       onclick="changeActiveTab(event,'tab-active-posts')">
+                                        <i class="fas fa-space-shuttle text-base mr-1"></i>  Active Posts
+                                    </a>
+                                </li>
+                                <li class="-mb-px mr-2 last:mr-0 flex-auto text-center">
+                                    <a class="text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal text-[#ff6a45] bg-white"
+                                       onclick="changeActiveTab(event,'tab-drafted-posts')">
+                                        <i class="fas fa-cog text-base mr-1"></i>  Drafted Posts
+                                    </a>
+                                </li>
+                                <li class="-mb-px mr-2 last:mr-0 flex-auto text-center">
+                                    <a class="text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal text-[#ff6a45] bg-white"
+                                       onclick="changeActiveTab(event,'tab-archived-posts')">
+                                        <i class="fas fa-briefcase text-base mr-1"></i>  Archived Posts
+                                    </a>
+                                </li>
+                            </ul>
+                            <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
+                                <div class="px-4 py-5 flex-auto">
+                                    <div class="tab-content tab-space">
+                                        <div class="block" id="tab-active-posts">
+                                            <p>Active</p>
+                                        </div>
+                                        <div class="hidden" id="tab-drafted-posts">
+                                            <p>Drafted</p>
+                                        </div>
+                                        <div class="hidden" id="tab-archived-posts">
+                                            <p>Archived</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="mt-10 text-white text-center text-3xl flex flex-col items-center">
-                        <div class="flex">
-                            <h1 class="flex-shrink-0">{{ user.first_name|capfirst }} {{ user.last_name|capfirst }}</h1>
-                            <p class="ml-2">, {{ user.age }}</p>
+                    <script type="text/javascript">
+                    function changeActiveTab(event,tabID){
+                      let element = event.target;
+                      while(element.nodeName !== "A"){
+                        element = element.parentNode;
+                      }
+                      ulElement = element.parentNode.parentNode;
+                      aElements = ulElement.querySelectorAll("li > a");
+                      tabContents = document.getElementById("tabs-id").querySelectorAll(".tab-content > div");
+                      for(let i = 0 ; i < aElements.length; i++){
+                        aElements[i].classList.remove("text-white");
+                        aElements[i].classList.remove("bg-[#ff6a45]");
+                        aElements[i].classList.add("text-[#ff6a45]");
+                        aElements[i].classList.add("bg-white");
+                        tabContents[i].classList.add("hidden");
+                        tabContents[i].classList.remove("block");
+                      }
+                      element.classList.remove("text-[#ff6a45]");
+                      element.classList.remove("bg-white");
+                      element.classList.add("text-white");
+                      element.classList.add("bg-[#ff6a45]");
+                      document.getElementById(tabID).classList.remove("hidden");
+                      document.getElementById(tabID).classList.add("block");
+                    }
+                    </script>
+                </div>
+            {% else %}
+                <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
+                    <div class="px-4 py-5 flex-auto">
+                        <div class="tab-content tab-space">
+                            <div class="block">
+                                <p>Active</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
-    </section>
-    {% comment %} <div class="flex justify-center items-center h-screen w-screen">
-        <div class="w-full h-full bg-gradient-to-b from-[#0f0c29] via-[#302b63] to-[#24243e]">
-            <div class="w-3/4 h-3/4 bg-gradient-to-b from-[#0f0c29] via-[#302b63] to-[#24243e] m-auto mt-40 rounded-2xl shadow-2x1">
-                <div class="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 lg:px-8">
-                    <div class="flex items-center sm:justify-between sm:gap-4">
-                        <div class="relative hidden sm:block"></div>
-                    </div>
-                </div>
-            </div>
+            {% endif %}
         </div>
-    </div> {% endcomment %}
+    </div>
 {% endblock content %}
-{% comment %} from-[#251d64] via-[#4a4298] to-[#404063] {% endcomment %}
+{% comment %} <div class="bg-white p-8 rounded-lg shadow-md">
+    <h1 class="text-3xl font-bold mb-4">{{ user.full_name|capfirst }}</h1>
+    <div class="flex items-center mb-4">
+        {% if user.profile_picture %}
+            <img src="{{ user.profile_picture.url }}" alt="{{ user.full_name }}" class="rounded-full h-16 w-16 mr-4">
+        {% else %}
+            <div class="rounded-full h-16 w-16 bg-gray-300 mr-4"></div>
+        {% endif %}
+        <div>
+            <p class="text-lg">{{ user.username }}</p>
+            <p class="text-gray-500">{{ user.age }} years old</p>
+        </div>
+    </div>
+    <p class="mb-4">Major: {{ user.major }}</p>
+    <p class="mb-4">
+        Pronouns:
+        {% if user.pronouns == user.Pronouns.SHE %}
+            She/Her
+        {% elif user.pronouns == user.Pronouns.HE %}
+            He/Him
+        {% elif user.pronouns == user.Pronouns.THEY %}
+            They/Them
+        {% elif user.pronouns == user.Pronouns.OTHER %}
+            Other
+        {% endif %}
+    </p>
+    <p class="mb-4">
+        Interests:
+        {% for tag in user.tags.all %}
+            {{ tag.name|capfirst }}
+            {% if not forloop.last %},{% endif %}
+        {% endfor %}
+    </p>
+</div> {% endcomment %}

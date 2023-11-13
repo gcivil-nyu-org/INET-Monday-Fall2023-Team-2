@@ -3,14 +3,64 @@ from django.urls import reverse, reverse_lazy
 from django.views import generic
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.db.models import Q
+from django.contrib import messages
 
 from posts.models import ActivityPost
 from .models import SocialUser, Connection, Notification
-from .forms import SignUpForm, CreateProfileForm
+from .forms import SignupForm, LoginForm
+
+
+class ProfileDetailsView(generic.DetailView):
+    model = SocialUser
+    template_name = "main/profile_page.html"
+    context_object_name = "profile"
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(SocialUser, username=self.kwargs["username"])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        viewed_user = self.get_object()
+        viewing_self = self.request.user == viewed_user
+        connection_status = Connection.ConnectionStatus.NOT_CONNECTED
+        is_userA = False
+
+        if self.request.user.is_authenticated and not viewing_self:
+            try:
+                # Check if a connection already exists in either direction
+                connection = Connection.objects.get(
+                    Q(userA=self.request.user, userB=viewed_user)
+                    | Q(userA=viewed_user, userB=self.request.user)
+                )
+                connection_status = connection.status
+                is_userA = connection.userA == self.request.user
+            except Connection.DoesNotExist:
+                pass
+
+        context["connection_status"] = connection_status
+        context["connection_status_choices"] = Connection.ConnectionStatus
+        context["viewing_self"] = viewing_self
+        context["is_userA"] = is_userA
+        return context
+
+
+def logout_view(request):
+    logout(request)
+    return HttpResponseRedirect(reverse("main:landing"))
+
+
+class HomePageView(generic.TemplateView):
+    template_name = "main/home.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["user"] = self.request.user
+        context["all_posts"] = ActivityPost.objects.all()
+        return context
 
 
 class LandingPageView(generic.TemplateView):
@@ -40,7 +90,7 @@ class LoginView(generic.View):
 
 
 class SignupView(generic.View):
-    form_class = SignUpForm
+    form_class = SignupForm
     template_name = "main/signup.html"
 
     def get(self, request):
@@ -51,149 +101,20 @@ class SignupView(generic.View):
         form = self.form_class(request.POST)
 
         if form.is_valid():
-            profile_data = {
-                "username": form.cleaned_data["username"],
-                "email": form.cleaned_data["email"],
-                "full_name": form.cleaned_data["full_name"],
-                "password": form.cleaned_data["password1"],
-            }
+            user = form.save()
 
-            profile_creation_form = ProfileCreationForm(initial=profile_data)
-            return render(
-                request, "main/profile_creation.html", {"form": profile_creation_form}
+            login(request, user)
+
+            return HttpResponseRedirect(
+                reverse("main:profile", kwargs={"username": user.username})
             )
 
-        return render(request, "main/signup.html", {"form": form})
-
-
-class ProfileCreationView(generic.View):
-    template_name = "main/profile_creation.html"
-
-    def post(self, request):
-        form_data = ProfileCreationForm(request.POST)
-
-        if form_data.is_valid():
-            new_user = SocialUser.objects.create(
-                username=form_data.cleaned_data["username"],
-                email=form_data.cleaned_data["email"],
-                full_name=form_data.cleaned_data["full_name"],
-                password=form_data.cleaned_data["password"],
-                date_of_birth=form_data.cleaned_data["date_of_birth"],
-                major=form_data.cleaned_data["major"],
-                pronouns=form_data.cleaned_data["pronouns"],
-                tags=form_data.cleaned_data["tags"],
-                age=form_data.cleaned_data["age"],
-            )
-
-            user = authenticate(
-                request,
-                username=form_data.cleaned_data["username"],
-                password=form_data.cleaned_data["password"],
-            )
-
-            if user:
-                login(request, user)
-                print("Redirecting to home...")
-                return redirect("main:home")
-            else:
-                # Handle authentication failure, if needed
-                messages.error(request, "Authentication failed. Please try again.")
         else:
-            for field, errors in form_data.errors.items():
+            for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"{field.capitalize()}: {error}")
 
-            return render(request, "main/profile_creation.html", {"form": form_data})
-
-
-# class ProfileCreationView(generic.FormView):
-#     form_class = ProfileCreationForm
-#     success_url = reverse_lazy("main:home")
-#     template_name = "main/profile_creation.html"
-#     initial = {
-#         "username": "Test",
-#         "full_name": "Profile Test",
-#         "email": "fQpZ7@example.com",
-#         "password1": "test123",
-#         "password2": "test123",
-#     }
-
-
-# def landing(request):
-#     template_name = "base.html"
-#     # TODO: Check if the user is logged in, if yes, do we directly redirect to the home page?
-#     return render(request, template_name)
-
-
-# @login_required
-def home(request):
-    template_name = "main/home.html"
-    latest_posts_list = ActivityPost.objects.order_by("-timestamp")[:50]
-    context = {
-        "latest_posts_list": latest_posts_list,
-    }
-    return render(request, template_name, context)
-
-    # def sign_up(request):
-    #     template_name = "registration/signup.html"
-    #     if request.method == "POST":
-    #         form = SignUpForm(request.POST)
-    #         if form.is_valid():
-    #             user = form.save()
-    #             login(request, user)
-    #             return HttpResponseRedirect(reverse("main:create_profile"))
-    #     else:
-    #         form = SignUpForm()
-    #     return render(request, template_name, {"form": form})
-
-    # class CreateProfileView(generic.CreateView):
-    #     model = SocialUser
-    #     form_class = CreateProfileForm
-    #     template_name = "main/create_profile.html"
-
-    #     def get_success_url(self):
-    #         social_user = SocialUser.objects.get(user=self.request.user)
-    #         return reverse_lazy("main:profile_view", kwargs={"pk": social_user.pk})
-
-    #     def form_valid(self, form):
-    #         self.object = form.save(commit=False)
-    #         self.object.user = self.request.user
-    #         # self.object.age = self.request.user.age
-    #         self.object.save()
-
-    #         self.user_id = self.object.pk
-
-    #         return super(CreateProfileView, self).form_valid(form)
-
-    # class ProfileDetailsView(generic.DetailView):
-    #     model = SocialUser
-    #     template_name = "main/profile_details.html"
-    #     context_object_name = "profile"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        viewed_user = self.get_object()
-        viewing_self = self.request.user == viewed_user
-        connection_status = Connection.ConnectionStatus.NOT_CONNECTED
-        is_userA = False
-
-        if self.request.user.is_authenticated and not viewing_self:
-            try:
-                # Check if a connection already exists in either direction
-                connection = Connection.objects.get(
-                    Q(userA=self.request.user, userB=viewed_user)
-                    | Q(userA=viewed_user, userB=self.request.user)
-                )
-                connection_status = connection.status
-                is_userA = connection.userA == self.request.user
-            except Connection.DoesNotExist:
-                pass
-
-        context["connection_status"] = connection_status
-        context["connection_status_choices"] = Connection.ConnectionStatus
-        context["viewing_self"] = viewing_self
-        context["is_userA"] = is_userA
-        return context
+            return render(request, "main/signup.html", {"form": form})
 
 
 @login_required
@@ -370,14 +291,8 @@ def remove_connection(request, pk):
     return HttpResponseRedirect(reverse("main:connections", kwargs={"pk": pk}))
 
 
-# # class ProfileCreationView(generic.CreateView):
-# #     model = SocialUser
-# #     template_name = "main/create_profile.html"
-# #     form_class = ProfileCreationForm
-
-
-# class DiscoverPageView(generic.TemplateView):
-#     template_name = "main/discover.html"
+class DiscoverPageView(generic.TemplateView):
+    template_name = "main/discover.html"
 
 
 # class ProfilePageView(generic.DetailView):
@@ -401,3 +316,116 @@ def remove_connection(request, pk):
 #             "title": "Delete Account",
 #         }
 #         return render(request, "main/delete_account.html", context)
+
+# class ProfileCreationView(generic.View):
+#     template_name = "main/profile_creation.html"
+
+#     def post(self, request):
+#         form_data = ProfileCreationForm(request.POST)
+
+#         if form_data.is_valid():
+#             new_user = SocialUser.objects.create(
+#                 username=form_data.cleaned_data["username"],
+#                 email=form_data.cleaned_data["email"],
+#                 full_name=form_data.cleaned_data["full_name"],
+#                 password=form_data.cleaned_data["password"],
+#                 date_of_birth=form_data.cleaned_data["date_of_birth"],
+#                 major=form_data.cleaned_data["major"],
+#                 pronouns=form_data.cleaned_data["pronouns"],
+#                 tags=form_data.cleaned_data["tags"],
+#                 age=form_data.cleaned_data["age"],
+#             )
+
+#             user = authenticate(
+#                 request,
+#                 username=form_data.cleaned_data["username"],
+#                 password=form_data.cleaned_data["password"],
+#             )
+
+#             if user:
+#                 login(request, user)
+#                 return redirect("main:home")
+#             else:
+#                 # Handle authentication failure, if needed
+#                 messages.error(request, "Authentication failed. Please try again.")
+#         else:
+#             for field, errors in form_data.errors.items():
+#                 for error in errors:
+#                     messages.error(request, f"{field.capitalize()}: {error}")
+
+#             return render(request, "main/profile_creation.html", {"form": form_data})
+
+# def landing(request):
+#     template_name = "base.html"
+#     # TODO: Check if the user is logged in, if yes, do we directly redirect to the home page?
+#     return render(request, template_name)
+
+# @login_required
+# def home(request):
+#     template_name = "main/home.html"
+#     latest_posts_list = ActivityPost.objects.order_by("-timestamp")[:50]
+#     context = {
+#         "latest_posts_list": latest_posts_list,
+#     }
+#     return render(request, template_name, context)
+
+# def sign_up(request):
+#     template_name = "registration/signup.html"
+#     if request.method == "POST":
+#         form = SignUpForm(request.POST)
+#         if form.is_valid():
+#             user = form.save()
+#             login(request, user)
+#             return HttpResponseRedirect(reverse("main:create_profile"))
+#     else:
+#         form = SignUpForm()
+#     return render(request, template_name, {"form": form})
+
+# class CreateProfileView(generic.CreateView):
+#     model = SocialUser
+#     form_class = CreateProfileForm
+#     template_name = "main/create_profile.html"
+
+#     def get_success_url(self):
+#         social_user = SocialUser.objects.get(user=self.request.user)
+#         return reverse_lazy("main:profile_view", kwargs={"pk": social_user.pk})
+
+#     def form_valid(self, form):
+#         self.object = form.save(commit=False)
+#         self.object.user = self.request.user
+#         # self.object.age = self.request.user.age
+#         self.object.save()
+
+#         self.user_id = self.object.pk
+
+#         return super(CreateProfileView, self).form_valid(form)
+
+# class ProfileDetailsView(generic.DetailView):
+#     model = SocialUser
+#     template_name = "main/profile_details.html"
+#     context_object_name = "profile"
+
+# def get_context_data(self, **kwargs):
+#     context = super().get_context_data(**kwargs)
+#     viewed_user = self.get_object()
+#     viewing_self = self.request.user == viewed_user
+#     connection_status = Connection.ConnectionStatus.NOT_CONNECTED
+#     is_userA = False
+
+#     if self.request.user.is_authenticated and not viewing_self:
+#         try:
+#             # Check if a connection already exists in either direction
+#             connection = Connection.objects.get(
+#                 Q(userA=self.request.user, userB=viewed_user)
+#                 | Q(userA=viewed_user, userB=self.request.user)
+#             )
+#             connection_status = connection.status
+#             is_userA = connection.userA == self.request.user
+#         except Connection.DoesNotExist:
+#             pass
+
+#     context["connection_status"] = connection_status
+#     context["connection_status_choices"] = Connection.ConnectionStatus
+#     context["viewing_self"] = viewing_self
+#     context["is_userA"] = is_userA
+#     return context

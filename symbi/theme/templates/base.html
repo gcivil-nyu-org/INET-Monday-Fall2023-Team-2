@@ -2,51 +2,123 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Symbi</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>
+            {% block title %}
+            {% endblock title %}
+        </title>
         {% tailwind_css %}
     </head>
-    <body>
-        <div class="bg-white">
-            <header class="absolute inset-x-0 top-0 z-50">
-                <nav class="flex items-center justify-between p-6 lg:px-8"
-                     aria-label="Global">
-                    <div class="flex lg:flex-1">
-                        <a href="#" class="-m-1.5 p-1.5">
-                            <span class="sr-only">Your Company</span>
-                            <img class="h-8 w-auto"
-                                 src="https://user-images.githubusercontent.com/119933910/271819796-02f0a22e-38d9-4489-92b5-ed2c99db654b.png"
-                                 alt="">
-                        </a>
-                    </div>
-                    <div class="flex lg:hidden">
-                        <button type="button"
-                                class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700">
-                            <span class="sr-only">Open main menu</span>
-                            <svg class="h-6 w-6"
+    <body class="flex bg-gray-100 min-h-screen">
+        {% if user.is_authenticated %}
+            <aside class="hidden sm:flex sm:flex-col">
+                <a href="#"
+                   class="inline-flex items-center justify-center h-20 w-20 bg-white">
+                    <img class="h-8 w-auto"
+                         src="https://user-images.githubusercontent.com/119933910/271819796-02f0a22e-38d9-4489-92b5-ed2c99db654b.png"
+                         alt="">
+                </a>
+                <div class="flex-grow flex flex-col justify-between text-gray-500 bg-gray-800">
+                    <nav class="flex flex-col mx-4 my-6 space-y-4">
+                        <a href="{% url 'main:home' %}"
+                           class="inline-flex items-center justify-center py-3 hover:text-gray-400 hover:bg-gray-700 focus:text-gray-400 focus:bg-gray-700 rounded-lg">
+                            <span class="sr-only">Home</span>
+                            <svg xmlns="http://www.w3.org/2000/svg"
                                  fill="none"
                                  viewBox="0 0 24 24"
                                  stroke-width="1.5"
                                  stroke="currentColor"
-                                 aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                                 class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
                             </svg>
-                        </button>
+                        </a>
+                        <a href="{% url 'main:discover' %}"
+                           class="inline-flex items-center justify-center py-3 hover:text-gray-400 hover:bg-gray-700 focus:text-gray-400 focus:bg-gray-700 rounded-lg">
+                            <span class="sr-only">Discover</span>
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke-width="1.5"
+                                 stroke="currentColor"
+                                 class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                            </svg>
+                        </a>
+                        <a href="#"
+                           class="inline-flex items-center justify-center py-3 hover:text-gray-400 hover:bg-gray-700 focus:text-gray-400 focus:bg-gray-700 rounded-lg">
+                            <span class="sr-only">Chat</span>
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke-width="1.5"
+                                 stroke="currentColor"
+                                 class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" />
+                            </svg>
+                        </a>
+                        <a href="{% url 'main:connections' user.id %}"
+                           class="inline-flex items-center justify-center py-3 hover:text-gray-400 hover:bg-gray-700 focus:text-gray-400 focus:bg-gray-700 rounded-lg">
+                            <span class="sr-only">Connections</span>
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke-width="1.5"
+                                 stroke="currentColor"
+                                 class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 01-.657.643 48.39 48.39 0 01-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 01-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 00-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 01-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 00.657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 01-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 005.427-.63 48.05 48.05 0 00.582-4.717.532.532 0 00-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.96.401v0a.656.656 0 00.658-.663 48.422 48.422 0 00-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 01-.61-.58v0z" />
+                            </svg>
+                        </a>
+                    </nav>
+                </div>
+            </aside>
+            <div class="flex-grow text-gray-800">
+                <header class="flex items-center h-20 px-6 sm:px-10 bg-white">
+                    <button class="block sm:hidden relative flex-shrink-0 p-2 mr-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800 focus:bg-gray-100 focus:text-gray-800 rounded-full">
+                        <svg aria-hidden="true"
+                             fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor"
+                             class="h-6 w-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+                        </svg>
+                    </button>
+                    <div class="flex flex-shrink-0 items-center ml-auto">
+                        <a href="{% url 'main:profile' user.username %}"
+                           class="inline-flex items-center p-2 hover:bg-gray-100 focus:bg-gray-100 rounded-lg">
+                            <span class="sr-only">Profile</span>
+                            <div class="hidden md:flex md:flex-col md:items-end md:leading-tight">
+                                <span class="font-semibold">{{ user.username|capfirst }}</span>
+                                <span class="font-semibold">{{ user.full_name|capfirst }}</span>
+                            </div>
+                            <div class="rounded-full h-8 w-8 bg-gray-300 flex items-center justify-center ml-2">
+                                <span class="text-gray-700 text-lg">{{ user.full_name|first|capfirst }}</span>
+                            </div>
+                        </a>
+                        <div class="border-l pl-3 ml-3 space-x-1">
+                            <button class="relative p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:bg-gray-100 focus:text-gray-600 rounded-full">
+                                <span class="sr-only">Log out</span>
+                                <a href="{% url 'main:logout' %}">
+                                    <svg aria-hidden="true"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         stroke="currentColor"
+                                         class="h-6 w-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                    </svg>
+                                </a>
+                            </button>
+                        </div>
                     </div>
-                    {% comment %} <div class="hidden lg:flex lg:flex-1 lg:justify-end">
-                        <a href="/login/" class="text-sm font-semibold leading-6 text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
-                    </div> {% endcomment %}
-                </nav>
-                <div class="relative isolate px-6 pt-14 lg:px-8">
+                </header>
+                <main class="p-6 sm:p-10 space-y-6">
                     <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
                          aria-hidden="true">
                         <div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff6a45] to-[#fa2d2d] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
                              style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)">
                         </div>
                     </div>
-                    <div class="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
+                    <div class="align-middle">
                         {% block content %}
                         {% endblock content %}
                     </div>
@@ -56,7 +128,145 @@
                              style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)">
                         </div>
                     </div>
+                </main>
+            </div>
+        {% else %}
+            <div class="bg-white w-screen">
+                <header class="absolute inset-x-0 top-0 z-50">
+                    <nav class="flex items-center justify-between p-6 lg:px-8"
+                         aria-label="Global">
+                        <div class="flex lg:flex-1">
+                            <a href="#" class="-m-1.5 p-1.5">
+                                <span class="sr-only">Your Company</span>
+                                <img class="h-8 w-auto"
+                                     src="https://user-images.githubusercontent.com/119933910/271819796-02f0a22e-38d9-4489-92b5-ed2c99db654b.png"
+                                     alt="">
+                            </a>
+                        </div>
+                        <div class="flex lg:hidden">
+                            <button type="button"
+                                    class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700">
+                                <span class="sr-only">Open main menu</span>
+                                <svg class="h-6 w-6"
+                                     fill="none"
+                                     viewBox="0 0 24 24"
+                                     stroke-width="1.5"
+                                     stroke="currentColor"
+                                     aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="hidden lg:flex lg:flex-1 lg:justify-end">
+                            <a href="{% url 'main:login' %}"
+                               class="text-sm font-semibold leading-6 text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
+                        </div>
+                    </nav>
+                </header>
+                <div class="relative isolate px-6 pt-14 lg:px-8">
+                    <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
+                         aria-hidden="true">
+                        <div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff6a45] to-[#fa2d2d] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
+                             style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)">
+                        </div>
+                    </div>
+                    <div class="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
+                        {% block not_logged_in_content %}
+                        {% endblock not_logged_in_content %}
+                    </div>
+                    <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]"
+                         aria-hidden="true">
+                        <div class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#f76307] to-[#ff6a45] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
+                             style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)">
+                        </div>
+                    </div>
                 </div>
+            </div>
+        {% endif %}
+    </body>
+</html>
+{% comment %} {% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Symbi</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        {% tailwind_css %}
+    </head>
+    <body>
+        <div class="bg-white">
+            <header class="absolute inset-x-0 top-0 z-50">
+                {% if user.is_authenticated %}
+                    <nav class="flex flex-col bg-gray-800 w-64">
+                        <div class="flex items-center justify-center p-4">
+                            <a href="#" class="text-white">
+                                <span class="sr-only">Your Company</span>
+                                <img class="h-8 w-auto" src="https://user-images.githubusercontent.com/119933910/271819796-02f0a22e-38d9-4489-92b5-ed2c99db654b.png" alt="">
+                            </a>
+                        </div>
+                        <div class="flex flex-col min-h-screen">
+                            <div class="flex flex-col items-start">
+                                <a href="{% url 'main:home' %}" class="text-white p-4 hover:bg-gray-700">Home</a>
+                                <a href="{% url 'main:discover' %}" class="text-white p-4 hover:bg-gray-700">Discover</a>
+                                <a href="#" class="text-white p-4 hover:bg-gray-700">Chat</a>
+                                <a href="{% url 'main:connections' user.id %}" class="text-white p-4 hover:bg-gray-700">Connections</a>
+                            </div>
+                            <div class="flex items-center p-4">
+                                {% if user.profile_picture %}
+                                    <img class="h-10 w-10 rounded-full" src="{{ user.profile_picture }}" alt="Profile Picture">
+                                {% else %}
+                                    <div class="h-10 w-10 bg-gray-500 rounded-full flex items-center justify-center">
+                                        <span class="text-white">{{ user.username|first|capfirst }}</span>
+                                    </div>
+                                {% endif %}
+                                <a href="{% url 'main:profile' user.username %}" class="ml-4 text-white">{{ user.username|capfirst }}</a>
+                            </div>
+                            <div class="flex items-center p-4">
+                                <form method="post" action="{% url 'main:logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-white">Logout</button>
+                                </form>
+                            </div>
+                        </div>
+                    </nav>
+                {% else %}
+                    <nav class="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
+                        <div class="flex lg:flex-1">
+                            <a href="#" class="-m-1.5 p-1.5">
+                                <span class="sr-only">Your Company</span>
+                                <img class="h-8 w-auto" src="https://user-images.githubusercontent.com/119933910/271819796-02f0a22e-38d9-4489-92b5-ed2c99db654b.png" alt="">
+                            </a>
+                        </div>
+                        <div class="flex lg:hidden">
+                            <button type="button" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700">
+                                <span class="sr-only">Open main menu</span>
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="hidden lg:flex lg:flex-1 lg:justify-end">
+                            <a href="{% url 'main:login' %}" class="text-sm font-semibold leading-6 text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
+                        </div>
+                    </nav>
+                {% endif %}
             </header>
-        </body>
-    </html>
+            <div class="relative isolate px-6 pt-14 lg:px-8">
+                <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
+                    <div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff6a45] to-[#fa2d2d] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)">
+                    </div>
+                </div>
+                <div class="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
+                    {% block content %}
+                    {% endblock content %}
+                </div>
+                <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">
+                    <div class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#f76307] to-[#ff6a45] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html> {% endcomment %}
