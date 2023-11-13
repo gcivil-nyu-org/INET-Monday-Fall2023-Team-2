@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="bg-white rounded-lg shadow-lg p-8 mx-auto max-w-md">
+        <h2 class="text-2xl font-semibold mb-6">Login</h2>
+        <form action="{% url 'login' %}" method="post">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="username" class="block text-gray-700 text-sm font-bold mb-2">Username:</label>
+                <input type="text"
+                       id="username"
+                       name="username"
+                       class="w-full p-2 border border-gray-300 rounded"
+                       required>
+            </div>
+            <div class="mb-4">
+                <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Password:</label>
+                <input type="password"
+                       id="password"
+                       name="password"
+                       class="w-full p-2 border border-gray-300 rounded"
+                       required>
+            </div>
+            <p class="mb-5">
+                Don't have an account, <a href="{% url 'main:signup' %}" class="text-blue-400">sign up</a> instead
+            </p>
+            <button type="submit"
+                    class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-700">Log In</button>
+        </form>
+    </div>
+{% endblock content %}

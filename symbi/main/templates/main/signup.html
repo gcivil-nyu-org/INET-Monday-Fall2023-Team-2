@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="bg-white rounded-lg shadow-lg p-8 mx-auto max-w-md">
+        <h2 class="text-2xl font-semibold mb-6">Signup</h2>
+        <form method="post" action="{% url 'main:signup' %}">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="{{ form.username.id_for_label }}"
+                       class="block text-gray-700 text-sm font-bold mb-2">Username:</label>
+                {{ form.username }}
+            </div>
+            <div class="mb-4">
+                <label for="{{ form.full_name.id_for_label }}"
+                       class="block text-gray-700 text-sm font-bold mb-2">Full Name:</label>
+                {{ form.full_name }}
+            </div>
+            <div class="mb-4">
+                <label for="{{ form.email.id_for_label }}"
+                       class="block text-gray-700 text-sm font-bold mb-2">Email:</label>
+                {{ form.email }}
+            </div>
+            <div class="mb-4">
+                <label for="{{ form.password1.id_for_label }}"
+                       class="block text-gray-700 text-sm font-bold mb-2">Password:</label>
+                {{ form.password1 }}
+            </div>
+            <div class="mb-4">
+                <label for="{{ form.password2.id_for_label }}"
+                       class="block text-gray-700 text-sm font-bold mb-2">Confirm Password:</label>
+                {{ form.password2 }}
+            </div>
+            <p class="mb-5">
+                Already have an account, <a href="{% url 'main:login' %}" class="text-blue-400">login</a> instead
+            </p>
+            <button type="submit"
+                    class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-700">Signup</button>
+        </form>
+    </div>
+{% endblock content %}

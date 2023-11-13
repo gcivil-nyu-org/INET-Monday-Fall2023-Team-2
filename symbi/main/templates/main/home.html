@@ -1,4 +1,5 @@
-{% extends 'main/base.html' %} {% block title %}Home Page{% endblock %}
+{% extends 'main/base.html' %}
+{% block title %}Home Page{% endblock %}
 {% comment %} {% if user.is_authenticated %}
 <p>Logged in as <a href="{% url 'main:profile' user.pk %}">{{user.username}}</a></p>
 <a href="/logout">Logout</a>
@@ -6,7 +7,6 @@
 <a href="/login">Login</a>
 {% endif %} {% endcomment %}
 {% comment %} <a href="{% url 'posts:create_post_view' %}">New Post</a> {% endcomment %}
-
 {#{% block content %}#}
 {#    {% if latest_posts_list %}#}
 {#        <ul>#}
