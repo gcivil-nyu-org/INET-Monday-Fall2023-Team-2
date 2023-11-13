@@ -1,8 +1,9 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
+from django.conf import settings
 
-from main.models import SocialUser, InterestTag
+from main.models import InterestTag
 
 
 class ActivityPost(models.Model):
@@ -15,7 +16,7 @@ class ActivityPost(models.Model):
         db_table = "activity_posts"
         verbose_name_plural = "Activity Posts"
 
-    poster = models.ForeignKey(SocialUser, on_delete=models.CASCADE)
+    poster = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=255)
     description = models.TextField(max_length=1023)
@@ -33,7 +34,9 @@ class Comment(models.Model):
     post = models.ForeignKey(
         ActivityPost, on_delete=models.CASCADE, related_name="comments"
     )
-    poster = models.ForeignKey(SocialUser, on_delete=models.CASCADE, default=1)
+    commentPoster = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE
+    )
     text = models.TextField()
     timestamp = models.DateTimeField("date commented")
 
