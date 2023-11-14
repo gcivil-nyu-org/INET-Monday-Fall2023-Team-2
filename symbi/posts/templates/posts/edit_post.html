@@ -1,8 +1,15 @@
 <h1>Edit Post</h1>
 <br>
-</br>
+<br>
+
 <form action="{% url 'posts:edit_post_request' post.id %}" method="POST">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit" name="action" value="save">Save</button>
+
+    {% if post.status == post.PostStatus.DRAFT %}
+        <button type="submit" name="action" value="save">Save Changes</button>
+        <button type="submit" name="action" value="post">Post</button>
+    {% else %}
+        <button type="submit" name="action" value="save">Save Changes</button>
+    {% endif %}
 </form>

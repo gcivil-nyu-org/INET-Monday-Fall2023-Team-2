@@ -1,14 +1,54 @@
-<h1>{{ post.title }}</h1>
-{{ post.description }}
-<form action="{% url 'posts:archive_post_request' post.id %}" method="archive">
-    {% csrf_token %}
-    <button type="submit" name="action" value="archive">Archive</button>
-</form>
-<form action="{% url 'posts:delete_post_request' post.id %}" method="delete">
-    {% csrf_token %}
-    <button type="submit" name="action" value="delete">Delete</button>
-</form>
-<form action="{% url 'posts:edit_post_view' post.id %}" method="edit">
-    {% csrf_token %}
-    <button type="submit" name="action" value="edit">Edit</button>
-</form>
+{% extends "main/base.html" %}
+
+{% block content %}
+    <h1>{{ post.title }}</h1>
+    <p>
+        Posted by
+        <a href="{% url 'main:profile' post.poster.pk %}">{{ post.poster.username }}</a>
+        ({{ post.poster.get_pronouns_display }})
+    </p>
+    <br>
+
+    {{ post.description }}
+    <div class="flex-container" style="display: flex; margin: 10px;">
+        <form action="{% url 'posts:archive_post_request' post.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" name="action" value="archive">Archive</button>
+        </form>
+        <form action="{% url 'posts:delete_post_request' post.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" name="action" value="delete">Delete</button>
+        </form>
+        <form action="{% url 'posts:edit_post_view' post.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" name="action" value="edit">Edit</button>
+        </form>
+    </div>
+
+    <h1>Leave Your Comments</h1>
+
+    <form action="{% url 'posts:add_comment' post.id %}" method="post">
+        {% csrf_token %}
+        <input type="text" name="comment">
+        <button type="submit">Add Comment</button>
+    </form>
+
+    <h1>Other's Comments</h1>
+    <ul>
+        {% for comment in comments %}
+            <li>
+                <p>
+                    <a href="{% url 'main:profile' comment.commentPoster.pk %}">{{ comment.commentPoster.username }}</a>
+                    ({{ comment.commentPoster.get_pronouns_display }})
+                </p>
+                {{ comment.text }}
+                {% if user == comment.commentPoster %}
+                    <span>
+                        <a href="{% url 'posts:delete_comment' post.id comment.id %}">Delete</a>
+                    </span>
+                {% endif %}
+
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
