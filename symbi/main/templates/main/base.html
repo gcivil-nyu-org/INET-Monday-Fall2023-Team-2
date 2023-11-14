@@ -19,8 +19,8 @@
                 <a href="/discover/">Discover</a>
                 <a href="{% url 'posts:create_post_view' %}">Create Post</a>
                 <a href="/chats/">Chat</a>
-                <a href="/connections/">Connections</a>
-                <a href="/connections/">Notifications</a>
+                <a href="{% url "main:connections" request.user.id %}">Connections</a>
+                <a href="{% url "main:notifications" request.user.id %}">Notifications</a>
             </div>
         {% else %}
             <div class="center-content">
