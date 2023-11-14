@@ -8,11 +8,13 @@ python:
 install:
   - gem install webrick
   - pip install -r symbi/requirements.txt
+  - npm install symbi/theme/static_src
 
 before_script:
   - cd symbi
   - python manage.py migrate
   - python manage.py collectstatic --noinput
+  - python manage.py tailwind build
 
 script:
   - black --check .
