@@ -9,8 +9,6 @@ install:
   - gem install webrick
   - pip install -r symbi/requirements.txt
   - npm install symbi/theme/static_src
-  - npm install symbi
-
 
 before_script:
   - cd symbi
