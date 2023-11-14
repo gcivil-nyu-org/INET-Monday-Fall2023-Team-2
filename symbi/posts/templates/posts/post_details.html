@@ -10,6 +10,7 @@
     <br>
 
     {{ post.description }}
+    {% if user == post.poster %}
     <div class="flex-container" style="display: flex; margin: 10px;">
         <form action="{% url 'posts:archive_post_request' post.id %}" method="post">
             {% csrf_token %}
@@ -24,6 +25,7 @@
             <button type="submit" name="action" value="edit">Edit</button>
         </form>
     </div>
+    {% endif %}
 
     <h1>Leave Your Comments</h1>
 
