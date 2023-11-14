@@ -8,6 +8,8 @@ python:
 install:
   - gem install webrick
   - pip install -r symbi/requirements.txt
+  - npm install -g rimraf
+
 
 before_script:
   - cd symbi
