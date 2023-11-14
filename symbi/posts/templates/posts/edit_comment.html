@@ -1,0 +1,8 @@
+<h1>Edit Comment</h1>
+
+    <form method="post" action="{% url 'posts:edit_comment_request' post.id comment.id %}">
+        {% csrf_token %}
+        <label for="edited_comment">Edit Comment:</label>
+        <textarea id="edited_comment" name="edited_comment">{{ comment.text }}</textarea>
+        <button type="submit">Save Changes</button>
+    </form>

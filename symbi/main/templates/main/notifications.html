@@ -1,0 +1,78 @@
+{% load static tailwind_tags %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {% tailwind_css %}
+</head>
+
+<div>
+  <div class="px-4 sm:px-0">
+    <h3 class="text-base font-semibold leading-7 text-gray-900">Notifications</h2>
+  </div>
+</div>
+
+<body class="card p-4">
+    <ul>
+        {% for notification in user_notifications %}
+            <li>
+                <strong>{{ notification.timestamp }}</strong><br>
+                {{ notification.content }}
+                <!-- Check if the notification type is a connection request -->
+                {% if notification.type == notification_types.CONNECTION_REQUEST %}
+                    <!-- Display an "Accept" button -->
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded">Accept</button>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+
+<div class="bg-gray-50 min-h-screen flex items-center justify-center px-16">
+  <div class="relative w-full max-w-xl">
+    <div class="m-2 relative space-y-4">
+        <ul>
+            {% for notification, time_difference in zipped_notifications %}
+                <li>
+                    <div class="p-5 bg-white rounded-lg flex items-center justify-between space-x-8">
+                      <div class="flex-1">
+                          <div class="flex items-center">
+                              <p>{{ notification.content }}</p>
+                              <div class="text-gray-500 text-sm ml-4">
+                                  {{ time_difference }}
+                              </div>
+                          </div>
+                      </div>
+                      <div>
+                          {% if notification.type == notification_types.CONNECTION_REQUEST %}
+                            <form action="{% url 'main:accept_connection' pk=notification.from_user.id %}" method="post">
+                                {% csrf_token %}
+                                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Accept</button>
+                            </form>
+                          {% endif %}
+                      </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+      
+      <div class="p-5 bg-white rounded-lg flex items-center justify-between space-x-8">
+        <div class="flex-1 flex justify-between items-center">
+          <div class="h-4 w-48 bg-gray-300 rounded"></div>
+          <div class="w-24 h-6 rounded-lg bg-purple-300"></div>
+        </div>
+      </div>
+      <div class="p-5 bg-white rounded-lg flex items-center justify-between space-x-8">
+        <div class="flex-1 flex justify-between items-center">
+          <div class="h-4 w-48 bg-gray-300 rounded"></div>
+          <div class="w-24 h-6 rounded-lg bg-purple-300"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</html>

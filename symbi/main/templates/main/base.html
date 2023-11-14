@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} My Website {% endblock %}</title>
+    <style>
+        nav {width: 100%;display: flex;justify-content: space-between;}
+        nav a {margin: 10px;text-decoration: none;}
+        .center-content {text-align: center;}
+        .bold-text {font-weight: bold; /* Make text bold */}
+    </style>
+</head>
+<body>
+    <nav>
+        {% if user.is_authenticated %}
+            <div class="right-content">
+                <a href="/home">Home</a>
+                <a href="/discover/">Discover</a>
+                <a href="{% url 'posts:create_post_view' %}">Create Post</a>
+                <a href="/chats/">Chat</a>
+                <a href="{% url "main:connections" request.user.id %}">Connections</a>
+                <a href="{% url "main:notifications" request.user.id %}">Notifications</a>
+            </div>
+        {% else %}
+            <div class="center-content">
+                <a href="/login/">Login</a>
+                <a href="/signup/">Sign Up</a>
+            </div>
+        {% endif %}
+        <div class="right-content">
+            {% if user.is_authenticated %}
+            <span class="navbar-text">Logged in as <a href="{% url 'main:profile' user.pk %}"><strong>{{user.username}}</strong></a></span>
+            | </span>
+                <a class="nav-link" href="/logout">Logout</a>
+            {% endif %}
+        </ul>
+        </div>    
+    </nav>
+    <main>
+        <div class="container">
+            {% block content %}{% endblock content %}
+        </div>
+    </main>
+</body>
+</html> 
+
+
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} My Website {% endblock %}</title>
+    <style>
+        nav {width: 100%;display: flex;justify-content: space-between;}
+        nav a {margin: 10px;text-decoration: none;}
+        .center-content {text-align: center;}
+        .bold-text {font-weight: bold; /* Make text bold */}
+    </style>
+</head>
+<body>
+    <nav>
+        {% if user.is_authenticated %}
+            <div class="right-content">
+                <a href="/">Home</a>
+                <a href="/discover/">Discover</a>
+                <a href="{% url 'posts:create_post_view' %}">Create Post</a>
+                <a href="/chats/">Chat</a>
+                <a href="/connections/">Connections</a>
+            </div>
+        {% else %}
+            <div class="center-content">
+                <a href="/login/">Login</a>
+                <a href="/signup/">Sign Up</a>
+            </div>
+        {% endif %}
+        <div class="right-content">
+            {% if user.is_authenticated %}
+                {% if user.socialuser %}
+                <span class="navbar-text">Logged in as <a href="{% url 'main:profile' user.pk %}"><strong>{{user.username}}</strong></a></span>
+                | </span>
+                    <a class="nav-link" href="/logout">Logout</a>
+                {% else %}
+                <!--Check if user doesn't have profile, then show Create a Profile -->
+                <a href="{% url 'main:create_profile' %}">Create a Profile</a>
+                {% endif %}
+            {% endif %}
+        </ul>
+        </div>    
+    </nav>
+    <main>
+        <div class="container">
+            {% block content %}{% endblock content %}
+        </div>
+    </main>
+</body>
+</html> {% endcomment %}
