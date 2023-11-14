@@ -28,7 +28,7 @@ class MainViewArchivedPostTest(TestCase):
         self.client.login(username="testuser", password="testpassword")
 
         # Create an archived post
-        archived_post = ActivityPost.objects.create(
+        ActivityPost.objects.create(
             poster=self.user,
             title="Archived Post",
             description="This post is archived.",
@@ -50,7 +50,7 @@ class MainViewPostedPostTest(TestCase):
         self.client.login(username="testuser", password="testpassword")
 
         # Create a posted post
-        posted_post = ActivityPost.objects.create(
+        ActivityPost.objects.create(
             poster=self.user,
             title="Posted Post",
             description="This post is posted.",
@@ -72,7 +72,7 @@ class MainViewDraftedPostTest(TestCase):
         self.client.login(username="testuser", password="testpassword")
 
         # Create a drafted post
-        drafted_post = ActivityPost.objects.create(
+        ActivityPost.objects.create(
             poster=self.user,
             title="Drafted Post",
             description="This post is drafted.",
@@ -95,7 +95,7 @@ class MainViewMultiplePostTests(TestCase):
         self.client.login(username="testuser", password="testpassword")
 
         # Create an archived post
-        archived_post = ActivityPost.objects.create(
+        ActivityPost.objects.create(
             poster=self.user,
             title="Archived Post",
             description="This post is archived.",
@@ -103,7 +103,7 @@ class MainViewMultiplePostTests(TestCase):
         )
 
         # Create a posted post
-        posted_post = ActivityPost.objects.create(
+        ActivityPost.objects.create(
             poster=self.user,
             title="Posted Post",
             description="This post is posted.",
@@ -111,7 +111,7 @@ class MainViewMultiplePostTests(TestCase):
         )
 
         # Create a drafted post
-        drafted_post = ActivityPost.objects.create(
+        ActivityPost.objects.create(
             poster=self.user,
             title="Drafted Post",
             description="This post is drafted.",
@@ -174,7 +174,7 @@ class ConnectionTests(TestCase):
         connected_user = SocialUser.objects.create_user(
             username="connecteduser", password="testpassword"
         )
-        connection = Connection.objects.create(
+        Connection.objects.create(
             userA=self.user,
             userB=connected_user,
             status=Connection.ConnectionStatus.CONNECTED,
