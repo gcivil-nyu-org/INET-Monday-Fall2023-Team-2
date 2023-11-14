@@ -8,7 +8,8 @@ python:
 install:
   - gem install webrick
   - pip install -r symbi/requirements.txt
-  - npm install
+  - npm install symbi/theme/static_src/package.json
+  - npm install symbi/package.json
 
 
 before_script:
