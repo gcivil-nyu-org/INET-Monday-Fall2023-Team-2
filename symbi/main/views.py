@@ -36,7 +36,7 @@ def sign_up(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return HttpResponseRedirect(reverse("main:create_profile"))
+            return HttpResponseRedirect(reverse("main:home"))
     else:
         form = SignUpForm()
     return render(request, template_name, {"form": form})
