@@ -145,5 +145,3 @@ TAILWIND_APP_NAME = "theme"
 INTERNAL_IPS = ["127.0.0.1"]
 
 ALLOW_DELETED_USERS = True
-
-NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
