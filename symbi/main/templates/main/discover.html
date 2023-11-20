@@ -1,0 +1,25 @@
+{% extends 'main/base.html' %} {% block title %}Login{% endblock %}
+{% block content %}
+    <h2>Discover</h2>
+
+    <form method="get" action="{% url 'main:discover' %}">
+        <input type="text" name="q" placeholder="Search">
+        <button type="submit">Search</button>
+        <button type="submit">Clear</button>
+    </form>
+
+    {% if object_list %}
+        <ul>
+            {% for post in object_list %}
+                {% if post.status == 2 %}
+                    <li>
+                        <a href="{% url 'posts:post_details_view' post.pk %}">{{ post.title }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No posts are available.</p>
+    {% endif %}
+
+{% endblock %}

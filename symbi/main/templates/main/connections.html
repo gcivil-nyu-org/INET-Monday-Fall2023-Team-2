@@ -1,0 +1,49 @@
+{% load static tailwind_tags %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {% tailwind_css %}
+</head>
+
+<div>
+  <div class="px-4 sm:px-0">
+    <h3 class="text-base font-semibold leading-7 text-gray-900">Connections</h2>
+  </div>
+</div>
+
+<body class="p-10">
+    <ul role="list" class="divide-y divide-gray-100">
+        {% for connected_user in connected_users %}
+        <li class="flex justify-between gap-x-6 py-5">
+            <div class="flex min-w-0 gap-x-4">
+                <a href="{% url 'main:profile' pk=connected_user.id %}">
+                    {% if connected_user.profile_picture %}
+                    <img class="h-12 w-12 flex-none rounded-full bg-gray-50" src="{{ connected_user.profile_picture.url }}" alt="{{ connected_user.username }}">
+                        {% else %}
+                        <!-- Provide a default image or some alternative content -->
+                        <p>No profile picture available</p>
+                        {% endif %}
+                </a>
+                <div class="min-w-0 flex-auto">
+                    <a href="{% url 'main:profile' pk=connected_user.id %}">
+                        <p class="text-sm font-semibold leading-6 text-gray-900">{{ connected_user.username }}</p>
+                    </a>
+                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">{{ connected_user.email }}</p>
+                </div>
+            </div>
+            <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
+                <form action="{% url 'main:remove_connection' pk=connected_user.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-full">Remove Connection</button>
+                </form>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+
+

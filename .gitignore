@@ -27,7 +27,7 @@ media
 .Python
 build/
 develop-eggs/
-dist/
+# dist/
 downloads/
 eggs/
 .eggs/
@@ -42,6 +42,7 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+django-browser-reload/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
