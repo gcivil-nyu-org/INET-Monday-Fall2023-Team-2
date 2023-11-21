@@ -21,21 +21,19 @@ class SocialUser(AbstractUser):
         SHE = 1, _("She/Her")
         HE = 2, _("He/Him")
         THEY = 3, _("They/Them")
-        OTHER = 4, _("Other")
+        OTHER = 4, _("Other/Prefer Not To Say")
 
     username = models.CharField(max_length=30, unique=True)
-    full_name = models.CharField(max_length=50, null=True)
+    email = models.EmailField(unique=True, default="@nyu.edu")
+    full_name = models.CharField(max_length=50, default="")
+    pronouns = models.IntegerField(default=Pronouns.OTHER, choices=Pronouns.choices)
     date_of_birth = models.DateField(null=True)
     major = models.CharField(max_length=100, default="undeclared")
-    pronouns = models.IntegerField(default=Pronouns.OTHER, choices=Pronouns.choices)
+    tags = models.ManyToManyField(InterestTag, related_name="tags")
     profile_picture = models.ImageField(
         upload_to="profile_pics/", null=True, blank=True
     )
-    tags = models.ManyToManyField(InterestTag, related_name="tags")
     timestamp = models.DateTimeField("timestamp", default=timezone.now)  # joined
-    age = models.IntegerField(
-        default=18, validators=[MinValueValidator(18), MaxValueValidator(150)]
-    )
 
 
 class Notification(models.Model):
