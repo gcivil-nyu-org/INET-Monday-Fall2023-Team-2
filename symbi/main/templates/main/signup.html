@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block nav_button %}
+    <a href="{% url 'main:login' %}"
+       class="text-sm font-semibold leading-6 text-gray-900">Log in <span aria-hidden="true">→</span></a>
+{% endblock nav_button %}
+{% block not_logged_in_content %}
+    <div class="bg-white rounded-lg shadow-lg p-8 mx-auto max-w-md">
+        <h2 class="text-2xl font-semibold mb-6">Create Your Account</h2>
+        <form method="post">
+            {% csrf_token %}
+            {% if messages %}
+                <ul class="bg-red-100 border border-red-400 rounded text-red-700 p-2 mb-4">
+                    {% for message in messages %}<li>{{ message }}</li>{% endfor %}
+                </ul>
+            {% endif %}
+            <div class="flex mb-4">
+                <div class="w-1/2 pr-2">
+                    <label for="{{ form.username.id_for_label }}"
+                           class="block text-gray-700 text-sm font-bold mb-2">Username:</label>
+                    {{ form.username }}
+                </div>
+                <div class="w-1/2 pl-2">
+                    <label for="{{ form.full_name.id_for_label }}"
+                           class="block text-gray-700 text-sm font-bold mb-2">Full Name:</label>
+                    {{ form.full_name }}
+                </div>
+            </div>
+            <div class="flex mb-4">
+                <div class="w-1/2 pr-2">
+                    <label for="{{ form.password1.id_for_label }}"
+                           class="block text-gray-700 text-sm font-bold mb-2">Password:</label>
+                    {{ form.password1 }}
+                </div>
+                <div class="w-1/2 pl-2">
+                    <label for="{{ form.password2.id_for_label }}"
+                           class="block text-gray-700 text-sm font-bold mb-2">Confirm Password:</label>
+                    {{ form.password2 }}
+                </div>
+            </div>
+            <div class="mb-4">
+                <label for="{{ form.email.id_for_label }}"
+                       class="block text-gray-700 text-sm font-bold mb-2">Email:</label>
+                {{ form.email }}
+            </div>
+            <div class="mb-4">
+                <label for="{{ form.date_of_birth.id_for_label }}"
+                       class="block text-gray-700 text-sm font-bold mb-2">Date of Birth:</label>
+                {{ form.date_of_birth }}
+            </div>
+            <div class="mb-4">
+                <label for="{{ form.major.id_for_label }}"
+                       class="block text-gray-700 text-sm font-bold mb-2">Major:</label>
+                {{ form.major }}
+            </div>
+            <div class="mb-4">
+                <label for="{{ form.pronouns.id_for_label }}"
+                       class="block text-gray-700 text-sm font-bold mb-2">Pronouns:</label>
+                {{ form.pronouns }}
+            </div>
+            <div class="mb-4">
+                <label for="{{ form.interests.id_for_label }}"
+                       class="block text-gray-700 text-sm font-bold mb-2">Interests:</label>
+                {% for interest in form.interests %}
+                    <label class="flex flex-row justify-between">
+                        <span class="text-gray-700">{{ interest.choice_label }}:</span>
+                        {{ interest.tag }}
+                    </label>
+                {% endfor %}
+            </div>
+            <button type="submit"
+                    class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-700">Create Account</button>
+        </form>
+    </div>
+{% endblock not_logged_in_content %}

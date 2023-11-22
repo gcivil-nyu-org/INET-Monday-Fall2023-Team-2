@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
+from django.core.management.utils import get_random_secret_key
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -30,13 +32,14 @@ ALLOWED_HOSTS = [
     "localhost",
 ]
 
-SECRET_KEY = "z-tlcwj6wfoumvao%8j+r9%8khnndq*mlf9^v)l10=0gxs74y6"
+SECRET_KEY = config("SECRET_KEY", default=get_random_secret_key())
 
 # Application definition
 
 INSTALLED_APPS = [
     "main.apps.MainConfig",
     "posts.apps.PostsConfig",
+    "chat.apps.ChatConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -144,3 +147,5 @@ TAILWIND_APP_NAME = "theme"
 INTERNAL_IPS = ["127.0.0.1"]
 
 ALLOW_DELETED_USERS = True
+
+NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"

@@ -29,6 +29,20 @@ class ActivityPost(models.Model):
     def get_absolute_url(self):
         return reverse("posts:post_details_view", args=(str(self.id)))
 
+    @classmethod
+    def get_posts_by_user(cls, user):
+        return cls.objects.filter(poster=user)
+
+    @classmethod
+    def get_posts_by_search(cls, search_query):
+        return cls.objects.filter(
+            (
+                models.Q(title__icontains=search_query)
+                | models.Q(description__icontains=search_query)
+            )
+            & models.Q(status=ActivityPost.PostStatus.ACTIVE)
+        )
+
 
 class Comment(models.Model):
     post = models.ForeignKey(

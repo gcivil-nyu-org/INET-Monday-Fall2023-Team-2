@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+    {% for room in chat_rooms %}
+        {% include "chat/chat_room_card.html" with room=room %}
+    {% endfor %}
+{% endblock content %}

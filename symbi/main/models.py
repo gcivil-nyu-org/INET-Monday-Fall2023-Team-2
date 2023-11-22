@@ -56,15 +56,15 @@ class Notification(models.Model):
 class Connection(models.Model):
     class ConnectionStatus(models.IntegerChoices):
         NOT_CONNECTED = 1, _("Not Connected")
-        REQUESTED_A_TO_B = 2, _("Requested A -> B")
+        REQUESTED = 2, _("Requested")
         CONNECTED = 3, _("Connected")
         BLOCKED = 4, _("Blocked")
 
-    userA = models.ForeignKey(
-        SocialUser, on_delete=models.CASCADE, related_name="userA"
+    requester = models.ForeignKey(
+        SocialUser, on_delete=models.CASCADE, related_name="requester"
     )
-    userB = models.ForeignKey(
-        SocialUser, on_delete=models.CASCADE, related_name="userB"
+    receiver = models.ForeignKey(
+        SocialUser, on_delete=models.CASCADE, related_name="receiver"
     )
     timestamp = models.DateTimeField("timestamp", default=timezone.now)
     status = models.IntegerField(
@@ -76,7 +76,40 @@ class Connection(models.Model):
     )
 
     class Meta:
-        unique_together = ["userA", "userB"]
+        unique_together = ["requester", "receiver"]
 
-    def __str__(self) -> str:
-        return self.text
+    # Check if two users are connected
+    @classmethod
+    def are_connected(cls, user1, user2):
+        return cls.objects.filter(
+            (models.Q(requester=user1) & models.Q(receiver=user2))
+            | (models.Q(requester=user2) & models.Q(receiver=user1))
+        ).exists()
+
+    # Get all connection objects regardless of who is requester and receiver
+    @classmethod
+    def get_connection(cls, user1, user2):
+        return cls.objects.filter(
+            (models.Q(requester=user1) & models.Q(receiver=user2))
+            | (models.Q(requester=user2) & models.Q(receiver=user1))
+        ).first()
+
+    # Get all connections where the user was the receiver
+    @classmethod
+    def get_pending_connections(cls, user):
+        return (
+            cls.objects.filter(receiver=user)
+            .filter(status=Connection.ConnectionStatus.REQUESTED)
+            .all()
+        )
+
+    # Get all active connections for a user
+    @classmethod
+    def get_active_connections(cls, user):
+        return cls.objects.filter(
+            (models.Q(requester=user) | models.Q(receiver=user))
+            & models.Q(status=Connection.ConnectionStatus.CONNECTED)
+        ).all()
+
+    def __str__(self):
+        return f"{self.requester} - {self.receiver}"
