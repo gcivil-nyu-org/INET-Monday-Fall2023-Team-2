@@ -132,17 +132,19 @@ def add_comment(request, post_id):
     return HttpResponseRedirect(reverse("posts:post_details_view", args=[post_id]))
 
 
-# def edit_comment(request, post_id, comment_id):
-#     comment = Comment.objects.filter(pk=comment_id)
-#
-#     if request.method == 'POST':
-#         print("form submitted")
-#         new_text = request.POST.get('edited_comment', '')
-#         comment.text = new_text
-#         comment.save()
-#         return HttpResponseRedirect(reverse('posts:post_details_view', args=[post_id]))
-#
-#     return HttpResponseRedirect(reverse('posts:post_details_view', args=[post_id]))
+def edit_comment(request, post_id, comment_id):
+    comment = Comment.objects.filter(pk=comment_id)[0]
+
+    if request.method == 'POST':
+        current_user = request.user
+        comment_user = comment.user
+        if current_user.id == comment_user.id:
+            edited_comment = request.POST.get('edited_comment', '')
+            comment.text = edited_comment
+            comment.save()
+            return HttpResponseRedirect(reverse('posts:post_details_view', args=[post_id]))
+
+    return HttpResponseRedirect(reverse('posts:post_details_view', args=[post_id]))
 
 
 @login_required
