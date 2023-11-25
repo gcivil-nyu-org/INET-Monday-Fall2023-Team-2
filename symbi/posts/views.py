@@ -1,5 +1,5 @@
 from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views import generic
 from django.utils import timezone
 
@@ -33,11 +33,29 @@ class EditPostView(generic.UpdateView):
     fields = ["title", "description"]
 
 
-# class EditCommentView(generic.UpdateView):
-#     model = Comment
-#     template_name = "posts/edit_comment.html"
-#     context_object_name = "edited_comment"
-#     fields = ["text"]
+class EditCommentView(generic.UpdateView):
+    model = Comment
+    template_name = "posts/edit_comment.html"
+    context_object_name = "edited_comment"
+    fields = ["text"]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user
+        context['commentPoster'] = self.object.commentPoster
+        return context
+
+    def form_valid(self, form):
+        print("Current user:", self.request.user)
+        print("Comment author:", form.instance.commentPoster)  # Adjust based on your field name
+        return super().form_valid(form)
+
+    def get_queryset(self):
+        # Ensure that only the comments of the current user are editable
+        return Comment.objects.filter(commentPoster=self.request.user)
+
+    def get_success_url(self):
+        return reverse_lazy('posts:post_details_view', kwargs={'pk': self.object.post.pk})
 
 
 @login_required
@@ -132,19 +150,19 @@ def add_comment(request, post_id):
     return HttpResponseRedirect(reverse("posts:post_details_view", args=[post_id]))
 
 
-def edit_comment(request, post_id, comment_id):
+def edit_comment(request, pk, comment_id):
     comment = Comment.objects.filter(pk=comment_id)[0]
 
     if request.method == 'POST':
         current_user = request.user
         comment_user = comment.user
         if current_user.id == comment_user.id:
-            edited_comment = request.POST.get('edited_comment', '')
+            edited_comment = request.POST.get('text')
             comment.text = edited_comment
             comment.save()
-            return HttpResponseRedirect(reverse('posts:post_details_view', args=[post_id]))
+            return HttpResponseRedirect(reverse('posts:post_details_view', args=[pk]))
 
-    return HttpResponseRedirect(reverse('posts:post_details_view', args=[post_id]))
+    return HttpResponseRedirect(reverse('posts:post_details_view', args=[pk]))
 
 
 @login_required
