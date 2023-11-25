@@ -41,13 +41,15 @@ class EditCommentView(generic.UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['user'] = self.request.user
-        context['commentPoster'] = self.object.commentPoster
+        context["user"] = self.request.user
+        context["commentPoster"] = self.object.commentPoster
         return context
 
     def form_valid(self, form):
         print("Current user:", self.request.user)
-        print("Comment author:", form.instance.commentPoster)  # Adjust based on your field name
+        print(
+            "Comment author:", form.instance.commentPoster
+        )  # Adjust based on your field name
         return super().form_valid(form)
 
     def get_queryset(self):
@@ -55,7 +57,9 @@ class EditCommentView(generic.UpdateView):
         return Comment.objects.filter(commentPoster=self.request.user)
 
     def get_success_url(self):
-        return reverse_lazy('posts:post_details_view', kwargs={'pk': self.object.post.pk})
+        return reverse_lazy(
+            "posts:post_details_view", kwargs={"pk": self.object.post.pk}
+        )
 
 
 @login_required
@@ -153,16 +157,16 @@ def add_comment(request, post_id):
 def edit_comment(request, pk, comment_id):
     comment = Comment.objects.filter(pk=comment_id)[0]
 
-    if request.method == 'POST':
+    if request.method == "POST":
         current_user = request.user
         comment_user = comment.user
         if current_user.id == comment_user.id:
-            edited_comment = request.POST.get('text')
+            edited_comment = request.POST.get("text")
             comment.text = edited_comment
             comment.save()
-            return HttpResponseRedirect(reverse('posts:post_details_view', args=[pk]))
+            return HttpResponseRedirect(reverse("posts:post_details_view", args=[pk]))
 
-    return HttpResponseRedirect(reverse('posts:post_details_view', args=[pk]))
+    return HttpResponseRedirect(reverse("posts:post_details_view", args=[pk]))
 
 
 @login_required
