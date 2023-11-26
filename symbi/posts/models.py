@@ -45,12 +45,14 @@ class Comment(models.Model):
     def __str__(self):
         return self.text
 
+
 @receiver(post_save, sender=Comment)
 def create_comment_notification(sender, instance, created, **kwargs):
     if created and instance.commentPoster != instance.post.poster:
         Notification.objects.create(
             recipient_user=instance.post.poster,
             from_user=instance.commentPoster,
-            content=f"New comment on your post: {instance.text}",
+            content=f"@{instance.commentPoster} posted a new comment on your post "
+            f"{instance.post.title}: {instance.text}",
             type=Notification.NotificationType.NEW_COMMENT,
         )
