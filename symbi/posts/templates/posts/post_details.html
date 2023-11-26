@@ -10,6 +10,11 @@
     <br>
 
     {{ post.description }}
+    <br>
+
+    <button id="copyLinkBtn">Share this post</button>
+
+    <br>
     {% if user == post.poster %}
     <div class="flex-container" style="display: flex; margin: 10px;">
         <form action="{% url 'posts:archive_post_request' post.id %}" method="post">
@@ -54,4 +59,26 @@
             </li>
         {% endfor %}
     </ul>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var copyLinkBtn = document.getElementById('copyLinkBtn');
+
+            copyLinkBtn.addEventListener('click', function() {
+                var postUrl = window.location.href;
+
+                var tempInput = document.createElement('input');
+                tempInput.value = postUrl;
+                document.body.appendChild(tempInput);
+
+                tempInput.select();
+                document.execCommand('copy');
+
+                document.body.removeChild(tempInput);
+
+                alert('Post link copied to clipboard!');
+            });
+        });
+    </script>
 {% endblock %}

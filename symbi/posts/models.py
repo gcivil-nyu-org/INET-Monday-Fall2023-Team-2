@@ -2,8 +2,10 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
-from main.models import InterestTag
+from main.models import InterestTag, Notification
 
 
 class ActivityPost(models.Model):
@@ -42,3 +44,13 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.text
+
+@receiver(post_save, sender=Comment)
+def create_comment_notification(sender, instance, created, **kwargs):
+    if created and instance.commentPoster != instance.post.poster:
+        Notification.objects.create(
+            recipient_user=instance.post.poster,
+            from_user=instance.commentPoster,
+            content=f"New comment on your post: {instance.text}",
+            type=Notification.NotificationType.NEW_COMMENT,
+        )
