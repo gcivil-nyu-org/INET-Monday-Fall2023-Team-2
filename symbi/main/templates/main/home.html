@@ -1,17 +1,35 @@
-{% extends 'main/base.html' %} {% block title %}Home Page{% endblock %}
-
+{% extends "base.html" %}
 {% block content %}
-    {% if latest_posts_list %}
-        <ul>
-            {% for post in latest_posts_list %}
-                {% if post.status == 2 %}
-                    <li>
-                        <a href="{% url 'posts:post_details_view' post.pk %}">{{ post.title }}</a>
-                    </li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No posts are available.</p>
-    {% endif %}
+    <div>
+        <h1 class="text-2xl font-bold mb-5 border-b-2 pb-2">Posts based on your interests</h1>
+        {% for post in interests_posts %}
+            {% if post.poster != user %}
+                {% include "posts/post_card.html" with post=post %}
+            {% endif %}
+        {% endfor %}
+        <h1 class="text-2xl font-bold mb-5 border-b-2 pb-2">Posts from your connections</h1>
+        {% for post in connection_posts %}
+            {% if post.poster != user %}
+                {% include "posts/post_card.html" with post=post %}
+            {% endif %}
+        {% endfor %}
+    </div>
+    <div class="fixed bottom-0 text-md right-0 m-20 z-10">
+        <a href="{% url 'posts:create_post' %}"
+           class="relative inline-flex items-center justify-center p-4 px-6 py-3 overflow-hidden font-medium text-[#ff6a45] transition duration-300 ease-out border-2 border-[#ff6a45] rounded-full shadow-md group">
+            <span class="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 -translate-x-full bg-[#ff6a45] group-hover:translate-x-0 ease">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke-width="1.5"
+                     stroke="currentColor"
+                     class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+            </span>
+            <span class="absolute flex items-center justify-center w-full h-full text-[#ff6a45] transition-all duration-300 transform group-hover:translate-x-full ease">Create a Post</span>
+            <span class="relative invisible">Create a Post</span>
+        </a>
+    </div>
+    {% comment %} TODO: Add active posts from connections and similar interests {% endcomment %}
 {% endblock content %}

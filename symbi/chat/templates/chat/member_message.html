@@ -1,0 +1,14 @@
+{% if message.sender != user %}
+    <div class="flex w-full mt-2 space-x-3 max-w-xs">
+        <a href="{% url 'main:profile_page' message.sender.username %}"
+           class="rounded-full hover:bg-gray-400 h-8 w-8 bg-gray-300 flex items-center justify-center ml-2">
+            <span class="text-gray-700 text-lg">{{ message.sender.full_name|first|capfirst }}</span>
+        </a>
+        <div>
+            <div class="bg-gray-300 p-3 rounded-r-lg rounded-bl-lg">
+                <p class="text-sm">{{ message.content }}</p>
+            </div>
+            <span class="text-xs text-gray-500 leading-none">Sent {{ message.created|timesince }} ago</span>
+        </div>
+    </div>
+{% endif %}
