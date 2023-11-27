@@ -39,9 +39,9 @@ class ChatRoomCreateView(generic.View):
         requester = get_object_or_404(SocialUser, username=self.kwargs["requester"])
         receiver = get_object_or_404(SocialUser, username=self.kwargs["receiver"])
 
-        existing_chat = ChatRoom.objects.filter(
-            members__in=[requester, receiver]
-        ).first()
+        existing_chat = (
+            ChatRoom.objects.filter(members=requester).filter(members=receiver).first()
+        )
 
         if existing_chat:
             print("one exists")
@@ -49,7 +49,7 @@ class ChatRoomCreateView(generic.View):
                 reverse_lazy("chat:chat_room", kwargs={"pk": existing_chat.pk})
             )
         else:
-            new_chat = ChatRoom.objects.create(
-                creator=requester, members=[requester, receiver]
-            )
+            new_chat = ChatRoom.objects.create(creator=requester)
+            new_chat.members.add(requester)
+            new_chat.members.add(receiver)
             return redirect(reverse_lazy("chat:chat_room", kwargs={"pk": new_chat.pk}))
