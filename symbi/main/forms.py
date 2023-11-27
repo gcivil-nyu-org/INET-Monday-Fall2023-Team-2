@@ -198,12 +198,11 @@ class EditProfileForm(forms.ModelForm):
             "interests",
         ]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for visible in self.visible_fields():
-            visible.field.widget.attrs["class"] = "form-control"
-        self.fields["tags"].widget.attrs["class"] = "tags-select"
-        self.fields["age"].widget.attrs["class"] = "form-control age-field"
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     for visible in self.visible_fields():
+    #         visible.field.widget.attrs["class"] = "form-control"
+    #     self.fields["interests"].widget.attrs["class"] = "tags-select"
 
 
 class SearchForm(forms.Form):

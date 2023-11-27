@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+{% block title %}
+    Chat
+{% endblock title %}
 {% block content %}
     <div class="flex flex-col flex-grow w-full bg-white shadow-xl rounded-lg overflow-hidden">
         <a href="{% url 'chat:chat_room_list' %}"
