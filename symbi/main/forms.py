@@ -1,17 +1,114 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import SocialUser, InterestTag
+
 
 # from django.contrib.auth.models import User
 
 
-class SignUpForm(UserCreationForm):
-    username = forms.CharField(max_length=30)
-    email = forms.EmailField(required=True)
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(
+        max_length=30,
+        widget=forms.TextInput(
+            attrs={"class": "w-full p-2 border border-gray-300 rounded"}
+        ),
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(
+            attrs={"class": "w-full p-2 border border-gray-300 rounded"}
+        )
+    )
+
+    error_messages = {
+        "invalid_login": (
+            "Please enter a correct %(username)s and password. Note that both "
+            "fields may be case-sensitive."
+        ),
+        "inactive": ("This account is inactive."),
+    }
 
     class Meta:
         model = SocialUser
-        fields = ["username", "full_name", "email", "password1", "password2"]
+        fields = ["username", "password"]
+
+
+class SignupForm(UserCreationForm):
+    username = forms.CharField(
+        max_length=30,
+        widget=forms.TextInput(
+            attrs={
+                "class": "w-full p-2 border border-gray-300 rounded",
+            }
+        ),
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(
+            attrs={
+                "class": "w-full p-2 border border-gray-300 rounded",
+            },
+        ),
+    )
+    full_name = forms.CharField(
+        max_length=30,
+        widget=forms.TextInput(
+            attrs={
+                "class": "w-full p-2 border border-gray-300 rounded",
+            }
+        ),
+    )
+    pronouns = forms.IntegerField(
+        widget=forms.Select(
+            choices=SocialUser.Pronouns.choices,
+            attrs={"class": "w-full p-2 border border-gray-300 rounded"},
+        ),
+    )
+    date_of_birth = forms.DateField(
+        widget=forms.DateInput(
+            attrs={
+                "class": "w-full p-2 border border-gray-300 rounded",
+                "type": "date",
+            }
+        ),
+    )
+    major = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(
+            attrs={"class": "w-full p-2 border border-gray-300 rounded"}
+        ),
+    )
+    interests = forms.ModelMultipleChoiceField(
+        queryset=InterestTag.objects.all(),
+        widget=forms.CheckboxSelectMultiple(
+            attrs={
+                "class": "w-1/2 p-2 border border-gray-300 rounded max-h-52 overflow-y-auto"
+            }
+        ),
+        required=False,
+    )
+    password1 = forms.CharField(
+        widget=forms.PasswordInput(
+            attrs={"class": "w-full p-2 border border-gray-300 rounded"}
+        )
+    )
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(
+            attrs={"class": "w-full p-2 border border-gray-300 rounded"}
+        )
+    )
+
+    class Meta:
+        model = SocialUser
+        fields = [
+            "username",
+            "email",
+            "full_name",
+            "pronouns",
+            "date_of_birth",
+            "major",
+            "interests",
+            "password1",
+            "password2",
+        ]
 
     def clean_username(self):
         username = self.cleaned_data.get("username")
@@ -35,31 +132,78 @@ class SignUpForm(UserCreationForm):
         return email
 
 
-class CreateProfileForm(forms.ModelForm):
-    tags = forms.ModelMultipleChoiceField(
-        queryset=InterestTag.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        label="Interest",
+class EditProfileForm(forms.ModelForm):
+    username = forms.CharField(
+        max_length=30,
+        widget=forms.TextInput(
+            attrs={
+                "class": "w-full p-2 border border-gray-300 rounded",
+                "readonly": True,
+            }
+        ),
     )
-
+    email = forms.EmailField(
+        widget=forms.EmailInput(
+            attrs={
+                "class": "w-full p-2 border border-gray-300 rounded",
+                "readonly": True,
+            },
+        ),
+    )
+    full_name = forms.CharField(
+        max_length=30,
+        widget=forms.TextInput(
+            attrs={
+                "class": "w-full p-2 border border-gray-300 rounded",
+            }
+        ),
+    )
+    pronouns = forms.IntegerField(
+        widget=forms.Select(
+            choices=SocialUser.Pronouns.choices,
+            attrs={"class": "w-full p-2 border border-gray-300 rounded"},
+        ),
+    )
     date_of_birth = forms.DateField(
-        label="Date of Birth",
-        required=True,
-        widget=forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
-        input_formats=["%Y-%m-%d"],
+        widget=forms.DateInput(
+            attrs={
+                "class": "w-full p-2 border border-gray-300 rounded",
+                "type": "date",
+            }
+        ),
     )
-
     major = forms.CharField(
-        initial="",
+        max_length=100,
+        widget=forms.TextInput(
+            attrs={"class": "w-full p-2 border border-gray-300 rounded"}
+        ),
+    )
+    interests = forms.ModelMultipleChoiceField(
+        queryset=InterestTag.objects.all(),
+        widget=forms.CheckboxSelectMultiple(
+            attrs={
+                "class": "w-1/2 p-2 border border-gray-300 rounded max-h-52 overflow-y-auto"
+            }
+        ),
+        required=False,
     )
 
     class Meta:
         model = SocialUser
-        fields = ["date_of_birth", "age", "major", "pronouns", "tags"]
+        fields = [
+            "full_name",
+            "pronouns",
+            "date_of_birth",
+            "major",
+            "interests",
+        ]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for visible in self.visible_fields():
-            visible.field.widget.attrs["class"] = "form-control"
-        self.fields["tags"].widget.attrs["class"] = "tags-select"
-        self.fields["age"].widget.attrs["class"] = "form-control age-field"
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     for visible in self.visible_fields():
+    #         visible.field.widget.attrs["class"] = "form-control"
+    #     self.fields["interests"].widget.attrs["class"] = "tags-select"
+
+
+class SearchForm(forms.Form):
+    query = forms.CharField(required=False)

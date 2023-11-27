@@ -3,94 +3,231 @@ from django.urls import reverse, reverse_lazy
 from django.views import generic
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.db.models import Q
+from django.contrib.auth.views import LoginView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
 
 from posts.models import ActivityPost
-from .models import SocialUser, Connection, Notification
-from .forms import SignUpForm, CreateProfileForm
+from .models import SocialUser, Connection, Notification, InterestTag
+from .forms import SignupForm, LoginForm, SearchForm, EditProfileForm
 
 
-def landing(request):
-    template_name = "base.html"
-    # TODO: Check if the user is logged in, if yes, do we directly redirect to the home page?
-    return render(request, template_name)
+class LandingPageView(generic.View):
+    def get(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            return redirect(reverse_lazy("main:home"))
+        else:
+            return render(request, template_name="main/landing.html")
 
 
-@login_required
-def home(request):
-    template_name = "main/home.html"
-    latest_posts_list = ActivityPost.objects.order_by("-timestamp")[:50]
-    context = {
-        "latest_posts_list": latest_posts_list,
-    }
-    return render(request, template_name, context)
+class LoginView(LoginView):
+    template_name = "main/login.html"
+    authentication_form = LoginForm
+    success_url = reverse_lazy("main:home")
 
 
-def sign_up(request):
-    template_name = "registration/signup.html"
-    if request.method == "POST":
-        form = SignUpForm(request.POST)
+class SignupView(generic.FormView):
+    template_name = "main/signup.html"
+    form_class = SignupForm
+    success_url = reverse_lazy("main:home")
+
+    def post(self, request):
+        form = self.form_class(request.POST)
+
         if form.is_valid():
             user = form.save()
+
             login(request, user)
-            return HttpResponseRedirect(reverse("main:home"))
-    else:
-        form = SignUpForm()
-    return render(request, template_name, {"form": form})
+
+            return redirect(self.success_url)
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field.capitalize()}: {error}")
+
+            return render(request, "main/signup.html", {"form": form})
 
 
-class CreateProfileView(generic.CreateView):
-    model = SocialUser
-    form_class = CreateProfileForm
-    template_name = "main/create_profile.html"
+class LogoutView(generic.RedirectView):
+    url = reverse_lazy("main:landing")
 
-    def get_success_url(self):
-        social_user = SocialUser.objects.get(user=self.request.user)
-        return reverse_lazy("main:profile_view", kwargs={"pk": social_user.pk})
-
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.user = self.request.user
-        # self.object.age = self.request.user.age
-        self.object.save()
-
-        self.user_id = self.object.pk
-
-        return super(CreateProfileView, self).form_valid(form)
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            logout(request)
+        return super().get(request, *args, **kwargs)
 
 
-class ProfileDetailsView(generic.DetailView):
-    model = SocialUser
-    template_name = "main/profile_details.html"
-    context_object_name = "profile"
+class HomePageView(LoginRequiredMixin, generic.ListView):
+    model = ActivityPost
+    template_name = "main/home.html"
+    redirect_field_name = "main:login"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        viewed_user = self.get_object()
-        viewing_self = self.request.user == viewed_user
-        connection_status = Connection.ConnectionStatus.NOT_CONNECTED
-        is_userA = False
-
-        if self.request.user.is_authenticated and not viewing_self:
-            try:
-                # Check if a connection already exists in either direction
-                connection = Connection.objects.get(
-                    Q(userA=self.request.user, userB=viewed_user)
-                    | Q(userA=viewed_user, userB=self.request.user)
-                )
-                connection_status = connection.status
-                is_userA = connection.userA == self.request.user
-            except Connection.DoesNotExist:
-                pass
-
-        context["connection_status"] = connection_status
-        context["connection_status_choices"] = Connection.ConnectionStatus
-        context["viewing_self"] = viewing_self
-        context["is_userA"] = is_userA
+        # Get posts where the users interests is in the posts tags
+        context["interests_posts"] = ActivityPost.objects.filter(
+            tags__in=self.request.user.tags.all(),
+            status=ActivityPost.PostStatus.ACTIVE,
+        )
+        user_connections = Connection.get_active_connections(self.request.user)
+        connected_users = [
+            connection.receiver
+            if connection.receiver != self.request.user
+            else connection.requester
+            for connection in user_connections
+        ]
+        # Get posts where the users connections is in the posts poster
+        context["connection_posts"] = ActivityPost.objects.filter(
+            poster__in=connected_users,
+            status=ActivityPost.PostStatus.ACTIVE,
+        )
         return context
+
+
+class ProfilePageView(LoginRequiredMixin, generic.DetailView):
+    model = SocialUser
+    template_name = "main/profile_page.html"
+    context_object_name = "profile"
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(SocialUser, username=self.kwargs["username"])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["active_posts"] = ActivityPost.objects.filter(
+            poster=self.object, status=ActivityPost.PostStatus.ACTIVE
+        )
+        context["drafted_posts"] = ActivityPost.objects.filter(
+            poster=self.object, status=ActivityPost.PostStatus.DRAFT
+        )
+        context["archived_posts"] = ActivityPost.objects.filter(
+            poster=self.object, status=ActivityPost.PostStatus.ARCHIVED
+        )
+        context["connection"] = Connection.get_connection(
+            self.request.user, self.object
+        )
+        return context
+
+
+class EditProfileView(LoginRequiredMixin, generic.UpdateView):
+    model = SocialUser
+    form_class = EditProfileForm
+    template_name = "main/edit_profile_page.html"
+    context_object_name = "profile"
+
+    def get_success_url(self):
+        return reverse_lazy(
+            "main:profile_page", kwargs={"username": self.request.user.username}
+        )
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial["username"] = self.request.user.username
+        initial["email"] = self.request.user.email
+        initial["full_name"] = self.request.user.full_name
+        initial["pronouns"] = self.request.user.pronouns
+        initial["date_of_birth"] = self.request.user.date_of_birth
+        initial["major"] = self.request.user.major
+        initial["interests"] = self.request.user.tags
+        return initial
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(SocialUser, username=self.kwargs["username"])
+
+
+class DiscoverPageView(generic.ListView):
+    model = ActivityPost
+    template_name = "main/discover.html"
+
+    def get_queryset(self):
+        query = self.request.GET.get("q")
+
+        button_action = self.request.GET.get("action")
+
+        if button_action == "clear" or query is None:
+            object_list = ActivityPost.objects.order_by("-timestamp")[:50]
+        else:
+            object_list = ActivityPost.get_posts_by_search(query)
+
+        return object_list
+
+
+class ConnectionsPageView(generic.DetailView):
+    model = SocialUser
+    template_name = "main/connections.html"
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(SocialUser, username=self.kwargs.get("username"))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["current_user"] = self.request.user
+        context["active_requests"] = Connection.get_pending_connections(
+            self.request.user
+        )
+        context["active_connections"] = Connection.get_active_connections(
+            self.request.user
+        )
+        return context
+
+
+class RequestConnectionView(generic.View):
+    def get(self, request, *args, **kwargs):
+        requester = get_object_or_404(SocialUser, username=self.request.user)
+        receiver = get_object_or_404(SocialUser, username=self.kwargs["receiver"])
+
+        if not Connection.are_connected(requester, receiver):
+            Connection.objects.create(
+                requester=requester,
+                receiver=receiver,
+                status=Connection.ConnectionStatus.REQUESTED,
+            )
+
+        return redirect(
+            reverse_lazy("main:profile_page", kwargs={"username": receiver.username})
+        )
+
+
+class CancelConnectionView(generic.View):
+    def get(self, request, *args, **kwargs):
+        requester = get_object_or_404(SocialUser, username=self.kwargs["requester"])
+        receiver = get_object_or_404(SocialUser, username=self.kwargs["receiver"])
+
+        current_user = get_object_or_404(SocialUser, username=self.request.user)
+
+        # Handles redirect differently since requester and receiver can both cancel the connection
+        if current_user == requester and Connection.are_connected(requester, receiver):
+            Connection.get_connection(requester, receiver).delete()
+
+            return redirect(
+                reverse_lazy(
+                    "main:profile_page", kwargs={"username": receiver.username}
+                )
+            )
+        elif current_user == receiver and Connection.are_connected(requester, receiver):
+            Connection.objects.filter(requester=requester, receiver=receiver).delete()
+            return redirect(reverse_lazy("main:home"))
+
+        return redirect(reverse_lazy("main:home"))
+
+
+class AcceptConnectionView(generic.View):
+    def get(self, request, *args, **kwargs):
+        requester = get_object_or_404(SocialUser, username=self.kwargs["requester"])
+        receiver = get_object_or_404(SocialUser, username=self.kwargs["receiver"])
+
+        if Connection.are_connected(requester, receiver):
+            Connection.objects.filter(requester=requester, receiver=receiver).update(
+                status=Connection.ConnectionStatus.CONNECTED
+            )
+
+        return redirect(
+            reverse_lazy("main:connections", kwargs={"username": receiver.username})
+        )
 
 
 @login_required
@@ -147,7 +284,7 @@ def connections(request, pk):
     viewing_self = request.user == viewed_user
     # someone can only view their own connections
     if not viewing_self:
-        return HttpResponseRedirect(reverse("main:profile", kwargs={"pk": pk}))
+        return HttpResponseRedirect(reverse("main:profile_page", kwargs={"pk": pk}))
     else:
         user_connections_1 = Connection.objects.filter(
             userA=request.user, status=Connection.ConnectionStatus.CONNECTED
@@ -205,7 +342,7 @@ def request_connection(request, pk):
     connection.notification = notification
     connection.save()
 
-    return HttpResponseRedirect(reverse("main:profile", kwargs={"pk": pk}))
+    return HttpResponseRedirect(reverse("main:profile_page", kwargs={"pk": pk}))
 
 
 @login_required
@@ -221,7 +358,7 @@ def cancel_connection_request(request, pk):
         if connection.notification:
             connection.notification.delete()
         connection.delete()
-    return HttpResponseRedirect(reverse("main:profile", kwargs={"pk": pk}))
+    return HttpResponseRedirect(reverse("main:profile_page", kwargs={"pk": pk}))
 
 
 @login_required
@@ -267,19 +404,36 @@ def remove_connection(request, pk):
     return HttpResponseRedirect(reverse("main:connections", kwargs={"pk": pk}))
 
 
-class DiscoverView(generic.ListView):
-    model = ActivityPost
-    template_name = "main/discover.html"
-
-    def get_queryset(self):
-        query = self.request.GET.get("q")
-        if query is None:
-            object_list = ActivityPost.objects.order_by("-timestamp")[:50]
-        else:
-            object_list = ActivityPost.objects.filter(
+def search_view(request):
+    form = SearchForm(request.GET or None)
+    if "clear" in request.GET:
+        results = ActivityPost.objects.all()
+        tags = InterestTag.objects.all()
+    elif form.is_valid():
+        query = form.cleaned_data.get("query")
+        query_tag = request.GET.get("tag")
+        if query:
+            results = ActivityPost.objects.filter(
                 Q(title__contains=query) | Q(description__contains=query)
             )
-        return object_list
+            tags = InterestTag.objects.all()
+        elif query_tag:
+            results = ActivityPost.objects.filter(Q(tags__name=query_tag))
+            tags = InterestTag.objects.filter(name__exact=query_tag)
+            print(results)
+        else:
+            results = ActivityPost.objects.all()
+            tags = InterestTag.objects.all()
+    else:
+        results = ActivityPost.objects.all()
+        tags = InterestTag.objects.all()
+
+    context = {
+        "form": form,
+        "results": results,
+        "tags": tags,
+    }
+    return render(request, "main/discover.html", context)
 
 
 @login_required

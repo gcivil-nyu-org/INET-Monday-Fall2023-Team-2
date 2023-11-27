@@ -4,39 +4,48 @@ from . import views
 
 app_name = "main"
 urlpatterns = [
-    path("", views.landing, name="landing"),
-    path("home/", views.home, name="home"),
-    path("signup/", views.sign_up, name="signup"),
-    path("create_profile/", views.CreateProfileView.as_view(), name="create_profile"),
-    path("profile/<int:pk>/", views.ProfileDetailsView.as_view(), name="profile"),
+    path("", views.LandingPageView.as_view(), name="landing"),
+    path("login/", views.LoginView.as_view(), name="login"),
+    path("signup/", views.SignupView.as_view(), name="signup"),
+    path("logout/", views.LogoutView.as_view(), name="logout"),
+    path("home/", views.HomePageView.as_view(), name="home"),
+    path(
+        "profile/<slug:username>", views.ProfilePageView.as_view(), name="profile_page"
+    ),
+    path(
+        "profile/<slug:username>/edit",
+        views.EditProfileView.as_view(),
+        name="edit_profile_page",
+    ),
     path("profile/<int:pk>/notifications/", views.notifications, name="notifications"),
     # Connections
     path(
-        "profile/<int:pk>/connections/",
-        views.connections,
+        "connections/<slug:username>",
+        views.ConnectionsPageView.as_view(),
         name="connections",
     ),
     path(
-        "profile/<int:pk>/request_connection/",
-        views.request_connection,
-        name="request_connection",
-    ),
-    path(
-        "profile/<int:pk>/cancel_connection_request/",
-        views.cancel_connection_request,
-        name="cancel_connection_request",
-    ),
-    path(
-        "profile/<int:pk>/accept_connection/",
-        views.accept_connection,
+        "connection/accept/<slug:requester>/<slug:receiver>",
+        views.AcceptConnectionView.as_view(),
         name="accept_connection",
     ),
     path(
-        "profile/<int:pk>/remove_connection/",
-        views.remove_connection,
-        name="remove_connection",
+        "connection/request/<slug:receiver>",
+        views.RequestConnectionView.as_view(),
+        name="request_connection",
+    ),
+    path(
+        "connection/cancel/<slug:requester>/<slug:receiver>",
+        views.CancelConnectionView.as_view(),
+        name="cancel_connection",
+    ),
+    path(
+        "connections/<slug:username>",
+        views.ConnectionsPageView.as_view(),
+        name="connections",
     ),
     # Search and Discovery
-    path("discover/", views.DiscoverView.as_view(), name="discover"),
+    path("discover/", views.DiscoverPageView.as_view(), name="discover"),
+    # path("discover/", views.search_view, name="discover"),
     path("delete-account/", views.delete_account, name="delete_account_request"),
 ]
