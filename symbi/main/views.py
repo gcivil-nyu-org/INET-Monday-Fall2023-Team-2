@@ -12,8 +12,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 
 from posts.models import ActivityPost
-from .models import SocialUser, Connection, Notification
-from .forms import LoginForm, EditProfileForm, SignupForm
+from .models import SocialUser, Connection, Notification, InterestTag
+from .forms import SignUpForm, CreateProfileForm, SearchForm
 
 
 class LandingPageView(generic.View):
@@ -398,6 +398,38 @@ def remove_connection(request, pk):
     except Connection.DoesNotExist:
         raise Http404("Connection not found.")
     return HttpResponseRedirect(reverse("main:connections", kwargs={"pk": pk}))
+
+
+def search_view(request):
+    form = SearchForm(request.GET or None)
+    if "clear" in request.GET:
+        results = ActivityPost.objects.all()
+        tags = InterestTag.objects.all()
+    elif form.is_valid():
+        query = form.cleaned_data.get("query")
+        query_tag = request.GET.get("tag")
+        if query:
+            results = ActivityPost.objects.filter(
+                Q(title__contains=query) | Q(description__contains=query)
+            )
+            tags = InterestTag.objects.all()
+        elif query_tag:
+            results = ActivityPost.objects.filter(Q(tags__name=query_tag))
+            tags = InterestTag.objects.filter(name__exact=query_tag)
+            print(results)
+        else:
+            results = ActivityPost.objects.all()
+            tags = InterestTag.objects.all()
+    else:
+        results = ActivityPost.objects.all()
+        tags = InterestTag.objects.all()
+
+    context = {
+        "form": form,
+        "results": results,
+        "tags": tags,
+    }
+    return render(request, "main/discover.html", context)
 
 
 @login_required

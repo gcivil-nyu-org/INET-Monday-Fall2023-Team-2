@@ -62,3 +62,36 @@
         {% endif %}
     </div>
 {% endblock content %}
+{% comment %} <h2>Discover</h2>
+    {% if tags %}
+        <ul>
+            {% for tag in tags %}
+                <li style="display: inline-block">
+                    <a href="{% url 'main:discover' %}?tag={{ tag }}">{{ tag }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form method="get" action="{% url 'main:discover' %}">
+        {{ form.query }}
+        <button type="submit">Search</button>
+        <a href="{% url 'main:discover' %}">Clear</a>
+    </form>
+
+    {% if results %}
+        <ul>
+            {% for post in results %}
+                {% if post.status == 2 %}
+                    <li>
+                        <a href="{% url 'posts:post_details_view' post.pk %}">{{ post.title }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No posts are available.</p>
+    {% endif %}
+
+
+{% endblock %} {% endcomment %}

@@ -15,8 +15,8 @@
     <nav>
         {% if user.is_authenticated %}
             <div class="right-content">
-                <a href="/home">Home</a>
-                <a href="/discover/">Discover</a>
+                <a href="{% url 'main:home' %}">Home</a>
+                <a href="{% url 'main:discover' %}">Discover</a>
                 <a href="{% url 'posts:create_post_view' %}">Create Post</a>
                 <a href="/chats/">Chat</a>
                 <a href="{% url "main:connections" request.user.id %}">Connections</a>

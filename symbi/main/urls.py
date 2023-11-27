@@ -71,5 +71,6 @@ urlpatterns = [
     # ),
     # Search and Discovery
     path("discover/", views.DiscoverPageView.as_view(), name="discover"),
+    # path("discover/", views.search_view, name="discover"),
     path("delete-account/", views.delete_account, name="delete_account_request"),
 ]
