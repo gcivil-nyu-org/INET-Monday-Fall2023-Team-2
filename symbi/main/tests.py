@@ -175,8 +175,8 @@ class ConnectionTests(TestCase):
             username="connecteduser", password="testpassword"
         )
         Connection.objects.create(
-            userA=self.user,
-            userB=connected_user,
+            requester=self.user,
+            receiver=connected_user,
             status=Connection.ConnectionStatus.CONNECTED,
             timestamp=timezone.now(),
         )
