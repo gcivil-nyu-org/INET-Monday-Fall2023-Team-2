@@ -1,11 +1,11 @@
-from django.test import Client, TestCase
-from django.utils import timezone
-from .models import ActivityPost, Comment
-from main.models import SocialUser
+# from django.test import Client, TestCase
+# from django.utils import timezone
+# from .models import ActivityPost, Comment
+# from main.models import SocialUser
 
-# import datetime
-from django.urls import reverse
-from django.contrib.auth import get_user_model
+# # import datetime
+# from django.urls import reverse
+# from django.contrib.auth import get_user_model
 
 
 # Create your tests here.

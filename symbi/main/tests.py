@@ -1,8 +1,10 @@
 from django.test import TestCase
 from django.urls import reverse
 from posts.models import ActivityPost
-from django.utils import timezone
-from .models import SocialUser, Connection, Notification
+
+# from django.utils import timezone
+# from .models import SocialUser, Connection, Notification
+from .models import SocialUser
 
 
 # Create your tests here.
