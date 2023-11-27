@@ -44,31 +44,6 @@ urlpatterns = [
         views.ConnectionsPageView.as_view(),
         name="connections",
     ),
-    # path(
-    #     "profile/<int:pk>/connections/",
-    #     views.connections,
-    #     name="connections",
-    # ),
-    # path(
-    #     "profile/<int:pk>/request_connection/",
-    #     views.request_connection,
-    #     name="request_connection",
-    # ),
-    # path(
-    #     "profile/<int:pk>/cancel_connection_request/",
-    #     views.cancel_connection_request,
-    #     name="cancel_connection_request",
-    # ),
-    # path(
-    #     "profile/<int:pk>/accept_connection/",
-    #     views.accept_connection,
-    #     name="accept_connection",
-    # ),
-    # path(
-    #     "profile/<int:pk>/remove_connection/",
-    #     views.remove_connection,
-    #     name="remove_connection",
-    # ),
     # Search and Discovery
     path("discover/", views.DiscoverPageView.as_view(), name="discover"),
     # path("discover/", views.search_view, name="discover"),

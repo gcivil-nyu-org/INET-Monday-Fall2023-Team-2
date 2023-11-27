@@ -20,6 +20,7 @@ urlpatterns = [
         views.DeleteCommentView.as_view(),
         name="delete_comment",
     ),
+    path("post/<int:post_id>/delete/", views.delete_post, name="delete_post"),
     path(
         "post/<slug:post_poster>/<int:post_id>/comment/edit/<slug:comment_poster>/<int:comment_id>/",
         views.EditCommentView.as_view(),
@@ -29,6 +30,11 @@ urlpatterns = [
         "<int:post_id>/archive_request/",
         views.archive_post,
         name="archive_post_request",
+    ),
+    path(
+        "post/<slug:poster>/<int:pk>/archive/",
+        views.ArchivePostView.as_view(),
+        name="archive_post",
     ),
     # path(
     #     "post/<slug:poster>/<int:pk>/edit_comment_request/<int:comment_id>/",

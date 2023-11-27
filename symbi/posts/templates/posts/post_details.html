@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+{% block title %}
+    Post
+{% endblock title %}
 {% comment %} djlint:off H021 {% endcomment %}
 {% block content %}
     <div class="rounded-xl border p-5 shadow-md bg-white min-h-full max-h-full">
@@ -32,7 +35,7 @@
         </div>
         {% if user == post.poster %}
             <div class="pt-4 flex items-center space-x-4">
-                <a href="#"
+                <a href="{% url 'posts:delete_post' post.id %}"
                    class="bg-red-500 flex justify-center items-center w-full text-white px-4 py-3 rounded-md focus:outline-none">
                     <svg class="w-6 h-6 mr-1"
                          fill="none"
@@ -43,7 +46,7 @@
                     </svg>
                     Delete Post
                 </a>
-                <a href="#"
+                <a href="{% url 'posts:archive_post' poster=post.poster pk=post.id %}"
                    class="flex justify-center items-center w-full text-black border-black border px-4 py-3 rounded-md focus:outline-none">
                     <svg xmlns="http://www.w3.org/2000/svg"
                          fill="none"

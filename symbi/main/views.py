@@ -70,7 +70,8 @@ class HomePageView(LoginRequiredMixin, generic.ListView):
         context = super().get_context_data(**kwargs)
         # Get posts where the users interests is in the posts tags
         context["interests_posts"] = ActivityPost.objects.filter(
-            tags__in=self.request.user.tags.all()
+            tags__in=self.request.user.tags.all(),
+            status=ActivityPost.PostStatus.ACTIVE,
         )
         user_connections = Connection.get_active_connections(self.request.user)
         connected_users = [
@@ -81,7 +82,8 @@ class HomePageView(LoginRequiredMixin, generic.ListView):
         ]
         # Get posts where the users connections is in the posts poster
         context["connection_posts"] = ActivityPost.objects.filter(
-            poster__in=connected_users
+            poster__in=connected_users,
+            status=ActivityPost.PostStatus.ACTIVE,
         )
         return context
 
@@ -186,7 +188,7 @@ class RequestConnectionView(generic.View):
             )
 
         return redirect(
-            reverse_lazy("main:profile", kwargs={"username": receiver.username})
+            reverse_lazy("main:profile_page", kwargs={"username": receiver.username})
         )
 
 
@@ -199,10 +201,12 @@ class CancelConnectionView(generic.View):
 
         # Handles redirect differently since requester and receiver can both cancel the connection
         if current_user == requester and Connection.are_connected(requester, receiver):
-            Connection.objects.filter(requester=requester, receiver=receiver).delete()
+            Connection.get_connection(requester, receiver).delete()
 
             return redirect(
-                reverse_lazy("main:profile", kwargs={"username": receiver.username})
+                reverse_lazy(
+                    "main:profile_page", kwargs={"username": receiver.username}
+                )
             )
         elif current_user == receiver and Connection.are_connected(requester, receiver):
             Connection.objects.filter(requester=requester, receiver=receiver).delete()
@@ -280,7 +284,7 @@ def connections(request, pk):
     viewing_self = request.user == viewed_user
     # someone can only view their own connections
     if not viewing_self:
-        return HttpResponseRedirect(reverse("main:profile", kwargs={"pk": pk}))
+        return HttpResponseRedirect(reverse("main:profile_page", kwargs={"pk": pk}))
     else:
         user_connections_1 = Connection.objects.filter(
             userA=request.user, status=Connection.ConnectionStatus.CONNECTED
@@ -338,7 +342,7 @@ def request_connection(request, pk):
     connection.notification = notification
     connection.save()
 
-    return HttpResponseRedirect(reverse("main:profile", kwargs={"pk": pk}))
+    return HttpResponseRedirect(reverse("main:profile_page", kwargs={"pk": pk}))
 
 
 @login_required
@@ -354,7 +358,7 @@ def cancel_connection_request(request, pk):
         if connection.notification:
             connection.notification.delete()
         connection.delete()
-    return HttpResponseRedirect(reverse("main:profile", kwargs={"pk": pk}))
+    return HttpResponseRedirect(reverse("main:profile_page", kwargs={"pk": pk}))
 
 
 @login_required

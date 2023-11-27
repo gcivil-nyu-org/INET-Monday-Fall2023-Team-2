@@ -3,6 +3,7 @@ from django.urls import reverse, reverse_lazy
 from django.views import generic
 from django.utils import timezone
 from django.shortcuts import redirect, get_object_or_404
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from main.models import SocialUser
 from .models import ActivityPost, Comment
@@ -30,7 +31,7 @@ class CreatePostView(generic.CreateView):
 
         action = self.request.POST.get("action")
         if action == "draft":
-            self.object.status = ActivityPost.DRAFT
+            self.object.status = ActivityPost.PostStatus.DRAFT
         elif action == "post":
             self.object.status = ActivityPost.PostStatus.ACTIVE
 
@@ -85,6 +86,19 @@ class PostDetailsView(generic.DetailView):
     template_name = "posts/post_details.html"
     context_object_name = "post"
 
+    def get(self, request, *args, **kwargs):
+        post = get_object_or_404(
+            ActivityPost,
+            poster__username=self.kwargs["poster"],
+            pk=self.kwargs["pk"],
+        )
+        if (
+            post.status == ActivityPost.PostStatus.DRAFT
+            or post.status == ActivityPost.PostStatus.ARCHIVED
+        ) and post.poster != request.user:
+            return HttpResponseRedirect(reverse("main:home"))
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["comments"] = Comment.objects.filter(post=self.object).order_by(
@@ -102,6 +116,7 @@ class PostDetailsView(generic.DetailView):
             text=new_comment,
             timestamp=timezone.now(),
         )
+
         return redirect(
             reverse_lazy(
                 "posts:post_details",
@@ -109,6 +124,22 @@ class PostDetailsView(generic.DetailView):
                     "poster": poster.username,
                     "pk": post.id,
                 },
+            )
+        )
+
+
+class ArchivePostView(generic.RedirectView):
+    def get(self, request, *args, **kwargs):
+        post = get_object_or_404(
+            ActivityPost,
+            poster__username=self.kwargs["poster"],
+            pk=self.kwargs["pk"],
+        )
+        post.status = ActivityPost.PostStatus.ARCHIVED
+        post.save()
+        return redirect(
+            reverse_lazy(
+                "main:profile_page", kwargs={"username": self.request.user.username}
             )
         )
 

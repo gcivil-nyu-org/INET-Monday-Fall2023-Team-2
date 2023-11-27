@@ -2,6 +2,10 @@
 {% block title %}
     Symbi
 {% endblock title %}
+{% block nav_button %}
+    <a href="{% url 'main:login' %}"
+       class="text-sm font-semibold leading-6 text-gray-900">Log in <span aria-hidden="true">→</span></a>
+{% endblock nav_button %}
 {% block not_logged_in_content %}
     {% if not user.is_authenticated %}
         <div class="text-center">
