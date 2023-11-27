@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import SocialUser, InterestTag
 
+
 # from django.contrib.auth.models import User
 
 
@@ -63,3 +64,7 @@ class CreateProfileForm(forms.ModelForm):
             visible.field.widget.attrs["class"] = "form-control"
         self.fields["tags"].widget.attrs["class"] = "tags-select"
         self.fields["age"].widget.attrs["class"] = "form-control age-field"
+
+
+class SearchForm(forms.Form):
+    query = forms.CharField(required=False)

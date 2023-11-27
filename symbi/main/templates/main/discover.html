@@ -2,15 +2,25 @@
 {% block content %}
     <h2>Discover</h2>
 
+    {% if tags %}
+        <ul>
+            {% for tag in tags %}
+                <li style="display: inline-block">
+                    <a href="{% url 'main:discover' %}?tag={{ tag }}">{{ tag }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
     <form method="get" action="{% url 'main:discover' %}">
-        <input type="text" name="q" placeholder="Search">
+        {{ form.query }}
         <button type="submit">Search</button>
-        <button type="submit">Clear</button>
+        <a href="{% url 'main:discover' %}">Clear</a>
     </form>
 
-    {% if object_list %}
+    {% if results %}
         <ul>
-            {% for post in object_list %}
+            {% for post in results %}
                 {% if post.status == 2 %}
                     <li>
                         <a href="{% url 'posts:post_details_view' post.pk %}">{{ post.title }}</a>
@@ -21,5 +31,6 @@
     {% else %}
         <p>No posts are available.</p>
     {% endif %}
+
 
 {% endblock %}
