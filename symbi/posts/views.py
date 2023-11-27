@@ -155,7 +155,8 @@ def add_comment(request, post_id):
 
 
 def edit_comment(request, pk, comment_id):
-    comment = Comment.objects.filter(pk=comment_id)[0]
+    post = ActivityPost.objects.filter(pk=pk)[0]
+    comment = Comment.objects.filter(pk=comment_id, post=post)[0]
 
     if request.method == "POST":
         current_user = request.user

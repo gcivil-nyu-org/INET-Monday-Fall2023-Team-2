@@ -24,7 +24,7 @@ urlpatterns = [
         name="edit_comment_request",
     ),
     path(
-        "<int:pk>/edit_comment/<int:comment_id>/",
+        "<int:post_id>/edit_comment/<int:pk>/",
         views.EditCommentView.as_view(),
         name="edit_comment",
     ),
