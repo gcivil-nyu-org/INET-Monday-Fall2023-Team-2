@@ -3,7 +3,6 @@ from django.urls import reverse, reverse_lazy
 from django.views import generic
 from django.utils import timezone
 from django.shortcuts import redirect, get_object_or_404
-from django.contrib.auth.mixins import LoginRequiredMixin
 
 from main.models import SocialUser
 from .models import ActivityPost, Comment
