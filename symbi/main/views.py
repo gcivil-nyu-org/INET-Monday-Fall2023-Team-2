@@ -13,7 +13,7 @@ from django.contrib import messages
 
 from posts.models import ActivityPost
 from .models import SocialUser, Connection, Notification, InterestTag
-from .forms import SignUpForm, CreateProfileForm, SearchForm
+from .forms import SignupForm, LoginForm, SearchForm, EditProfileForm
 
 
 class LandingPageView(generic.View):
