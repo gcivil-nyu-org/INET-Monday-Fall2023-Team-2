@@ -84,8 +84,6 @@ class PostDetailsView(generic.DetailView):
     model = ActivityPost
     template_name = "posts/post_details.html"
     context_object_name = "post"
-    slug_field = "title"
-    slug_url_kwarg = "title"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -118,10 +116,10 @@ class PostDetailsView(generic.DetailView):
 class DeleteCommentView(generic.View):
     def get(self, request, *args, **kwargs):
         poster = SocialUser.objects.filter(username=self.kwargs["post_poster"]).first()
-        post = ActivityPost(poster=poster, pk=self.kwargs["post_pk"])
+        post = ActivityPost(poster=poster, pk=self.kwargs["post_id"])
         comment = Comment.objects.get(
             commentPoster__username=self.kwargs["comment_poster"],
-            pk=self.kwargs["comment_pk"],
+            pk=self.kwargs["comment_id"],
         )
         comment.delete()
         return redirect(
@@ -135,28 +133,20 @@ class DeleteCommentView(generic.View):
         )
 
 
-class EditCommentView(generic.View):
-    def post(self, request, *args, **kwargs):
-        post = ActivityPost(
-            poster__username=self.kwargs["post_poster"],
-            pk=self.kwargs["post_pk"],
-        )
-        comment = Comment.objects.get(
-            commentPoster__username=self.kwargs["comment_poster"],
-            pk=self.kwargs["comment_pk"],
-        )
-        edited_comment = request.POST.get("edited_comment")
-        comment.content = edited_comment
-        comment.save()
-        return redirect(
-            reverse_lazy(
-                "posts:post_details",
-                kwargs={
-                    "poster": post.poster.username,
-                    "pk": post.id,
-                },
-            )
-        )
+# def edit_comment(request, pk, comment_id):
+#     post = ActivityPost.objects.filter(pk=pk)[0]
+#     comment = Comment.objects.filter(pk=comment_id, post=post)[0]
+
+#     if request.method == "POST":
+#         current_user = request.user
+#         comment_user = comment.user
+#         if current_user.id == comment_user.id:
+#             edited_comment = request.POST.get("text")
+#             comment.text = edited_comment
+#             comment.save()
+#             return HttpResponseRedirect(reverse("posts:post_details_view", args=[pk]))
+
+#     return HttpResponseRedirect(reverse("posts:post_details_view", args=[pk]))
 
 
 class EditCommentView(generic.UpdateView):
@@ -165,27 +155,60 @@ class EditCommentView(generic.UpdateView):
     context_object_name = "edited_comment"
     fields = ["text"]
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["user"] = self.request.user
-        context["commentPoster"] = self.object.commentPoster
-        return context
+    def get_object(self, queryset=None):
+        post_poster = SocialUser.objects.filter(
+            username=self.kwargs["post_poster"]
+        ).first()
+        comment_poster = SocialUser.objects.filter(
+            username=self.kwargs["comment_poster"]
+        ).first()
+        self.post = ActivityPost(poster=post_poster, pk=self.kwargs["post_id"])
+        comment = Comment.objects.get(
+            commentPoster=comment_poster,
+            pk=self.kwargs["comment_id"],
+        )
+        return comment
 
     def form_valid(self, form):
-        print("Current user:", self.request.user)
-        print(
-            "Comment author:", form.instance.commentPoster
-        )  # Adjust based on your field name
-        return super().form_valid(form)
+        current_user = self.request.user
+        comment_user = self.object.commentPoster
+        if current_user == comment_user:
+            edited_comment = form.cleaned_data["text"]
+            self.object.text = edited_comment
+            self.object.save()
 
-    def get_queryset(self):
-        # Ensure that only the comments of the current user are editable
-        return Comment.objects.filter(commentPoster=self.request.user)
+        return redirect(self.get_success_url())
 
     def get_success_url(self):
         return reverse_lazy(
-            "posts:post_details_view", kwargs={"pk": self.object.post.pk}
+            "posts:post_details",
+            kwargs={
+                "poster": self.post.poster.username,
+                "pk": self.post.id,
+            },
         )
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context["user"] = self.request.user
+    #     context["commentPoster"] = self.object.commentPoster
+    #     return context
+
+    # def form_valid(self, form):
+    #     print("Current user:", self.request.user)
+    #     print(
+    #         "Comment author:", form.instance.commentPoster
+    #     )  # Adjust based on your field name
+    #     return super().form_valid(form)
+
+    # def get_queryset(self):
+    #     # Ensure that only the comments of the current user are editable
+    #     return Comment.objects.filter(commentPoster=self.request.user)
+
+    # def get_success_url(self):
+    #     return reverse_lazy(
+    #         "posts:post_details_view", kwargs={"pk": self.object.post.pk}
+    #     )
 
 
 @login_required
@@ -280,20 +303,20 @@ def add_comment(request, post_id):
     return HttpResponseRedirect(reverse("posts:post_details_view", args=[post_id]))
 
 
-def edit_comment(request, pk, comment_id):
-    post = ActivityPost.objects.filter(pk=pk)[0]
-    comment = Comment.objects.filter(pk=comment_id, post=post)[0]
+# def edit_comment(request, pk, comment_id):
+#     post = ActivityPost.objects.filter(pk=pk)[0]
+#     comment = Comment.objects.filter(pk=comment_id, post=post)[0]
 
-    if request.method == "POST":
-        current_user = request.user
-        comment_user = comment.user
-        if current_user.id == comment_user.id:
-            edited_comment = request.POST.get("text")
-            comment.text = edited_comment
-            comment.save()
-            return HttpResponseRedirect(reverse("posts:post_details_view", args=[pk]))
+#     if request.method == "POST":
+#         current_user = request.user
+#         comment_user = comment.user
+#         if current_user.id == comment_user.id:
+#             edited_comment = request.POST.get("text")
+#             comment.text = edited_comment
+#             comment.save()
+#             return HttpResponseRedirect(reverse("posts:post_details_view", args=[pk]))
 
-    return HttpResponseRedirect(reverse("posts:post_details_view", args=[pk]))
+#     return HttpResponseRedirect(reverse("posts:post_details_view", args=[pk]))
 
 
 @login_required
