@@ -13,23 +13,42 @@
                 {% if connection.status == connection.ConnectionStatus.REQUESTED %}
                     <div class="font-medium text-2xl leading-none">{{ connection.requester.username|capfirst }} would like to connect</div>
                 {% elif connection.status == connection.ConnectionStatus.CONNECTED %}
-                    <div class="font-medium text-2xl leading-none">{{ connection.requester.username|capfirst }}</div>
+                    {% if connection.requester.username == current_user.username %}
+                        <div class="font-medium text-2xl leading-none">{{ connection.receiver.username|capfirst }}</div>
+                    {% else %}
+                        <div class="font-medium text-2xl leading-none">{{ connection.requester.username|capfirst }}</div>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>
         <div class="flex">
-            <a href="{% url 'main:profile_page' username=connection.requester.username %}"
-               class="w-40 inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white rounded-lg shadow-sm cursor-pointer bg-yellow-500">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     fill="none"
-                     viewBox="0 0 24 24"
-                     stroke-width="1.5"
-                     stroke="currentColor"
-                     class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
-                </svg>
-                <span class="relative">View Profile</span>
-            </a>
+            {% if connection.requester.username == current_user.username %}
+                <a href="{% url 'main:profile_page' username=connection.receiver.username %}"
+                   class="w-40 inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white rounded-lg shadow-sm cursor-pointer bg-yellow-500">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke-width="1.5"
+                         stroke="currentColor"
+                         class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
+                    </svg>
+                    <span class="relative">View Profile</span>
+                </a>
+            {% else %}
+                <a href="{% url 'main:profile_page' username=connection.requester.username %}"
+                   class="w-40 inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white rounded-lg shadow-sm cursor-pointer bg-yellow-500">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke-width="1.5"
+                         stroke="currentColor"
+                         class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
+                    </svg>
+                    <span class="relative">View Profile</span>
+                </a>
+            {% endif %}
             <a href="{% url 'main:cancel_connection' requester=connection.requester.username receiver=current_user.username %}"
                class="w-40 mx-3 inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white rounded-lg shadow-sm cursor-pointer bg-red-500">
                 <svg xmlns="http://www.w3.org/2000/svg"
