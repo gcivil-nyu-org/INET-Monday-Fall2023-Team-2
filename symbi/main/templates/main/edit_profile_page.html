@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}
+    Edit Profile
+{% endblock title %}
+{% block content %}
+    <div class="bg-white rounded-lg shadow-lg p-8 mx-auto">
+        <h2 class="text-2xl font-semibold mb-6">Edit Your Profile</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="flex mb-4">
+                <div class="w-1/2 pr-2">
+                    <label for="{{ form.username.id_for_label }}"
+                           class="block text-gray-700 text-sm font-bold mb-2">Username:</label>
+                    {{ form.username }}
+                </div>
+                <div class="w-1/2 pl-2">
+                    <label for="{{ form.full_name.id_for_label }}"
+                           class="block text-gray-700 text-sm font-bold mb-2">Full Name:</label>
+                    {{ form.full_name }}
+                </div>
+            </div>
+            <div class="flex mb-4">
+                <div class="w-1/2 pr-2">
+                    <label for="{{ form.password1.id_for_label }}"
+                           class="block text-gray-700 text-sm font-bold mb-2">Password:</label>
+                    {{ form.password1 }}
+                </div>
+                <div class="w-1/2 pl-2">
+                    <label for="{{ form.password2.id_for_label }}"
+                           class="block text-gray-700 text-sm font-bold mb-2">Confirm Password:</label>
+                    {{ form.password2 }}
+                </div>
+            </div>
+            <div class="mb-4">
+                <label for="{{ form.email.id_for_label }}"
+                       class="block text-gray-700 text-sm font-bold mb-2">Email:</label>
+                {{ form.email }}
+            </div>
+            <div class="mb-4">
+                <label for="{{ form.date_of_birth.id_for_label }}"
+                       class="block text-gray-700 text-sm font-bold mb-2">Date of Birth:</label>
+                {{ form.date_of_birth }}
+            </div>
+            <div class="mb-4">
+                <label for="{{ form.major.id_for_label }}"
+                       class="block text-gray-700 text-sm font-bold mb-2">Major:</label>
+                {{ form.major }}
+            </div>
+            <div class="mb-4">
+                <label for="{{ form.pronouns.id_for_label }}"
+                       class="block text-gray-700 text-sm font-bold mb-2">Pronouns:</label>
+                {{ form.pronouns }}
+            </div>
+            <div class="mb-4">
+                <label for="{{ form.interests.id_for_label }}"
+                       class="block text-gray-700 text-sm font-bold mb-2">Interests:</label>
+                {% for interest in form.interests.all %}
+                    <label class="flex flex-row justify-between">
+                        <span class="text-gray-700">{{ interest.choice_label }}:</span>
+                        {{ interes.tag }}
+                    </label>
+                {% endfor %}
+            </div>
+            <button type="submit"
+                    class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-700">Save</button>
+        </form>
+    </div>
+{% endblock content %}
