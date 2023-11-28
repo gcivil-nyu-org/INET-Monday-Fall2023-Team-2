@@ -3,7 +3,7 @@
     Home
 {% endblock title %}
 {% block content %}
-    <div>
+    <div class="overflow-y-auto">
         <h1 class="text-2xl font-bold mb-5 border-b-2 pb-2">Posts based on your interests</h1>
         {% for post in interests_posts %}
             {% if post.poster != user %}
