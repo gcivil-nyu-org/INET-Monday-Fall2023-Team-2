@@ -35,7 +35,7 @@
 
 - `pip install -r requirements.txt`
 
-8. Install any node dependencies from package.json using Node Package Manager (npm). Then start the tailwind server for automatic page reloads during development. **Make sure you have latest Node.js (preferable >= `v20.9.0``) setup locally before executing this command.** For more details, please refer to [Tailwind's Usage Docs](https://django-tailwind.readthedocs.io/en/latest/usage.html).
+8. Install any node dependencies from package.json using Node Package Manager (npm). Then, start the tailwind server for automatic page reloads during development. **Make sure you have latest Node.js (preferable >= `v20.9.0``) setup locally before executing these commands.** For more details, please refer to [Tailwind's Usage Docs](https://django-tailwind.readthedocs.io/en/latest/usage.html).
 
 - `npm install`
 - `python manage.py tailwind start`
