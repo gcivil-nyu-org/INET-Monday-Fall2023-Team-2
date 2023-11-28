@@ -12,7 +12,7 @@
 
 3. Change into the directory where the repository was cloned
 
-- `cd symbi`
+- `cd Symbi`
 
 4. Keep up-to-date with the original upstream repository that you forked (this repository)
 
