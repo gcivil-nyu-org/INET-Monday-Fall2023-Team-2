@@ -6,7 +6,7 @@ from django.http import Http404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from django.db.models import Q, F, Func, CharField
+from django.db.models import Q
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
@@ -224,12 +224,14 @@ class CancelConnectionView(generic.View):
                 )
             )
         elif current_user == receiver and Connection.are_connected(requester, receiver):
-            connection = Connection.objects.filter(requester=requester, receiver=receiver).first()
+            connection = Connection.objects.filter(
+                requester=requester, receiver=receiver
+            ).first()
             if connection:
                 if connection.notification:
                     connection.notification.delete()
                 connection.delete()
-                
+
             return redirect(reverse_lazy("main:home"))
 
         return redirect(reverse_lazy("main:home"))
@@ -266,7 +268,7 @@ class NotificationsPageView(generic.DetailView):
         context["notification_types"] = Notification.NotificationType
 
         return context
-        
+
 
 @login_required
 def notifications(request, pk):

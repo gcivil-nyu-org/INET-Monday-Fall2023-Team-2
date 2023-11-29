@@ -50,7 +50,7 @@ class Notification(models.Model):
     timestamp = models.DateTimeField("timestamp", default=timezone.now)
     is_read = models.BooleanField(default=False)
     type = models.IntegerField(choices=NotificationType.choices)
-    
+
     # Get all notifications for a user
     @classmethod
     def get_user_notifications(cls, user):

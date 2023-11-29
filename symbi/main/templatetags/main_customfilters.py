@@ -3,6 +3,7 @@ from django.utils import timezone
 
 register = template.Library()
 
+
 @register.filter
 def format_time_difference(timestamp):
     now = timezone.now()
@@ -29,5 +30,3 @@ def format_time_difference(timestamp):
         return f"{minutes}m"
     else:
         return "Just now"
-
-

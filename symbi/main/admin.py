@@ -26,7 +26,7 @@ class SocialUserAdmin(admin.ModelAdmin):
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ["recipient_user", "from_user", "is_read"]
     search_fields = ["recipient_user", "from_user", "is_read"]
-    
+
 
 @admin.register(Connection)
 class ConnectionAdmin(admin.ModelAdmin):
