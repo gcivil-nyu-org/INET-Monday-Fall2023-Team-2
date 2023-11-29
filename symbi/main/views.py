@@ -224,7 +224,7 @@ class CancelConnectionView(generic.View):
                 )
             )
         elif current_user == receiver and Connection.are_connected(requester, receiver):
-            connection = Connection.objects.filter(requester=requester, receiver=receiver)
+            connection = Connection.objects.filter(requester=requester, receiver=receiver).first()
             if connection:
                 if connection.notification:
                     connection.notification.delete()
