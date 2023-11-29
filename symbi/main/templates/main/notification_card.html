@@ -17,7 +17,7 @@
             {% if notification.type == notification.NotificationType.CONNECTION_REQUEST %}
             <div class="flex items-center">
                 <div class="flex ml-0 right"> <!-- Adjust the margin as needed -->
-                    <a href="{% url 'main:profile_page' username=current_user.username %}"
+                    <a href="{% url 'main:profile_page' username=notification.from_user.username %}"
                         class="w-40 inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white rounded-lg shadow-sm cursor-pointer bg-yellow-500">
                         <svg xmlns="http://www.w3.org/2000/svg"
                             fill="none"
@@ -29,7 +29,7 @@
                         </svg>
                         <span class="relative">View Profile</span>
                     </a>
-                    <a href="{% url 'main:cancel_connection' requester=current_user.username receiver=current_user.username %}"
+                    <a href="{% url 'main:cancel_connection' requester=notification.from_user.username receiver=notification.recipient_user.username %}"
                         class="w-40 mx-3 inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white rounded-lg shadow-sm cursor-pointer bg-red-500">
                         <svg xmlns="http://www.w3.org/2000/svg"
                             fill="none"
@@ -42,7 +42,7 @@
                         <span class="relative">Decline</span>
                     </a>
                     {% if connection.status == connection.ConnectionStatus.REQUESTED %}
-                        <a href="{% url 'main:accept_connection' requester=current_user.username receiver=current_user.username %}"
+                        <a href="{% url 'main:accept_connection' requester=notification.from_user.username receiver=notification.recipient_user.username %}"
                            class="w-40 inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white rounded-lg shadow-sm cursor-pointer bg-green-500">
                             <svg xmlns="http://www.w3.org/2000/svg"
                                  fill="none"

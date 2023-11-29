@@ -3,7 +3,11 @@
     Chat Rooms
 {% endblock title %}
 {% block content %}
-    {% for room in chat_rooms %}
-        {% include "chat/chat_room_card.html" with room=room %}
-    {% endfor %}
+    {% if chat_rooms %}
+        {% for room in chat_rooms %}
+            {% include "chat/chat_room_card.html" with room=room %}
+        {% endfor %}
+    {% else %}
+        <p class="text-center text-gray-500">No chats yet! Message someone to start a chat.</p>
+    {% endif %}
 {% endblock content %}

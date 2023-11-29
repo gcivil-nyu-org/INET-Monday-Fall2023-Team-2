@@ -17,7 +17,11 @@ urlpatterns = [
         views.EditProfileView.as_view(),
         name="edit_profile_page",
     ),
-    path("profile/<int:pk>/notifications/", views.notifications, name="notifications"),
+    path(
+        "notifications/<slug:username>",
+        views.NotificationsPageView.as_view(),
+        name="notifications",
+    ),
     # Connections
     path(
         "connections/<slug:username>",

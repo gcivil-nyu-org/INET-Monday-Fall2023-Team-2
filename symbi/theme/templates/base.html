@@ -89,15 +89,20 @@
                     </a>
                 </aside>
                 <div class="w-full h-full flex flex-col justify-between">
-                    <header class="h-16 w-full flex items-center relative justify-end px-5 shadow-lg">
-                        <a href="{% url 'main:notifications' user.id %}"
+                    <header class="h-20 w-full flex items-center relative justify-end px-5 shadow-lg">
+                        <a href="{% url 'main:notifications' user.username %}"
                            class="relative p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-600 focus:bg-gray-100 focus:text-gray-600 rounded-full">
-                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
                              <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
                            </svg>
+                           <span class="absolute top-1 left-6 text-xs bg-red-500 text-white font-medium px-1 shadow-lg rounded-full border-2 border-white">
+                               {% if user.notification_set.all %}
+                                {{ user.notification_set.all|length }}
+                               {% endif %}
+                           </span>
                         </a>
                         <a href="{% url 'main:profile_page' user.username %}"
-                           class="hover:bg-gray-100 hover:text-gray-600 focus:bg-gray-100 focus:text-gray-600 px-2">
+                           class="hover:bg-gray-100 hover:text-gray-600 focus:bg-gray-100 focus:text-gray-600 px-2 ml-2">
                             <div class="flex flex-shrink-0 items-center space-x-4 text-gray-700">
                                 <div class="flex flex-col items-end ">
                                     <div class="text-md font-medium ">{{ user.username|capfirst }}</div>
@@ -116,7 +121,7 @@
                                          fill="none"
                                          viewBox="0 0 24 24"
                                          stroke="currentColor"
-                                         class="h-6 w-6">
+                                         class="h-8 w-8">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                     </svg>
                                 </a>

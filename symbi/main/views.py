@@ -6,7 +6,7 @@ from django.http import Http404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from django.db.models import Q
+from django.db.models import Q, F, Func, CharField
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
@@ -181,11 +181,22 @@ class RequestConnectionView(generic.View):
         receiver = get_object_or_404(SocialUser, username=self.kwargs["receiver"])
 
         if not Connection.are_connected(requester, receiver):
-            Connection.objects.create(
+            connection = Connection.objects.create(
                 requester=requester,
                 receiver=receiver,
                 status=Connection.ConnectionStatus.REQUESTED,
             )
+            # Create a new Notification object for userB
+            notification_content = f"{requester.username} wants to connect."
+            notification = Notification.objects.create(
+                recipient_user=connection.receiver,
+                from_user=connection.requester,
+                content=notification_content,
+                type=Notification.NotificationType.CONNECTION_REQUEST,
+            )
+            print(notification.content)
+            connection.notification = notification
+            connection.save()
 
         return redirect(
             reverse_lazy("main:profile_page", kwargs={"username": receiver.username})
@@ -201,7 +212,11 @@ class CancelConnectionView(generic.View):
 
         # Handles redirect differently since requester and receiver can both cancel the connection
         if current_user == requester and Connection.are_connected(requester, receiver):
-            Connection.get_connection(requester, receiver).delete()
+            connection = Connection.get_connection(requester, receiver)
+            if connection:
+                if connection.notification:
+                    connection.notification.delete()
+                connection.delete()
 
             return redirect(
                 reverse_lazy(
@@ -209,7 +224,12 @@ class CancelConnectionView(generic.View):
                 )
             )
         elif current_user == receiver and Connection.are_connected(requester, receiver):
-            Connection.objects.filter(requester=requester, receiver=receiver).delete()
+            connection = Connection.objects.filter(requester=requester, receiver=receiver)
+            if connection:
+                if connection.notification:
+                    connection.notification.delete()
+                connection.delete()
+                
             return redirect(reverse_lazy("main:home"))
 
         return redirect(reverse_lazy("main:home"))
@@ -229,6 +249,24 @@ class AcceptConnectionView(generic.View):
             reverse_lazy("main:connections", kwargs={"username": receiver.username})
         )
 
+
+class NotificationsPageView(generic.DetailView):
+    model = SocialUser
+    template_name = "main/notifications.html"
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(SocialUser, username=self.kwargs.get("username"))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["current_user"] = self.request.user
+        context["user_notifications"] = Notification.get_user_notifications(
+            self.request.user
+        )
+        context["notification_types"] = Notification.NotificationType
+
+        return context
+        
 
 @login_required
 def notifications(request, pk):

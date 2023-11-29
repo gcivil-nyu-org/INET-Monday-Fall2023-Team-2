@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import InterestTag, SocialUser, Connection
+from .models import InterestTag, SocialUser, Notification, Connection
 
 
 @admin.register(InterestTag)
@@ -21,6 +21,12 @@ class SocialUserAdmin(admin.ModelAdmin):
     ]
     search_fields = ["username"]
 
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ["recipient_user", "from_user", "is_read"]
+    search_fields = ["recipient_user", "from_user", "is_read"]
+    
 
 @admin.register(Connection)
 class ConnectionAdmin(admin.ModelAdmin):
