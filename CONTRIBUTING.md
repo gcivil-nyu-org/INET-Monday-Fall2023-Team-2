@@ -12,7 +12,7 @@
 
 3. Change into the directory where the repository was cloned
 
-- `cd symbi`
+- `cd Symbi`
 
 4. Keep up-to-date with the original upstream repository that you forked (this repository)
 
@@ -35,11 +35,12 @@
 
 - `pip install -r requirements.txt`
 
-8. In a new terminal window, start the tailwind server for automatic page reloads during development. **Make sure you have latest Node.js (preferable >= `v20.9.0``) setup locally before executing this command.** For more details, please refer [usage docs](https://django-tailwind.readthedocs.io/en/latest/usage.html).
+8. Install any node dependencies from package.json using Node Package Manager (npm). Then, start the tailwind server for automatic page reloads during development. **Make sure you have latest Node.js (preferable >= `v20.9.0``) setup locally before executing these commands.** For more details, please refer to [Tailwind's Usage Docs](https://django-tailwind.readthedocs.io/en/latest/usage.html).
 
+- `npm install`
 - `python manage.py tailwind start`
 
-9.  Start the django project
+9.  In a different terminal window, start the django project
 
 - `python manage.py runserver`
 

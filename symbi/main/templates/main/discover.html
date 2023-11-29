@@ -62,6 +62,8 @@
             {% for post in object_list %}
                 {% include "posts/post_card.html" with post=post %}
             {% endfor %}
+        {% else %}
+            <p class="text-center text-gray-500">Hmm...we couldn't find anything :/</p>
         {% endif %}
     </div>
 {% endblock content %}

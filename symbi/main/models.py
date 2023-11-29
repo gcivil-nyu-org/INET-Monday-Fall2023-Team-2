@@ -51,6 +51,11 @@ class Notification(models.Model):
     is_read = models.BooleanField(default=False)
     type = models.IntegerField(choices=NotificationType.choices)
 
+    # Get all notifications for a user
+    @classmethod
+    def get_user_notifications(cls, user):
+        return cls.objects.filter(models.Q(recipient_user=user)).all()
+
 
 class Connection(models.Model):
     class ConnectionStatus(models.IntegerChoices):
