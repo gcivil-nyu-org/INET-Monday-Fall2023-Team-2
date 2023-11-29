@@ -4,18 +4,27 @@
 {% endblock title %}
 {% block content %}
     <div class="overflow-y-auto">
-        <h1 class="text-2xl font-bold mb-5 border-b-2 pb-2">Posts based on your interests</h1>
-        {% for post in interests_posts %}
-            {% if post.poster != user %}
-                {% include "posts/post_card.html" with post=post %}
-            {% endif %}
-        {% endfor %}
-        <h1 class="text-2xl font-bold mb-5 border-b-2 pb-2">Posts from your connections</h1>
-        {% for post in connection_posts %}
-            {% if post.poster != user %}
-                {% include "posts/post_card.html" with post=post %}
-            {% endif %}
-        {% endfor %}
+        <h1 class="text-3xl mb-5 text-center">Recommended</h1>
+        {% if interests_posts %}
+                {% for post in interests_posts %}
+                    {% if post.poster != user %}
+                        {% include "posts/post_card.html" with post=post %}
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <p class="text-center text-gray-500">No recommended posts. Try adding some interests in your profile!</p>
+        {% endif %}
+        <div class="my-8"></div>
+        <h1 class="text-3xl mb-5 text-center">Following</h1>
+        {% if connection_posts %}
+                {% for post in connection_posts %}
+                    {% if post.poster != user %}
+                        {% include "posts/post_card.html" with post=post %}
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <p class="text-center text-gray-500">No posts from your connections. Try making more connections!</p>
+        {% endif %}
     </div>
     <div class="fixed bottom-0 text-md right-0 m-20 z-10">
         <a href="{% url 'posts:create_post' %}"
