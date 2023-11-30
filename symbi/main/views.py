@@ -261,6 +261,13 @@ class NotificationsPageView(generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # get unread notifications
+        unread_notifications = Notification.get_unread_user_notifications(
+            self.request.user
+        )
+        # mark them as read
+        unread_notifications.update(is_read=True)
+        # set context data
         context["current_user"] = self.request.user
         context["user_notifications"] = Notification.get_user_notifications(
             self.request.user
