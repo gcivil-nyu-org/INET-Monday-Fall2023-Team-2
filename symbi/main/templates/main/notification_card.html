@@ -31,19 +31,19 @@
                         </svg>
                         <span class="relative">View Profile</span>
                     </a>
-                    <a href="{% url 'main:cancel_connection' requester=notification.from_user.username receiver=notification.recipient_user.username %}"
-                        class="w-40 mx-3 inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white rounded-lg shadow-sm cursor-pointer bg-red-500">
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="1.5"
-                            stroke="currentColor"
-                            class="w-6 h-6 mr-1">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        <span class="relative">Decline</span>
-                    </a>
-                    {% if connection.status == connection.ConnectionStatus.REQUESTED %}
+                    {% if notification|can_accept_connection %}
+                        <a href="{% url 'main:cancel_connection' requester=notification.from_user.username receiver=notification.recipient_user.username %}"
+                            class="w-40 mx-3 inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white rounded-lg shadow-sm cursor-pointer bg-red-500">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="1.5"
+                                stroke="currentColor"
+                                class="w-6 h-6 mr-1">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            <span class="relative">Decline</span>
+                        </a>
                         <a href="{% url 'main:accept_connection' requester=notification.from_user.username receiver=notification.recipient_user.username %}"
                            class="w-40 inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white rounded-lg shadow-sm cursor-pointer bg-green-500">
                             <svg xmlns="http://www.w3.org/2000/svg"
@@ -56,6 +56,19 @@
                             </svg>
                             <span class="relative">Accept</span>
                         </a>
+                    {% else %}
+                    <a href="{% url 'main:cancel_connection' requester=notification.from_user.username receiver=notification.recipient_user.username %}"
+                        class="w-40 mx-3 inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white rounded-lg shadow-sm cursor-pointer bg-red-500">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.5"
+                            stroke="currentColor"
+                            class="w-6 h-6 mr-1">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        <span class="relative">Remove</span>
+                    </a>
                     {% endif %}
                 </div>
             </div>
