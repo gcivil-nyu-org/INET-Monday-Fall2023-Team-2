@@ -324,12 +324,15 @@ def add_comment(request, post_id):
         text = request.POST.get("comment", None)
         if text:
             post = ActivityPost.objects.get(pk=post_id)
-            Comment.objects.create(
+            taggedUsername = [word[1:] for word in text.split() if word.startswith('@')]
+            taggedUser = SocialUser.objects.filter(username__in=taggedUsername)
+            comment = Comment.objects.create(
                 commentPoster=request.user,
                 post=post,
                 text=text,
                 timestamp=timezone.now(),
             )
+            comment.mentioned_user.set(taggedUser)
     return HttpResponseRedirect(reverse("posts:post_details_view", args=[post_id]))
 
 

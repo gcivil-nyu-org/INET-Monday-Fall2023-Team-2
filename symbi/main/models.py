@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from django.urls import reverse
+
 
 
 class InterestTag(models.Model):
@@ -34,6 +36,8 @@ class SocialUser(AbstractUser):
     )
     timestamp = models.DateTimeField("timestamp", default=timezone.now)  # joined
 
+    def get_absolute_url(self):
+        return reverse("main:profile_page", args=(str(self.username)))
 
 class Notification(models.Model):
     class NotificationType(models.IntegerChoices):
