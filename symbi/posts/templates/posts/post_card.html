@@ -1,5 +1,5 @@
 <div class="rounded-xl border p-5 shadow-sm bg-white">
-    <div class="text-lg font-bold text-slate-700 border-b pb-3">{{ post.title|capfirst }}</div>
+    <div class="text-lg font-bold text-gray-700 border-b pb-3">{{ post.title|capfirst }}</div>
     <div class="flex flex-wrap w-full items-center justify-between">
         <a href="{% url 'main:profile_page' user.username %}"
            class="flex items-center hover:bg-gray-100 rounded hover:text-gray-600 focus:bg-gray-100 focus:text-gray-600 mt-2">
@@ -11,7 +11,7 @@
               {% endif %}
            </div>
            <div class="flex items-center ml-2">
-              <div class="text-md font-regular">{{ post.poster.username }}</div>
+              <div class="text-md font-regular text-gray-700">{{ post.poster.username }}</div>
            </div>
         </a>
         <div class="flex flex-wrap justify-self-end items-center">
@@ -24,10 +24,10 @@
         </div>
     </div>
     <div class="mt-4 mb-6">
-        <div class="text-neutral-600">{{ post.description }}</div>
+        <div class="text-gray-700">{{ post.description }}</div>
     </div>
     <div class="w-full flex flex-row justify-between">
-        <div class="flex items-center transition hover:text-slate-600">
+        <div class="flex items-center transition text-gray-700 hover:text-gray-700">
             <svg xmlns="http://www.w3.org/2000/svg"
                  class="mr-1.5 h-5 w-5"
                  fill="none"
