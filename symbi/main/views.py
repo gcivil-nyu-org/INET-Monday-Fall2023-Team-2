@@ -132,7 +132,7 @@ class EditProfileView(LoginRequiredMixin, generic.UpdateView):
         initial["pronouns"] = self.request.user.pronouns
         initial["date_of_birth"] = self.request.user.date_of_birth
         initial["major"] = self.request.user.major
-        initial["interests"] = self.request.user.tags
+        initial["interests"] = self.request.user.tags.all()
         return initial
 
     def get_object(self, queryset=None):

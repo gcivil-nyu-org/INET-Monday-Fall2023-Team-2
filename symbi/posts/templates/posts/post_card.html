@@ -1,16 +1,28 @@
-<div class="mb-5 rounded-xl border p-5 shadow-lg bg-white">
-    <div class="flex w-full items-center justify-between border-b pb-3">
-        <div class="flex items-center space-x-3">
-            <div class="text-lg font-bold text-slate-700">{{ post.title|capfirst }}</div>
-        </div>
-        <div class="flex items-center space-x-8">
-            {% for tag in post.tags.all %}
-                <button class="rounded-2xl border bg-neutral-100 px-3 py-1 text-xs font-semibold">{{ tag }}</button>
-            {% endfor %}
-            <div class="text-xs text-neutral-500">Posted on: {{ post.timestamp.date }}</div>
+<div class="rounded-xl border p-5 shadow-sm bg-white">
+    <div class="text-lg font-bold text-slate-700 border-b pb-3">{{ post.title|capfirst }}</div>
+    <div class="flex flex-wrap w-full items-center justify-between">
+        <a href="{% url 'main:profile_page' user.username %}"
+           class="flex items-center hover:bg-gray-100 rounded hover:text-gray-600 focus:bg-gray-100 focus:text-gray-600 mt-2">
+           <div class="rounded-full h-8 w-8 bg-[#ff6a45] flex items-center justify-center shadow-md border-white transition duration-200 transform hover:scale-110">
+              {% if post.poster.profile_picture %}
+                 {% comment %} Profile Picture with same shape {% endcomment %}
+              {% else %}
+                 <span class="text-white text-xl">{{ post.poster.full_name|first|capfirst }}</span>
+              {% endif %}
+           </div>
+           <div class="flex items-center ml-2">
+              <div class="text-md font-regular">{{ post.poster.username }}</div>
+           </div>
+        </a>
+        <div class="flex flex-wrap justify-self-end items-center">
+            <div class="flex items-center justify-items-start mr-2 mt-2">
+                {% for tag in post.tags.all %}
+                    <button class="mr-1 rounded-2xl border border-blue-600 text-blue-600 bg-white px-3 py-1 text-xs font-semibold">{{ tag }}</button>
+                {% endfor %}
+            </div>
+            <div class="text-xs text-neutral-500 text-right mr-1 mt-2">{{ post.timestamp.date }}</div>
         </div>
     </div>
-    <div class="text-base text-slate-700">Posted by: {{ post.poster.username|capfirst }}</div>
     <div class="mt-4 mb-6">
         <div class="text-neutral-600">{{ post.description }}</div>
     </div>
@@ -27,7 +39,7 @@
             <span>{{ post.comments.count }}</span>
         </div>
         <a href="{% url 'posts:post_details' poster=post.poster pk=post.id %}"
-           class="inline-flex items-center justify-center w-full px-6 py-3 mb-2 text-sm border-blue-600 border text-blue-600 bg-white rounded-md hover:bg-gray-100 sm:w-auto sm:mb-0"
+           class="inline-flex items-center justify-center px-6 py-3 mb-2 text-sm text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 sm:w-auto sm:mb-0"
            data-primary="green-400"
            data-rounded="rounded-2xl"
            data-primary-reset="{}">
