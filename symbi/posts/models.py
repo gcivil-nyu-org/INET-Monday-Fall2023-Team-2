@@ -56,7 +56,7 @@ class Comment(models.Model):
     )
     text = models.TextField()
     timestamp = models.DateTimeField("date commented")
-    taggerUsers = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="taggedUser")
+    taggedUsers = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="taggedUser")
 
     def __str__(self):
         return self.text

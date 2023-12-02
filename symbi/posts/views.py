@@ -107,14 +107,21 @@ class PostDetailsView(generic.DetailView):
 
     def post(self, request, *args, **kwargs):
         new_comment = self.request.POST.get("new_comment")
-        poster = SocialUser(username=self.kwargs["poster"])
-        post = ActivityPost(poster=poster, pk=self.kwargs["pk"])
-        Comment.objects.create(
-            commentPoster=request.user,
-            post=post,
-            text=new_comment,
-            timestamp=timezone.now(),
-        )
+        if new_comment:
+            poster = SocialUser(username=self.kwargs["poster"])
+            post = ActivityPost(poster=poster, pk=self.kwargs["pk"])
+            taggedUsername = [word[1:] for word in new_comment.split() if word.startswith('@')]
+            print("Tagged Username = ", taggedUsername)
+            taggedUsers = SocialUser.objects.filter(username__in=taggedUsername)
+            print("Tagged User = ", taggedUsers)
+            comment = Comment.objects.create(
+                commentPoster=request.user,
+                post=post,
+                text=new_comment,
+                timestamp=timezone.now(),
+            )
+            comment.taggedUsers.set(taggedUsers)
+
 
         return redirect(
             reverse_lazy(
@@ -318,22 +325,21 @@ def edit_post(request, post_id):
         pass
 
 
-@login_required
-def add_comment(request, post_id):
-    if request.method == "POST":
-        text = request.POST.get("comment", None)
-        if text:
-            post = ActivityPost.objects.get(pk=post_id)
-            taggedUsername = [word[1:] for word in text.split() if word.startswith('@')]
-            taggedUser = SocialUser.objects.filter(username__in=taggedUsername)
-            comment = Comment.objects.create(
-                commentPoster=request.user,
-                post=post,
-                text=text,
-                timestamp=timezone.now(),
-            )
-            comment.mentioned_user.set(taggedUser)
-    return HttpResponseRedirect(reverse("posts:post_details_view", args=[post_id]))
+# @login_required
+# def add_comment(request, post_id):
+#     if request.method == "POST":
+#         text = request.POST.get("comment", None)
+#         if text:
+#             post = ActivityPost.objects.get(pk=post_id)
+#             taggedUsername = [word[1:] for word in text.split() if word.startswith('@')]
+#             taggedUsers = SocialUser.objects.filter(username__in=taggedUsername)
+#             comment = Comment.objects.create(
+#                 commentPoster=request.user,
+#                 post=post,
+#                 text=text,
+#                 timestamp=timezone.now(),
+#             )
+#     return HttpResponseRedirect(reverse("posts:post_details_view", args=[post_id]))
 
 
 # def edit_comment(request, pk, comment_id):
