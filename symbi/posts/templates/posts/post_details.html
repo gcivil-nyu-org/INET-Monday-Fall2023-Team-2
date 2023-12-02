@@ -5,14 +5,167 @@
 {% endblock title %}
 {% comment %} djlint:off H021 {% endcomment %}
 {% block content %}
-    <div class="rounded-xl border p-5 shadow-md bg-white min-h-full max-h-full">
+    <div class="rounded-xl border p-5 shadow-md bg-white m-10">
+        <!-- TITLE & BUTTONS -->
+        <div class="flex flex-wrap w-full items-center justify-between border-b -mt-2">
+            <!-- TITLE -->
+           <div class="flex items-center text-2xl font-bold text-gray-700 mb-3">{{ post.title|capfirst }}</div>
+           <!-- BUTTONS -->
+            <div class="flex flex-wrap justify-self-end items-center">
+                <div class="flex items-center justify-items-start mr-2 mb-2">
+                    <!-- SHARE -->
+                    <div class="relative inline-flex items-center justify-center py-2 overflow-hidden font-medium text-green-500 transition duration-300 ease-out border-2 border-green-500 rounded-full shadow-md group w-12 h-12 m-1">
+                        <span class="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 ease">
+                            <!-- White background with green icon -->
+                            <button id="copyLinkBtn">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     fill="none"
+                                     viewBox="0 0 24 24"
+                                     stroke-width="1.5"
+                                     stroke="currentColor"
+                                     class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+                                </svg>
+                            </button>
+                        </span>
+                        <span class="absolute flex items-center justify-center w-full h-full text-green-500 transition-all duration-300 ease group-hover:bg-green-500 group-hover:text-white">
+                            <!-- green background with white icon -->
+                            <button id="copyLinkBtn">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     fill="none"
+                                     viewBox="0 0 24 24"
+                                     stroke-width="1.5"
+                                     stroke="currentColor"
+                                     class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+                                </svg>
+                            </button>
+                        </span>
+                    </div>
+                    {% if user == post.poster %}
+                        <!-- EDIT -->
+                        <a href="{% url 'posts:edit_post' poster=post.poster pk=post.id %}"
+                           class="relative inline-flex items-center justify-center py-2 overflow-hidden font-medium text-blue-500 transition duration-300 ease-out border-2 border-blue-500 rounded-full shadow-md group w-12 h-12 m-1">
+                            <span class="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 ease">
+                                <!-- White background with blue icon -->
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                                </svg>
+                            </span>
+                            <span class="absolute flex items-center justify-center w-full h-full text-blue-500 transition-all duration-300 ease group-hover:bg-blue-500 group-hover:text-white">
+                                <!-- blue background with white icon -->
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                                </svg>
+                            </span>
+                        </a>
+                        <!-- ARCHIVE -->
+                        <a href="{% url 'posts:archive_post' poster=post.poster pk=post.id %}"
+                           class="relative inline-flex items-center justify-center py-2 overflow-hidden font-medium text-violet-500 transition duration-300 ease-out border-2 border-violet-500 rounded-full shadow-md group w-12 h-12 m-1">
+                            <span class="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 ease">
+                                <!-- White background with purple icon -->
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                                </svg>
+                            </span>
+                            <span class="absolute flex items-center justify-center w-full h-full text-violet-500 transition-all duration-300 ease group-hover:bg-violet-500 group-hover:text-white">
+                                <!-- purple background with white gear -->
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                                </svg>
+                            </span>
+                        </a>
+                        <!-- DELETE -->
+                        <a href="{% url 'posts:delete_post' post.id %}"
+                           class="relative inline-flex items-center justify-center py-2 overflow-hidden font-medium text-red-500 transition duration-300 ease-out border-2 border-red-500 rounded-full shadow-md group w-12 h-12 m-1">
+                            <span class="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 ease">
+                                <!-- White background with red icon -->
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                </svg>
+                            </span>
+                            <span class="absolute flex items-center justify-center w-full h-full text-red-500 transition-all duration-300 ease group-hover:bg-red-500 group-hover:text-white">
+                                <!-- red background with white icon -->
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                </svg>
+                            </span>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-wrap w-full items-center justify-between">
+            <a href="{% url 'main:profile_page' user.username %}"
+               class="flex items-center hover:bg-gray-100 rounded hover:text-gray-600 focus:bg-gray-100 focus:text-gray-600 mt-2">
+               <div class="rounded-full h-8 w-8 bg-[#ff6a45] flex items-center justify-center shadow-md border-white transition duration-200 transform hover:scale-110">
+                  {% if post.poster.profile_picture %}
+                     {% comment %} Profile Picture with same shape {% endcomment %}
+                  {% else %}
+                     <span class="text-white text-xl">{{ post.poster.full_name|first|capfirst }}</span>
+                  {% endif %}
+               </div>
+               <div class="flex items-center ml-2">
+                  <div class="text-md font-regular">{{ post.poster.username }}</div>
+               </div>
+            </a>
+            <div class="flex flex-wrap justify-self-end items-center">
+                <div class="flex items-center justify-items-start mr-2 mt-2">
+                    {% for tag in post.tags.all %}
+                        <button class="mr-1 rounded-2xl border border-blue-600 text-blue-600 bg-white px-3 py-1 text-xs font-semibold">{{ tag }}</button>
+                    {% endfor %}
+                </div>
+                <div class="text-xs text-neutral-500 text-right mr-1 mt-2">{{ post.timestamp.date }}</div>
+            </div>
+        </div>
+        <div class="mt-4 mb-6">
+            <div class="text-neutral-600">{{ post.description }}</div>
+        </div>
+        <div class="flex justify-between items-center mt-5 mb-4">
+            <h2 class="text-lg font-semibold text-gray-700 border-t w-full pt-2">Comments</h2>
+        </div>
+        <div>
+            {% if comments %}
+                {% for comment in comments %}
+                    {% include "posts/comment_card.html" with comment=comment %}
+                {% endfor %}
+            {% else %}
+                <p>No comments yet! Add one to start the conversation.</p>
+            {% endif %}
+        </div>
+        <form class="mt-6 mb-6" method="post">
+            {% csrf_token %}
+            <div class="flex justify-between w-full mb-4">
+                <label for="comment" class="sr-only">Add a new comment:</label>
+                <textarea name="new_comment"
+                          id="comment"
+                          rows="1"
+                          class="px-4 py-3 bg-white rounded-lg rounded-t-lg border border-gray-200 w-4/5 focus:ring-0 focus:outline-none"
+                          placeholder="Add a comment..."
+                          required></textarea>
+                <button type="submit"
+                        class="ml-3 w-1/5 py-3 text-sm font-medium text-center text-white bg-[#ff6a45] rounded-lg focus:ring-4">
+                    Post
+                </button>
+            </div>
+
+        </form>
+    </div>
+    
+
+
+
+
+
+{% comment %}
+    <div class="rounded-xl border p-5 shadow-md bg-white min-h-full max-h-full m-10">
         <div class="flex w-full items-center justify-between border-b pb-3">
             <div class="flex items-center space-x-3">
                 <a href="{% url 'main:profile_page' post.poster.username %}"
                    class="rounded-full h-8 w-8 bg-gray-300 flex items-center justify-center ml-2">
                     <span class="text-gray-700 text-lg">{{ post.poster.username|first|capfirst }}</span>
                 </a>
-                <div class="text-lg font-bold text-slate-700">{{ post.poster.username|capfirst }}</div>
+                <div class="text-lg font-bold text-gray-700">{{ post.poster.username|capfirst }}</div>
             </div>
             <div class="flex items-center space-x-8">
                 {% for tag in post.tags.all %}
@@ -101,7 +254,7 @@
                             <div class="rounded-full h-8 w-8 bg-gray-300 flex items-center justify-center mr-2">
                                 <span class="text-gray-700 text-lg">{{ comment.commentPoster.username|first|capfirst }}</span>
                             </div>
-                            <div class="text-lg font-semibold text-slate-700">{{ comment.commentPoster.username|capfirst }}</div>
+                            <div class="text-lg font-semibold text-gray-700">{{ comment.commentPoster.username|capfirst }}</div>
                         </div>
                         <p class="text-sm text-gray-600 ">{{ comment.timestamp.date }}</p>
                     </footer>
@@ -172,7 +325,14 @@
         });
         
     </script>
+{% endcomment %}
 {% endblock content %}
+
+
+
+
+
+
 {% comment %} <br>
 {% if user == post.poster %}
     <div class="flex-container" style="display: flex; margin: 10px;">
@@ -195,7 +355,7 @@
                             <div class="rounded-full h-8 w-8 bg-gray-300 flex items-center justify-center mr-2">
                                 <span class="text-gray-700 text-lg">{{ comment.commentPoster.username|first|capfirst }}</span>
                             </div>
-                            <div class="text-lg font-semibold text-slate-700">{{ comment.commentPoster.username|capfirst }}</div>
+                            <div class="text-lg font-semibold text-gray-700">{{ comment.commentPoster.username|capfirst }}</div>
                         </div>
                         <p class="text-sm text-gray-600 ">{{ comment.timestamp.date }}</p>
                     </footer>

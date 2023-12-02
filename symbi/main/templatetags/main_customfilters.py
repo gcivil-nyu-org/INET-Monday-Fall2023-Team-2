@@ -1,5 +1,6 @@
 from django import template
 from django.utils import timezone
+from main.models import Connection
 
 register = template.Library()
 
@@ -30,3 +31,12 @@ def format_time_difference(timestamp):
         return f"{minutes}m"
     else:
         return "Just now"
+
+
+@register.filter
+def can_accept_connection(notification):
+    return Connection.objects.filter(
+        requester=notification.from_user,
+        receiver=notification.recipient_user,
+        status=Connection.ConnectionStatus.REQUESTED,
+    ).exists()

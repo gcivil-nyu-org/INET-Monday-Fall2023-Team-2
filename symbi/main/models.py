@@ -61,7 +61,30 @@ class Notification(models.Model):
     # Get all notifications for a user
     @classmethod
     def get_user_notifications(cls, user):
-        return cls.objects.filter(models.Q(recipient_user=user)).all()
+        return (
+            cls.objects.filter(models.Q(recipient_user=user))
+            .all()
+            .order_by("-timestamp")
+        )
+
+    # Get all unread notifications for a user
+    @classmethod
+    def get_unread_user_notifications(cls, user):
+        return (
+            cls.objects.filter(models.Q(recipient_user=user, is_read=False))
+            .all()
+            .order_by("-timestamp")
+        )
+
+    # Count unread notifications for a user
+    @classmethod
+    def count_unread_notifications(cls, user):
+        return (
+            cls.objects.filter(models.Q(recipient_user=user, is_read=False))
+            .all()
+            .order_by("-timestamp")
+            .count()
+        )
 
 
 class Connection(models.Model):

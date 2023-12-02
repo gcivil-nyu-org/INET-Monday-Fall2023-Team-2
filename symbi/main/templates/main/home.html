@@ -3,45 +3,33 @@
     Home
 {% endblock title %}
 {% block content %}
-    <div class="overflow-y-auto">
-        <h1 class="text-3xl mb-5 text-center">Recommended</h1>
-        {% if interests_posts %}
-                {% for post in interests_posts %}
-                    {% if post.poster != user %}
-                        {% include "posts/post_card.html" with post=post %}
+    <div class="m-20 mt-5 overflow-auto">
+        <div class="justify-center">
+            <div class="container mx-auto mt-10 mb-10 overflow-scroll">
+                <div class="text-3xl mb-5 text-center">Recommended</div>
+                    {% if interests_posts %}
+                        {% for post in interests_posts %}
+                            {% if post.poster != user %}
+                                <div class="mb-5 w-full">{% include "posts/post_card.html" with post=post %}</div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center text-gray-500">No recommended posts. Try adding some interests in your profile!</p>
                     {% endif %}
-                {% endfor %}
-            {% else %}
-                <p class="text-center text-gray-500">No recommended posts. Try adding some interests in your profile!</p>
-        {% endif %}
-        <div class="my-8"></div>
-        <h1 class="text-3xl mb-5 text-center">Following</h1>
-        {% if connection_posts %}
-                {% for post in connection_posts %}
-                    {% if post.poster != user %}
-                        {% include "posts/post_card.html" with post=post %}
+                <div class="my-8"></div>
+                <div class="text-3xl mb-5 text-center">Following</div>
+                <div class="mt-5">
+                    {% if connection_posts %}
+                        {% for post in connection_posts %}
+                            {% if post.poster != user %}
+                                <div class="mb-5">{% include "posts/post_card.html" with post=post %}</div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center text-gray-500">No posts from your connections. Try making more connections!</p>
                     {% endif %}
-                {% endfor %}
-            {% else %}
-                <p class="text-center text-gray-500">No posts from your connections. Try making more connections!</p>
-        {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="fixed bottom-0 text-md right-0 m-20 z-10">
-        <a href="{% url 'posts:create_post' %}"
-           class="relative inline-flex items-center justify-center p-4 px-6 py-3 overflow-hidden font-medium text-[#ff6a45] transition duration-300 ease-out border-2 border-[#ff6a45] rounded-full shadow-md group">
-            <span class="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 -translate-x-full bg-[#ff6a45] group-hover:translate-x-0 ease">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     fill="none"
-                     viewBox="0 0 24 24"
-                     stroke-width="1.5"
-                     stroke="currentColor"
-                     class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-            </span>
-            <span class="absolute flex items-center justify-center w-full h-full text-[#ff6a45] transition-all duration-300 transform group-hover:translate-x-full ease">Create a Post</span>
-            <span class="relative invisible">Create a Post</span>
-        </a>
-    </div>
-    {% comment %} TODO: Add active posts from connections and similar interests {% endcomment %}
 {% endblock content %}

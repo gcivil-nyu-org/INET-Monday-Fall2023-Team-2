@@ -182,7 +182,7 @@ class EditProfileForm(forms.ModelForm):
         queryset=InterestTag.objects.all(),
         widget=forms.CheckboxSelectMultiple(
             attrs={
-                "class": "w-1/2 p-2 border border-gray-300 rounded max-h-52 overflow-y-auto"
+                "class": "rounded-2xl border border-blue-600 text-blue-600 bg-white px-3 py-1 text-xs font-semibold"
             }
         ),
         required=False,
