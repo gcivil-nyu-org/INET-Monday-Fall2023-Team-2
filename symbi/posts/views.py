@@ -118,9 +118,7 @@ class PostDetailsView(LoginRequiredMixin, generic.DetailView):
             taggedUsername = [
                 word[1:] for word in new_comment.split() if word.startswith("@")
             ]
-            print("Tagged Username = ", taggedUsername)
             taggedUsers = SocialUser.objects.filter(username__in=taggedUsername)
-            print("Tagged User = ", taggedUsers)
             comment = Comment.objects.create(
                 commentPoster=request.user,
                 post=post,
