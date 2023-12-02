@@ -110,7 +110,9 @@ class PostDetailsView(generic.DetailView):
         if new_comment:
             poster = SocialUser(username=self.kwargs["poster"])
             post = ActivityPost(poster=poster, pk=self.kwargs["pk"])
-            taggedUsername = [word[1:] for word in new_comment.split() if word.startswith('@')]
+            taggedUsername = [
+                word[1:] for word in new_comment.split() if word.startswith("@")
+            ]
             print("Tagged Username = ", taggedUsername)
             taggedUsers = SocialUser.objects.filter(username__in=taggedUsername)
             print("Tagged User = ", taggedUsers)
@@ -121,7 +123,6 @@ class PostDetailsView(generic.DetailView):
                 timestamp=timezone.now(),
             )
             comment.taggedUsers.set(taggedUsers)
-
 
         return redirect(
             reverse_lazy(
