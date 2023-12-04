@@ -38,9 +38,7 @@ class SocialUser(AbstractUser):
     timestamp = models.DateTimeField("timestamp", default=timezone.now)  # joined
 
     def get_absolute_url(self):
-        url = reverse("main:profile_page", kwargs={"username": self.username})
-        print(f"Generated URL: {url}")
-        return url
+        return reverse("main:profile_page", kwargs={"username": self.username})
         # return reverse('main:profile_page', kwargs={'username': slugify(self.username)})
 
 
