@@ -1,14 +1,21 @@
+{% load main_customfilters %}
 {% if message.sender == user %}
     <div class="flex w-full mt-2 space-x-3 max-w-xs ml-auto justify-end">
         <div>
             <div class="bg-blue-600 text-white p-3 rounded-l-lg rounded-br-lg">
                 <p class="text-sm">{{ message.content }}</p>
             </div>
-            <span class="text-xs text-gray-500 leading-none">Sent {{ message.created|timesince }} ago</span>
+            <div class="self-end text-right text-xs text-gray-500 leading-none m-1">{{ message.created|format_time_difference }}</div>
         </div>
         <a href="{% url 'main:profile_page' message.sender.username %}"
-           class="rounded-full hover:bg-gray-400 h-8 w-8 bg-gray-300 flex items-center justify-center ml-2">
-            <span class="text-gray-700 text-lg">{{ message.sender.username|first|capfirst }}</span>
+           class="flex items-start justify-start hover:bg-gray-100 rounded hover:text-gray-600 focus:bg-gray-100 focus:text-gray-600">
+            <div class="rounded-full h-8 w-8 bg-[#ff6a45] flex items-center justify-center shadow-md border-white transition duration-200 transform hover:scale-110">
+                {% if message.sender.profile_picture %}
+                    <!-- Profile Picture -->
+                {% else %}
+                    <span class="text-white text-xl">{{ message.sender.full_name|first|capfirst }}</span>
+                {% endif %}
+            </div>
         </a>
     </div>
 {% endif %}
