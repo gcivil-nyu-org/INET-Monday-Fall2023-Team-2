@@ -1,4 +1,5 @@
 {% load main_customfilters %}
+{% load username_customfilters %}
 <div class="rounded-xl bg-white mx-2 my-3">
     <div class="flex flex-wrap items-start">
         <a href="{% url 'main:profile_page' user.username %}"
@@ -16,7 +17,11 @@
             </div>
         </a>
         <div class="flex-1 ml-2 m-1">
-            <div class="text-md leading-none text-gray-700">{{ comment.text }}</div>
+           <div class="text-md leading-none text-gray-700">
+                {% with comment_text=comment.text|taggedUsers:comment.taggedUsers %}
+                    {{ comment_text|safe }}
+                {% endwith %}
+            </div>
             {% if comment.commentPoster != user %}
                 <button type="button"
                         class="flex items-center text-sm text-gray-500 hover:scale-110 font-medium mt-1">
