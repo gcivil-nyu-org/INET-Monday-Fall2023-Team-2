@@ -405,27 +405,27 @@
         </article>
     </div>
 {% endif %} {% endcomment %}
-{% comment %} <h1>Leave Your Comments</h1>
-<form action="{% url 'posts:add_comment' post.id %}" method="post">
-    {% csrf_token %}
-    <input type="text" name="comment">
-    <button type="submit">Add Comment</button>
-</form>
-<h1>Other's Comments</h1>
-<ul>
-    {% for comment in comments %}
-        <li>
-            <p>
-                <a href="{% url 'main:profile' comment.commentPoster.pk %}">{{ comment.commentPoster.username }}</a>
-                ({{ comment.commentPoster.get_pronouns_display }})
-            </p>
-            {{ comment.text }}
-            {% if user == comment.commentPoster %}
-                <span>
-                    <a href="{% url 'posts:edit_comment' post.id comment.id %}">Edit</a>
-                    <a href="{% url 'posts:delete_comment' post.id comment.id %}">Delete</a>
-                </span>
-            {% endif %}
-        </li>
-    {% endfor %}
-</ul> {% endcomment %}
+<!--{% comment %} <h1>Leave Your Comments</h1>-->
+<!--<form action="{% url 'posts:add_comment' post.id %}" method="post">-->
+<!--    {% csrf_token %}-->
+<!--    <input type="text" name="comment">-->
+<!--    <button type="submit">Add Comment</button>-->
+<!--</form>-->
+<!--<h1>Other's Comments</h1>-->
+<!--<ul>-->
+<!--    {% for comment in comments %}-->
+<!--        <li>-->
+<!--            <p>-->
+<!--                <a href="{% url 'main:profile' comment.commentPoster.pk %}">{{ comment.commentPoster.username }}</a>-->
+<!--                ({{ comment.commentPoster.get_pronouns_display }})-->
+<!--            </p>-->
+<!--            {{ comment.text }}-->
+<!--            {% if user == comment.commentPoster %}-->
+<!--                <span>-->
+<!--                    <a href="{% url 'posts:edit_comment' post.id comment.id %}">Edit</a>-->
+<!--                    <a href="{% url 'posts:delete_comment' post.id comment.id %}">Delete</a>-->
+<!--                </span>-->
+<!--            {% endif %}-->
+<!--        </li>-->
+<!--    {% endfor %}-->
+<!--</ul> {% endcomment %}-->
