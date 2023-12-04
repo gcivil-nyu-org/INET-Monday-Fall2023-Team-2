@@ -3,14 +3,20 @@
     Notifications
 {% endblock title %}
 {% block content %}
-    <div class="overflow-y-auto">
-        <h1 class="text-3xl mb-5 text-center">Notifications</h1>
-        {% if user_notifications %}
-            {% for notification in user_notifications %}
-                {% include "main/notification_card.html" with notification=notification %}
-            {% endfor %}
-        {% else %}
-            <p class="text-center text-gray-500">Nothing to see here! Try making some friends.</p>
-        {% endif %}
+    <div class="m-20 mt-5 overflow-auto">
+        <div class="justify-center">
+            <div class="container mx-auto mt-10 mb-10 overflow-scroll">
+                <div class="overflow-y-auto">
+                    <h1 class="text-3xl mb-5 text-center">Notifications</h1>
+                    {% if user_notifications %}
+                        {% for notification in user_notifications %}
+                            {% include "main/notification_card.html" with notification=notification %}
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center text-gray-500">Nothing to see here! Try making some friends.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock content %}

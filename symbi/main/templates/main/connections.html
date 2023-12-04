@@ -3,25 +3,31 @@
     Connections
 {% endblock title %}
 {% block content %}
-    <div class="overflow-y-auto">
-        <h1 class="text-3xl mb-5 text-center">Connection Requests</h1>
-        {% if active_requests %}
-            {% for connection_request in active_requests %}
-                {% include "main/connection_card.html" with connection=connection_request %}
-            {% endfor %}
-        {% else %}
-            <p class="text-center text-gray-500">Nothing to see here! Nobody wants you :)</p>
-        {% endif %}
-    </div>
-    <div class="my-8"></div>
-    <div class="overflow-y-auto">
-        <h1 class="text-3xl mb-5 text-center">Connections</h1>
-        {% if active_connections %}
-            {% for active_connection in active_connections %}
-                {% include "main/connection_card.html" with connection=active_connection %}
-            {% endfor %}
-        {% else %}
-            <p class="text-center text-gray-500">Nothing to see here! Where are your friends?</p>
-        {% endif %}
+    <div class="m-20 mt-5 overflow-auto">
+        <div class="justify-center">
+            <div class="container mx-auto mt-10 mb-10 overflow-scroll">
+                <div class="overflow-y-auto">
+                    <h1 class="text-3xl mb-5 text-center">Connection Requests</h1>
+                    {% if active_requests %}
+                        {% for connection_request in active_requests %}
+                            {% include "main/connection_card.html" with connection=connection_request %}
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center text-gray-500">Nothing to see here! Nobody wants you :)</p>
+                    {% endif %}
+                </div>
+                <div class="my-8"></div>
+                <div class="overflow-y-auto">
+                    <h1 class="text-3xl mb-5 text-center">Connections</h1>
+                    {% if active_connections %}
+                        {% for active_connection in active_connections %}
+                            {% include "main/connection_card.html" with connection=active_connection %}
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center text-gray-500">Nothing to see here! Where are your friends?</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock content %}

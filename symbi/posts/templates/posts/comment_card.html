@@ -2,7 +2,7 @@
 {% load username_customfilters %}
 <div class="rounded-xl bg-white mx-2 my-3">
     <div class="flex flex-wrap items-start">
-        <a href="{% url 'main:profile_page' user.username %}"
+        <a href="{% url 'main:profile_page' comment.commentPoster.username %}"
            class="flex items-center hover:bg-gray-100 rounded hover:text-gray-600 focus:bg-gray-100 focus:text-gray-600">
             <div class="rounded-full h-8 w-8 bg-[#ff6a45] flex items-center justify-center shadow-md border-white transition duration-200 transform hover:scale-110">
                 {% if comment.commentPoster.profile_picture %}
