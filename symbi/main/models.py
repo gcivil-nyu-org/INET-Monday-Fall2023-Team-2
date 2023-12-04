@@ -1,7 +1,10 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
+# from django.utils.text import slugify
 from django.utils import timezone
+from django.urls import reverse
 
 
 class InterestTag(models.Model):
@@ -34,6 +37,10 @@ class SocialUser(AbstractUser):
     )
     timestamp = models.DateTimeField("timestamp", default=timezone.now)  # joined
 
+    def get_absolute_url(self):
+        return reverse("main:profile_page", kwargs={"username": self.username})
+        # return reverse('main:profile_page', kwargs={'username': slugify(self.username)})
+
 
 class Notification(models.Model):
     class NotificationType(models.IntegerChoices):
@@ -50,6 +57,34 @@ class Notification(models.Model):
     timestamp = models.DateTimeField("timestamp", default=timezone.now)
     is_read = models.BooleanField(default=False)
     type = models.IntegerField(choices=NotificationType.choices)
+
+    # Get all notifications for a user
+    @classmethod
+    def get_user_notifications(cls, user):
+        return (
+            cls.objects.filter(models.Q(recipient_user=user))
+            .all()
+            .order_by("-timestamp")
+        )
+
+    # Get all unread notifications for a user
+    @classmethod
+    def get_unread_user_notifications(cls, user):
+        return (
+            cls.objects.filter(models.Q(recipient_user=user, is_read=False))
+            .all()
+            .order_by("-timestamp")
+        )
+
+    # Count unread notifications for a user
+    @classmethod
+    def count_unread_notifications(cls, user):
+        return (
+            cls.objects.filter(models.Q(recipient_user=user, is_read=False))
+            .all()
+            .order_by("-timestamp")
+            .count()
+        )
 
 
 class Connection(models.Model):

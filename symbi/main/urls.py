@@ -17,7 +17,11 @@ urlpatterns = [
         views.EditProfileView.as_view(),
         name="edit_profile_page",
     ),
-    path("profile/<int:pk>/notifications/", views.notifications, name="notifications"),
+    path(
+        "notifications/<slug:username>",
+        views.NotificationsPageView.as_view(),
+        name="notifications",
+    ),
     # Connections
     path(
         "connections/<slug:username>",
@@ -39,11 +43,12 @@ urlpatterns = [
         views.CancelConnectionView.as_view(),
         name="cancel_connection",
     ),
-    path(
-        "connections/<slug:username>",
-        views.ConnectionsPageView.as_view(),
-        name="connections",
-    ),
+    # The below looks like a duplicate?
+    # path(
+    # "connections/<slug:username>",
+    # views.ConnectionsPageView.as_view(),
+    # name="connections",
+    # ),'''
     # Search and Discovery
     path("discover/", views.DiscoverPageView.as_view(), name="discover"),
     # path("discover/", views.search_view, name="discover"),

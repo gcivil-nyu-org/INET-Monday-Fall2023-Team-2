@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.db.models import Q
 from django.contrib.auth.views import LoginView
+from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 
@@ -61,10 +62,10 @@ class LogoutView(generic.RedirectView):
         return super().get(request, *args, **kwargs)
 
 
+@method_decorator(login_required, name="dispatch")
 class HomePageView(LoginRequiredMixin, generic.ListView):
     model = ActivityPost
     template_name = "main/home.html"
-    redirect_field_name = "main:login"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -88,6 +89,7 @@ class HomePageView(LoginRequiredMixin, generic.ListView):
         return context
 
 
+@method_decorator(login_required, name="dispatch")
 class ProfilePageView(LoginRequiredMixin, generic.DetailView):
     model = SocialUser
     template_name = "main/profile_page.html"
@@ -113,6 +115,7 @@ class ProfilePageView(LoginRequiredMixin, generic.DetailView):
         return context
 
 
+@method_decorator(login_required, name="dispatch")
 class EditProfileView(LoginRequiredMixin, generic.UpdateView):
     model = SocialUser
     form_class = EditProfileForm
@@ -132,14 +135,15 @@ class EditProfileView(LoginRequiredMixin, generic.UpdateView):
         initial["pronouns"] = self.request.user.pronouns
         initial["date_of_birth"] = self.request.user.date_of_birth
         initial["major"] = self.request.user.major
-        initial["interests"] = self.request.user.tags
+        initial["interests"] = self.request.user.tags.all()
         return initial
 
     def get_object(self, queryset=None):
         return get_object_or_404(SocialUser, username=self.kwargs["username"])
 
 
-class DiscoverPageView(generic.ListView):
+@method_decorator(login_required, name="dispatch")
+class DiscoverPageView(LoginRequiredMixin, generic.ListView):
     model = ActivityPost
     template_name = "main/discover.html"
 
@@ -156,7 +160,8 @@ class DiscoverPageView(generic.ListView):
         return object_list
 
 
-class ConnectionsPageView(generic.DetailView):
+@method_decorator(login_required, name="dispatch")
+class ConnectionsPageView(LoginRequiredMixin, generic.DetailView):
     model = SocialUser
     template_name = "main/connections.html"
 
@@ -175,24 +180,37 @@ class ConnectionsPageView(generic.DetailView):
         return context
 
 
-class RequestConnectionView(generic.View):
+@method_decorator(login_required, name="dispatch")
+class RequestConnectionView(LoginRequiredMixin, generic.View):
     def get(self, request, *args, **kwargs):
         requester = get_object_or_404(SocialUser, username=self.request.user)
         receiver = get_object_or_404(SocialUser, username=self.kwargs["receiver"])
 
         if not Connection.are_connected(requester, receiver):
-            Connection.objects.create(
+            connection = Connection.objects.create(
                 requester=requester,
                 receiver=receiver,
                 status=Connection.ConnectionStatus.REQUESTED,
             )
+            # Create a new Notification object for userB
+            notification_content = f"{requester.username} wants to connect."
+            notification = Notification.objects.create(
+                recipient_user=connection.receiver,
+                from_user=connection.requester,
+                content=notification_content,
+                type=Notification.NotificationType.CONNECTION_REQUEST,
+            )
+            print(notification.content)
+            connection.notification = notification
+            connection.save()
 
         return redirect(
             reverse_lazy("main:profile_page", kwargs={"username": receiver.username})
         )
 
 
-class CancelConnectionView(generic.View):
+@method_decorator(login_required, name="dispatch")
+class CancelConnectionView(LoginRequiredMixin, generic.View):
     def get(self, request, *args, **kwargs):
         requester = get_object_or_404(SocialUser, username=self.kwargs["requester"])
         receiver = get_object_or_404(SocialUser, username=self.kwargs["receiver"])
@@ -201,7 +219,11 @@ class CancelConnectionView(generic.View):
 
         # Handles redirect differently since requester and receiver can both cancel the connection
         if current_user == requester and Connection.are_connected(requester, receiver):
-            Connection.get_connection(requester, receiver).delete()
+            connection = Connection.get_connection(requester, receiver)
+            if connection:
+                if connection.notification:
+                    connection.notification.delete()
+                connection.delete()
 
             return redirect(
                 reverse_lazy(
@@ -209,13 +231,21 @@ class CancelConnectionView(generic.View):
                 )
             )
         elif current_user == receiver and Connection.are_connected(requester, receiver):
-            Connection.objects.filter(requester=requester, receiver=receiver).delete()
+            connection = Connection.objects.filter(
+                requester=requester, receiver=receiver
+            ).first()
+            if connection:
+                if connection.notification:
+                    connection.notification.delete()
+                connection.delete()
+
             return redirect(reverse_lazy("main:home"))
 
         return redirect(reverse_lazy("main:home"))
 
 
-class AcceptConnectionView(generic.View):
+@method_decorator(login_required, name="dispatch")
+class AcceptConnectionView(LoginRequiredMixin, generic.View):
     def get(self, request, *args, **kwargs):
         requester = get_object_or_404(SocialUser, username=self.kwargs["requester"])
         receiver = get_object_or_404(SocialUser, username=self.kwargs["receiver"])
@@ -230,6 +260,33 @@ class AcceptConnectionView(generic.View):
         )
 
 
+@method_decorator(login_required, name="dispatch")
+class NotificationsPageView(LoginRequiredMixin, generic.DetailView):
+    model = SocialUser
+    template_name = "main/notifications.html"
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(SocialUser, username=self.kwargs.get("username"))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # get unread notifications
+        unread_notifications = Notification.get_unread_user_notifications(
+            self.request.user
+        )
+        # mark them as read
+        unread_notifications.update(is_read=True)
+        # set context data
+        context["current_user"] = self.request.user
+        context["user_notifications"] = Notification.get_user_notifications(
+            self.request.user
+        )
+        context["notification_types"] = Notification.NotificationType
+
+        return context
+
+
+# OLD FUNCTIONS ***********************************************************
 @login_required
 def notifications(request, pk):
     template_name = "main/notifications.html"

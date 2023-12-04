@@ -2,11 +2,16 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 import django.views.generic as generic
 
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 from .models import ChatRoom, Message
 from main.models import SocialUser
 
 
-class ChatRoomListView(generic.ListView):
+@method_decorator(login_required, name="dispatch")
+class ChatRoomListView(LoginRequiredMixin, generic.ListView):
     model = ChatRoom
     template_name = "chat/chat_room_list.html"
 
@@ -16,7 +21,8 @@ class ChatRoomListView(generic.ListView):
         return context
 
 
-class ChatRoomView(generic.DetailView):
+@method_decorator(login_required, name="dispatch")
+class ChatRoomView(LoginRequiredMixin, generic.DetailView):
     model = ChatRoom
     template_name = "chat/chat_room.html"
 
@@ -34,7 +40,8 @@ class ChatRoomView(generic.DetailView):
         return redirect("chat:chat_room", pk=chat_room.pk)
 
 
-class ChatRoomCreateView(generic.View):
+@method_decorator(login_required, name="dispatch")
+class ChatRoomCreateView(LoginRequiredMixin, generic.View):
     def get(self, request, *args, **kwargs):
         requester = get_object_or_404(SocialUser, username=self.kwargs["requester"])
         receiver = get_object_or_404(SocialUser, username=self.kwargs["receiver"])
