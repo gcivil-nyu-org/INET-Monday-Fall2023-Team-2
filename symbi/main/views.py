@@ -30,6 +30,14 @@ class LoginView(LoginView):
     authentication_form = LoginForm
     success_url = reverse_lazy("main:home")
 
+    def form_invalid(self, form):
+        print(form.errors.as_json())
+        for field, errors in form.errors.items():
+            for error in errors:
+                messages.error(self.request, error)
+
+        return super().form_invalid(form)
+
 
 class SignupView(generic.FormView):
     template_name = "main/signup.html"
