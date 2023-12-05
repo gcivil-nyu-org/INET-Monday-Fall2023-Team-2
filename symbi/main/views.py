@@ -48,7 +48,10 @@ class SignupView(generic.FormView):
         form = self.form_class(request.POST)
 
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.tags.set(form.cleaned_data["interests"])
+            user.save()
+            form.save_m2m()
 
             login(request, user)
 
@@ -148,6 +151,13 @@ class EditProfileView(LoginRequiredMixin, generic.UpdateView):
 
     def get_object(self, queryset=None):
         return get_object_or_404(SocialUser, username=self.kwargs["username"])
+
+    def form_valid(self, form):
+        user = form.save(commit=False)
+        user.tags.set(form.cleaned_data["interests"])
+        user.save()
+        form.save_m2m()
+        return super().form_valid(form)
 
 
 @method_decorator(login_required, name="dispatch")
