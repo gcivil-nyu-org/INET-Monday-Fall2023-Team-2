@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}
+    Settings
+{% endblock %}
+{% block content %}
+<div class="overflow-y-auto">
+    <h1 class="text-3xl mb-5 text-center">Settings</h1>
+        <div class="flex flex-col items-center space-y-6">
+            <a href={% url 'main:change_password' %} class="w-56 inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-#ff6a45 border border-#ff6a45 rounded-lg shadow-sm cursor-pointer hover:text-#ff6a45 hover:bg-white">
+                <span class="relative">Change Password</span>
+            </a>
+            <a href="{% url 'main:blocked_users' %}" class="w-56 inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-#ff6a45 border border-#ff6a45 rounded-lg shadow-sm cursor-pointer hover:text-#ff6a45 hover:bg-white">
+                <span class="relative">Blocked Users</span>
+            </a>
+            <a href="reports.html" class="w-56 inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-#ff6a45 border border-#ff6a45 rounded-lg shadow-sm cursor-pointer hover:text-#ff6a45 hover:bg-white">
+                <span class="relative">Reports</span>
+            </a>
+            <a href="{% url 'main:delete_account' %}" class="w-56 inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-#ff6a45 border border-#ff6a45 rounded-lg shadow-sm cursor-pointer hover:text-#ff6a45 hover:bg-white">
+                <span class="relative">Delete Account</span>
+            </a>
+        </div>
+</div>
+{% endblock %}
