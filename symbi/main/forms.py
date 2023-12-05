@@ -1,10 +1,6 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from .models import SocialUser, InterestTag
-
-
-# from django.contrib.auth.models import User
-
 
 class LoginForm(AuthenticationForm):
     username = forms.CharField(
@@ -207,3 +203,18 @@ class EditProfileForm(forms.ModelForm):
 
 class SearchForm(forms.Form):
     query = forms.CharField(required=False)
+
+
+class ChangePasswordForm(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['old_password'].widget.attrs.update(
+            {'class': 'form-control', 'placeholder': 'Old Password'}
+        )
+        self.fields['new_password1'].widget.attrs.update(
+            {'class': 'form-control', 'placeholder': 'New Password'}
+        )
+        self.fields['new_password2'].widget.attrs.update(
+            {'class': 'form-control', 'placeholder': 'Confirm New Password'}
+        )

@@ -4,7 +4,7 @@ from django.views import generic
 from django.utils import timezone
 from django.shortcuts import redirect, get_object_or_404
 
-from main.models import SocialUser
+from main.models import SocialUser, Block
 from .models import ActivityPost, Comment
 from .forms import NewPostForm, EditPostForm
 from django.contrib.auth.decorators import login_required
@@ -105,9 +105,31 @@ class PostDetailsView(LoginRequiredMixin, generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["comments"] = Comment.objects.filter(post=self.object).order_by(
-            "-timestamp"
+        comments = Comment.objects.filter(post=self.object).order_by("-timestamp")
+
+        # Fetch users blocked by the logged-in user and users who have blocked the logged-in user
+        blocked_users = Block.get_blocked_users(self.request.user)
+        blocking_users = Block.get_blocking_users(self.request.user)
+
+        context["comments"] = comments.exclude(commentPoster__in=blocked_users).exclude(
+            commentPoster__in=blocking_users
         )
+        return context
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Fetch comments related to the post (replace 'self.object' with the appropriate reference)
+        comments = Comment.objects.filter(post=self.object).order_by("-timestamp")
+
+        # users blocked by the logged-in user
+        blocked_users = Block.objects.filter(blocker=self.request.user).values_list('blocked_user', flat=True)
+
+        # users who have blocked the logged-in user
+        blocking_users = Block.objects.filter(blocked_user=self.request.user).values_list('blocker', flat=True)
+
+        context["comments"] = comments.exclude(commentPoster__in=blocked_users).exclude(commentPoster__in=blocking_users)
+
         return context
 
     def post(self, request, *args, **kwargs):

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import InterestTag, SocialUser, Notification, Connection
+from .models import InterestTag, SocialUser, Notification, Connection, Block
 
 
 @admin.register(InterestTag)
@@ -32,3 +32,9 @@ class NotificationAdmin(admin.ModelAdmin):
 class ConnectionAdmin(admin.ModelAdmin):
     list_display = ["requester", "receiver", "status"]
     search_fields = ["requester", "receiver"]
+
+
+@admin.register(Block)
+class BlockAdmin(admin.ModelAdmin):
+    list_display = ["blocker", "blocked_user"]
+    search_fields = ["blocker", "blocked_user"]
