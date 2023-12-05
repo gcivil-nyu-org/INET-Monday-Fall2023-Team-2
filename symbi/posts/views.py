@@ -176,22 +176,6 @@ class DeleteCommentView(LoginRequiredMixin, generic.View):
         )
 
 
-# def edit_comment(request, pk, comment_id):
-#     post = ActivityPost.objects.filter(pk=pk)[0]
-#     comment = Comment.objects.filter(pk=comment_id, post=post)[0]
-
-#     if request.method == "POST":
-#         current_user = request.user
-#         comment_user = comment.user
-#         if current_user.id == comment_user.id:
-#             edited_comment = request.POST.get("text")
-#             comment.text = edited_comment
-#             comment.save()
-#             return HttpResponseRedirect(reverse("posts:post_details_view", args=[pk]))
-
-#     return HttpResponseRedirect(reverse("posts:post_details_view", args=[pk]))
-
-
 @method_decorator(login_required, name="dispatch")
 class EditCommentView(LoginRequiredMixin, generic.UpdateView):
     model = Comment
@@ -231,28 +215,6 @@ class EditCommentView(LoginRequiredMixin, generic.UpdateView):
                 "pk": self.post.id,
             },
         )
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context["user"] = self.request.user
-    #     context["commentPoster"] = self.object.commentPoster
-    #     return context
-
-    # def form_valid(self, form):
-    #     print("Current user:", self.request.user)
-    #     print(
-    #         "Comment author:", form.instance.commentPoster
-    #     )  # Adjust based on your field name
-    #     return super().form_valid(form)
-
-    # def get_queryset(self):
-    #     # Ensure that only the comments of the current user are editable
-    #     return Comment.objects.filter(commentPoster=self.request.user)
-
-    # def get_success_url(self):
-    #     return reverse_lazy(
-    #         "posts:post_details_view", kwargs={"pk": self.object.post.pk}
-    #     )
 
 
 # OLD FUNCTIONS **************************************************
@@ -331,39 +293,6 @@ def edit_post(request, post_id):
 
     else:
         pass
-
-
-# @login_required
-# def add_comment(request, post_id):
-#     if request.method == "POST":
-#         text = request.POST.get("comment", None)
-#         if text:
-#             post = ActivityPost.objects.get(pk=post_id)
-#             taggedUsername = [word[1:] for word in text.split() if word.startswith('@')]
-#             taggedUsers = SocialUser.objects.filter(username__in=taggedUsername)
-#             comment = Comment.objects.create(
-#                 commentPoster=request.user,
-#                 post=post,
-#                 text=text,
-#                 timestamp=timezone.now(),
-#             )
-#     return HttpResponseRedirect(reverse("posts:post_details_view", args=[post_id]))
-
-
-# def edit_comment(request, pk, comment_id):
-#     post = ActivityPost.objects.filter(pk=pk)[0]
-#     comment = Comment.objects.filter(pk=comment_id, post=post)[0]
-
-#     if request.method == "POST":
-#         current_user = request.user
-#         comment_user = comment.user
-#         if current_user.id == comment_user.id:
-#             edited_comment = request.POST.get("text")
-#             comment.text = edited_comment
-#             comment.save()
-#             return HttpResponseRedirect(reverse("posts:post_details_view", args=[pk]))
-
-#     return HttpResponseRedirect(reverse("posts:post_details_view", args=[pk]))
 
 
 @login_required
