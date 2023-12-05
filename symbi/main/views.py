@@ -49,9 +49,10 @@ class SignupView(generic.FormView):
 
         if form.is_valid():
             user = form.save(commit=False)
-            user.tags.set(form.cleaned_data["interests"])
             user.save()
             form.save_m2m()
+            user.tags.set(form.cleaned_data["interests"])
+            user.save()
 
             login(request, user)
 
