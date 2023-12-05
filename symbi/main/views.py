@@ -48,7 +48,7 @@ class SignupView(generic.FormView):
         else:
             for field, errors in form.errors.items():
                 for error in errors:
-                    messages.error(request, f"{field.capitalize()}: {error}")
+                    messages.error(request, f"{error}")
 
             return render(request, "main/signup.html", {"form": form})
 
