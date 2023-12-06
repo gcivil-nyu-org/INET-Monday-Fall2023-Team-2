@@ -4,10 +4,8 @@ import django.views.generic as generic
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from pusher import Pusher
-from django.http import JsonResponse
 
 from .models import ChatRoom, Message
 from main.models import SocialUser
