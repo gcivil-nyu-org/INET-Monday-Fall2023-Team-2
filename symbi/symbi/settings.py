@@ -37,7 +37,6 @@ SECRET_KEY = config("SECRET_KEY", default=get_random_secret_key())
 # Application definition
 
 INSTALLED_APPS = [
-    "pusherable",
     "main.apps.MainConfig",
     "posts.apps.PostsConfig",
     "chat.apps.ChatConfig",
