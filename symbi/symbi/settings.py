@@ -30,6 +30,7 @@ ALLOWED_HOSTS = [
     "symbi-env.eba-imnmcswt.us-east-1.elasticbeanstalk.com",
     "127.0.0.1",
     "localhost",
+    "symbi-test.eba-imnmcswt.us-east-1.elasticbeanstalk.com",
 ]
 
 SECRET_KEY = config("SECRET_KEY", default=get_random_secret_key())
