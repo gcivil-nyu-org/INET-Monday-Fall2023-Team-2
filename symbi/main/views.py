@@ -13,11 +13,10 @@ from .signals import user_blocked
 from django.views.generic import DeleteView, TemplateView, DetailView
 
 from posts.models import ActivityPost
-from .models import SocialUser, Connection, Notification, InterestTag, Block
+from .models import SocialUser, Connection, Notification, Block
 from .forms import (
     SignupForm,
     LoginForm,
-    SearchForm,
     EditProfileForm,
     ChangePasswordForm,
 )
@@ -167,7 +166,6 @@ class EditProfileView(LoginRequiredMixin, generic.UpdateView):
 
     def get_object(self, queryset=None):
         return get_object_or_404(SocialUser, username=self.kwargs["username"])
-
 
     def dispatch(self, request, *args, **kwargs):
         # Check if the logged-in user can access the page being requested
@@ -481,7 +479,7 @@ def blocked_users(request, pk):
     now = timezone.now()
     for blocked_user in blocked_users:
         time_difference = now - blocked_user.timestamp
-        time_difference = format_time_difference(time_difference)
+        # time_difference = format_time_difference(time_difference)
         time_differences.append(time_difference)
 
     zipped_blocked_users = zip(blocked_users, time_differences)
