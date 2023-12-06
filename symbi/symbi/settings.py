@@ -37,6 +37,7 @@ SECRET_KEY = config("SECRET_KEY", default=get_random_secret_key())
 # Application definition
 
 INSTALLED_APPS = [
+    "pusherable",
     "main.apps.MainConfig",
     "posts.apps.PostsConfig",
     "chat.apps.ChatConfig",
@@ -149,4 +150,10 @@ INTERNAL_IPS = ["127.0.0.1"]
 
 ALLOW_DELETED_USERS = True
 
-# NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
+NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
+
+# Pusher Keys
+PUSHER_APP_ID = config("PUSHER_APP_ID", os.environ.get("PUSHER_APP_ID"))
+PUSHER_KEY = config("PUSHER_KEY", os.environ.get("PUSHER_KEY"))
+PUSHER_SECRET = config("PUSHER_SECRET", os.environ.get("PUSHER_SECRET"))
+PUSHER_CLUSTER = config("PUSHER_CLUSTER", os.environ.get("PUSHER_CLUSTER"))
