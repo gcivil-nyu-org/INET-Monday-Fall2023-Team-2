@@ -150,7 +150,7 @@ INTERNAL_IPS = ["127.0.0.1"]
 
 ALLOW_DELETED_USERS = True
 
-NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
+# NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
 
 # Pusher Keys
 PUSHER_APP_ID = config("PUSHER_APP_ID", os.environ.get("PUSHER_APP_ID"))
