@@ -82,6 +82,15 @@ class EditPostView(LoginRequiredMixin, generic.UpdateView):
         post.tags.set(request.POST.getlist("tags"))
         post.save()
         return redirect(self.get_success_url())
+        
+    def dispatch(self, request, *args, **kwargs):
+        # Check if the logged-in user can access the page being requested
+        poster = self.kwargs["poster"]
+        if self.request.user.username != poster:
+            # returns 403 Forbidden page
+            return self.handle_no_permission()
+            
+        return super().dispatch(request, *args, **kwargs)
 
 
 @method_decorator(login_required, name="dispatch")
@@ -136,6 +145,20 @@ class PostDetailsView(LoginRequiredMixin, generic.DetailView):
                 },
             )
         )
+        
+    def dispatch(self, request, *args, **kwargs):
+        # Check if the logged-in user can access the page being requested
+        poster = self.kwargs["poster"]
+        post = get_object_or_404(
+            ActivityPost,
+            poster__username=self.kwargs["poster"],
+            pk=self.kwargs["pk"],
+        )
+        if post.status != ActivityPost.PostStatus.ACTIVE and self.request.user.username != poster:
+            # returns 403 Forbidden page
+            return self.handle_no_permission()
+            
+        return super().dispatch(request, *args, **kwargs)
 
 
 @method_decorator(login_required, name="dispatch")
@@ -153,6 +176,15 @@ class ArchivePostView(LoginRequiredMixin, generic.RedirectView):
                 "main:profile_page", kwargs={"username": self.request.user.username}
             )
         )
+        
+    def dispatch(self, request, *args, **kwargs):
+        # Check if the logged-in user can access the page being requested
+        poster = self.kwargs["poster"]
+        if self.request.user.username != poster:
+            # returns 403 Forbidden page
+            return self.handle_no_permission()
+            
+        return super().dispatch(request, *args, **kwargs)
 
 
 @method_decorator(login_required, name="dispatch")
@@ -174,6 +206,15 @@ class DeleteCommentView(LoginRequiredMixin, generic.View):
                 },
             )
         )
+        
+    def dispatch(self, request, *args, **kwargs):
+        # Check if the logged-in user can access the page being requested
+        comment_poster = self.kwargs["comment_poster"]
+        if self.request.user.username != comment_poster:
+            # returns 403 Forbidden page
+            return self.handle_no_permission()
+            
+        return super().dispatch(request, *args, **kwargs)
 
 
 # def edit_comment(request, pk, comment_id):
@@ -231,6 +272,15 @@ class EditCommentView(LoginRequiredMixin, generic.UpdateView):
                 "pk": self.post.id,
             },
         )
+        
+    def dispatch(self, request, *args, **kwargs):
+        # Check if the logged-in user can access the page being requested
+        comment_poster = self.kwargs["comment_poster"]
+        if self.request.user.username != comment_poster:
+            # returns 403 Forbidden page
+            return self.handle_no_permission()
+            
+        return super().dispatch(request, *args, **kwargs)
 
     # def get_context_data(self, **kwargs):
     #     context = super().get_context_data(**kwargs)
