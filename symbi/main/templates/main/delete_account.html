@@ -1,13 +1,64 @@
-{% extends 'main/base.html' %}
-{% block title %}Delete Account{% endblock %}
+{% extends "base.html" %}
+{% block title %}
+  Delete Account
+{% endblock title %}
 {% block content %}
-  <p>Are you sure you want to delete your account?</p>
-
-  <div class="action-buttons">
-    <form action="{% url 'main:delete_account_request' %}" method="POST">
-      {% csrf_token %}
-      <button type="submit" class="btn btn-delete">Delete Account</button>
-      <button type="button" class="btn btn-cancel" onclick="location.href='{% url 'main:home' %}'">Cancel</button>
-    </form>
+<div class="overflow-y-auto flex justify-center items-center h-screen">
+  <div class="text-center">
+    <h1 class="text-3xl mb-5">Are you sure you want to delete your account?</h1>
+    <div class="flex justify-center">
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit"
+          class="w-auto mx-3 inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white rounded-lg shadow-sm cursor-pointer bg-red-500"
+          name="confirm" value="yes">
+          <svg xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6 mr-1">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          <span class="relative">Yes, Delete My Account</span>
+        </button>
+      </form>
+      <a href="{% url 'main:settings' user.username %}"
+        class="w-40 inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white rounded-lg shadow-sm cursor-pointer bg-green-500">
+        <svg xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6 mr-1">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+        </svg>
+        <span class="relative">Cancel</span>
+      </a>
+    </div>
   </div>
-{% endblock %}
+</div>
+    {% endblock content %}
+  <a href="{% url 'main:delete_account' user.username %}"
+    class="bg-red-500 flex justify-center items-center w-full text-white px-4 py-3 rounded-md focus:outline-none">
+      <svg class="w-6 h-6 mr-1"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+      Delete Account
+  </a>
+  <a href="{% url 'main:profile_page' user.username %}"
+    class="flex justify-center items-center w-full text-black border-black border px-4 py-3 rounded-md focus:outline-none">
+      <svg xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="w-6 h-6 mr-1">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+      </svg>
+      Cancel
+  </a>
