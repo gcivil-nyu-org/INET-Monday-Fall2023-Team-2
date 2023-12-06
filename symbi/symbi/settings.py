@@ -152,7 +152,9 @@ ALLOW_DELETED_USERS = True
 # NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
 
 # Pusher Keys
-PUSHER_APP_ID = config("PUSHER_APP_ID", os.environ.get("PUSHER_APP_ID"))
-PUSHER_KEY = config("PUSHER_KEY", os.environ.get("PUSHER_KEY"))
-PUSHER_SECRET = config("PUSHER_SECRET", os.environ.get("PUSHER_SECRET"))
-PUSHER_CLUSTER = config("PUSHER_CLUSTER", os.environ.get("PUSHER_CLUSTER"))
+os.environ.get("PUSHER_APP_ID")
+
+PUSHER_APP_ID = "1720063"
+PUSHER_KEY = "01c526d625d364381708"
+PUSHER_SECRET = "27e7bed23bb744de9a6c"
+PUSHER_CLUSTER = "mt1"
