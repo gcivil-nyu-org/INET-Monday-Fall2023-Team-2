@@ -3,6 +3,7 @@ from django.urls import reverse, reverse_lazy
 from django.views import generic
 from django.utils import timezone
 from django.shortcuts import redirect, get_object_or_404
+from django.contrib import messages
 
 from main.models import SocialUser, Block
 from .models import ActivityPost, Comment
@@ -40,6 +41,13 @@ class CreatePostView(LoginRequiredMixin, generic.CreateView):
         self.object.save()
 
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        for field, errors in form.errors.items():
+            for error in errors:
+                messages.error(self.request, f"{field.capitalize()}: {error}")
+
+        return super().form_invalid(form)
 
 
 @method_decorator(login_required, name="dispatch")
@@ -82,6 +90,27 @@ class EditPostView(LoginRequiredMixin, generic.UpdateView):
         post.tags.set(request.POST.getlist("tags"))
         post.save()
         return redirect(self.get_success_url())
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.poster = self.request.user
+
+        action = self.request.POST.get("action")
+        if action == "draft":
+            self.object.status = ActivityPost.PostStatus.DRAFT
+        elif action == "post":
+            self.object.status = ActivityPost.PostStatus.ACTIVE
+
+        self.object.save()
+
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        for field, errors in form.errors.items():
+            for error in errors:
+                messages.error(self.request, f"{field.capitalize()}: {error}")
+
+        return super().form_invalid(form)
 
 
 @method_decorator(login_required, name="dispatch")

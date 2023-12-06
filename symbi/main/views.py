@@ -177,6 +177,18 @@ class EditProfileView(LoginRequiredMixin, generic.UpdateView):
         form.save_m2m()
         return super().form_valid(form)
 
+    def form_invalid(self, form):
+        for field, errors in form.errors.items():
+            for error in errors:
+                parts = field.split("_")
+                if len(parts) > 1:
+                    field = f"{parts[0].capitalize()} {parts[1].capitalize()}"
+                else:
+                    field = field.capitalize()
+                messages.error(self.request, f"{field}: {error}")
+
+        return super().form_invalid(form)
+
 
 @method_decorator(login_required, name="dispatch")
 class DiscoverPageView(LoginRequiredMixin, generic.ListView):
