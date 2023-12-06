@@ -186,6 +186,15 @@ class ConnectionsPageView(LoginRequiredMixin, generic.DetailView):
             self.request.user
         )
         return context
+        
+    def dispatch(self, request, *args, **kwargs):
+        # Check if the logged-in user has the same username as the profile being edited
+        viewed_username = self.kwargs["username"]
+        if self.request.user.username != viewed_username:
+            # returns 403 Forbidden page
+            return self.handle_no_permission()
+            
+        return super().dispatch(request, *args, **kwargs)
 
 
 @method_decorator(login_required, name="dispatch")
