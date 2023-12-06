@@ -1,25 +1,26 @@
 from django.dispatch import Signal, receiver
 from django.db.models.signals import post_save
 from .models import Block, Connection
-from posts.models import ActivityPost, Comment
-from chat.models import ChatRoom, Message
+from posts.models import Comment
+from chat.models import ChatRoom
 
-# restrictions imposed on a blocked_user by implementing two actions: 
+# restrictions imposed on a blocked_user by implementing two actions:
 #   1. Removing all existing communications between blocker and blocked_user
 #   2. Preventing further interactions between blocker and blocked_user by hiding the blocker’s activities
 
 user_blocked = Signal()
 
+
 @receiver(post_save, sender=Block)
-def remove_existing_communications(instance, created, **kwargs): 
+def remove_existing_communications(instance, created, **kwargs):
     if created:
-        blocker = instance.blocker 
+        blocker = instance.blocker
         blocked_user = instance.blocked_user
-        
+
         # Remove connections
-        # Check if users are connected  
+        # Check if users are connected
         is_connected = Connection.are_connected(blocker, blocked_user)
-    
+
         if is_connected:
             connection = Connection.get_connection(blocker, blocked_user)
 
@@ -30,20 +31,18 @@ def remove_existing_communications(instance, created, **kwargs):
 
             # Delete the connection, regardless of its status
             connection.delete()
-        
-        # Remove comments 
+
+        # Remove comments
         comments = Comment.objects.filter(
-            commentPoster=blocker, 
-            post__poster=blocked_user
-        ) | Comment.objects.filter(
-            commentPoster=blocked_user,
-            post__poster=blocker
-        ) 
+            commentPoster=blocker, post__poster=blocked_user
+        ) | Comment.objects.filter(commentPoster=blocked_user, post__poster=blocker)
         comments.delete()
 
         # Handle chat restrctions
         # Get all ChatRooms where blocker and blocked_user are both members
-        chat_rooms = ChatRoom.objects.filter(members=blocker).filter(members=blocked_user)
+        chat_rooms = ChatRoom.objects.filter(members=blocker).filter(
+            members=blocked_user
+        )
 
         for chat_room in chat_rooms:
             # ChatRoom is a group chat
@@ -55,5 +54,5 @@ def remove_existing_communications(instance, created, **kwargs):
                 else:
                     # Remove blocker from ChatRoom
                     chat_room.members.remove(blocker)
-            else: # ChatRoom is a DirectMessage
+            else:  # ChatRoom is a DirectMessage
                 chat_room.delete()

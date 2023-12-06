@@ -48,7 +48,7 @@
                             </div>
                         {% else %}
                             {% if is_blocked %}
-                                <!-- Unblock button -->
+                            {% comment %} Unblock button {% endcomment %}
                                 <div class="flex justify-between items-center my-5 px-6">
                                     <a href="{% url 'main:block_user' blocker=user.username blocked_user=profile.username %}"
                                        class="px-4 py-2 ml-3 mt-2 relative inline-flex items-center justify-center p-4 px-6 py-3 overflow-hidden font-medium text-[#ff6a45] transition duration-300 ease-out border-2 border-[#ff6a45] rounded-full shadow-md group">
@@ -67,7 +67,6 @@
                                     </a>
                                 </div>
                             {% else %}
-
                             {% comment %} Connection, Chat, Block buttons {% endcomment %}
                             <div class="flex items-center mt-5">
                                 <div class="flex flex-wrap justify-center items-center">

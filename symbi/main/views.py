@@ -16,7 +16,13 @@ from django.views.generic import DeleteView, TemplateView, DetailView
 
 from posts.models import ActivityPost
 from .models import SocialUser, Connection, Notification, InterestTag, Block
-from .forms import SignupForm, LoginForm, SearchForm, EditProfileForm, ChangePasswordForm
+from .forms import (
+    SignupForm,
+    LoginForm,
+    SearchForm,
+    EditProfileForm,
+    ChangePasswordForm,
+)
 
 
 class LandingPageView(generic.View):
@@ -92,9 +98,9 @@ class HomePageView(LoginRequiredMixin, generic.ListView):
         blocked_users = Block.get_blocked_users(self.request.user)
         blocking_users = Block.get_blocking_users(self.request.user)
 
-        context["interests_posts"] = interests_posts.exclude(poster__in=blocked_users).exclude(
-            poster__in=blocking_users
-        )
+        context["interests_posts"] = interests_posts.exclude(
+            poster__in=blocked_users
+        ).exclude(poster__in=blocking_users)
         user_connections = Connection.get_active_connections(self.request.user)
         connected_users = [
             connection.receiver
@@ -133,9 +139,7 @@ class ProfilePageView(LoginRequiredMixin, generic.DetailView):
         context["connection"] = Connection.get_connection(
             self.request.user, self.object
         )
-        context['is_blocked'] = Block.get_blocked_status(
-            self.request.user, self.object
-        )
+        context["is_blocked"] = Block.get_blocked_status(self.request.user, self.object)
 
         return context
 
@@ -554,26 +558,33 @@ def delete_account(request):
 class BlockUserView(generic.View):
     def get(self, request, *args, **kwargs):
         current_user = get_object_or_404(SocialUser, username=self.request.user)
-        user_to_block = get_object_or_404(SocialUser, username=self.kwargs["blocked_user"])
+        user_to_block = get_object_or_404(
+            SocialUser, username=self.kwargs["blocked_user"]
+        )
 
         if current_user and user_to_block:
             # Check if the user is already blocked
-            is_blocked = Block.objects.filter(blocker=current_user, blocked_user=user_to_block).exists()
+            is_blocked = Block.objects.filter(
+                blocker=current_user, blocked_user=user_to_block
+            ).exists()
 
             if is_blocked:
                 # If already blocked, unblock the user
-                Block.objects.filter(blocker=current_user, blocked_user=user_to_block).delete()
+                Block.objects.filter(
+                    blocker=current_user, blocked_user=user_to_block
+                ).delete()
             else:
                 # If not blocked, then block the user
-                Block.objects.create(
-                    blocker=current_user,
-                    blocked_user=user_to_block
-                )
+                Block.objects.create(blocker=current_user, blocked_user=user_to_block)
                 # Trigger the 'user_blocked' signal upon blocking
-                user_blocked.send(sender=Block, blocker=current_user, blocked_user=user_to_block)
+                user_blocked.send(
+                    sender=Block, blocker=current_user, blocked_user=user_to_block
+                )
 
         return redirect(
-            reverse_lazy("main:profile_page", kwargs={"username": current_user.username})
+            reverse_lazy(
+                "main:profile_page", kwargs={"username": user_to_block.username}
+            )
         )
 
 
@@ -582,23 +593,28 @@ def block_user(request, pk):
     current_user = request.user
     user_to_block = get_object_or_404(SocialUser, pk=pk)
 
-    is_blocked = Block.objects.get_blocked_status(blocker=current_user, blocked_user=user_to_block)
+    is_blocked = Block.objects.get_blocked_status(
+        blocker=current_user, blocked_user=user_to_block
+    )
 
     if is_blocked:
         # user_to_block is already blocked
-        blocking_relation = Block.objects.get(blocker=current_user, blocked=user_to_block)
+        blocking_relation = Block.objects.get(
+            blocker=current_user, blocked=user_to_block
+        )
         blocking_relation.delete()
         return redirect(
-            reverse_lazy("main:profile_page", kwargs={"username": user_to_block.username})
+            reverse_lazy(
+                "main:profile_page", kwargs={"username": user_to_block.username}
+            )
         )
     else:
         # block user_to_block
-        Block.objects.create(
-            blocker=current_user,
-            blocked_user=user_to_block
-        )
+        Block.objects.create(blocker=current_user, blocked_user=user_to_block)
         return redirect(
-            reverse_lazy("main:profile_page", kwargs={"username": user_to_block.username})
+            reverse_lazy(
+                "main:profile_page", kwargs={"username": user_to_block.username}
+            )
         )
 
 
@@ -649,7 +665,7 @@ class BlockedUsersPageView(DetailView):
         context = super().get_context_data(**kwargs)
         current_user = self.request.user
         blocked_users = Block.objects.filter(blocker=current_user)
-        context['blocked_users'] = blocked_users
+        context["blocked_users"] = blocked_users
 
         return context
 
@@ -657,16 +673,16 @@ class BlockedUsersPageView(DetailView):
 @method_decorator(login_required, name="dispatch")
 class SettingsPageView(generic.DetailView):
     model = SocialUser
-    template_name = 'main/settings.html'
+    template_name = "main/settings.html"
 
     def get_object(self, queryset=None):
         return get_object_or_404(SocialUser, username=self.kwargs.get("username"))
 
     def get_context_data(self, **kwargs):
-            context = super().get_context_data(**kwargs)
-            context["current_user"] = self.request.user
+        context = super().get_context_data(**kwargs)
+        context["current_user"] = self.request.user
 
-            return context
+        return context
 
 
 @method_decorator(login_required, name="dispatch")
@@ -676,7 +692,6 @@ class ChangePasswordView(PasswordChangeView):
     success_url = reverse_lazy("main:change_password_done")
 
     def form_valid(self, form):
-        messages.success(self.request, 'Password changed successfully!')
         return super().form_valid(form)
 
 

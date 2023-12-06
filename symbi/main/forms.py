@@ -1,6 +1,11 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
+from django.contrib.auth.forms import (
+    UserCreationForm,
+    AuthenticationForm,
+    PasswordChangeForm,
+)
 from .models import SocialUser, InterestTag
+
 
 class LoginForm(AuthenticationForm):
     username = forms.CharField(
@@ -209,12 +214,12 @@ class ChangePasswordForm(PasswordChangeForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['old_password'].widget.attrs.update(
-            {'class': 'form-control', 'placeholder': 'Old Password'}
+        self.fields["old_password"].widget.attrs.update(
+            {"class": "form-control", "placeholder": "Old Password"}
         )
-        self.fields['new_password1'].widget.attrs.update(
-            {'class': 'form-control', 'placeholder': 'New Password'}
+        self.fields["new_password1"].widget.attrs.update(
+            {"class": "form-control", "placeholder": "New Password"}
         )
-        self.fields['new_password2'].widget.attrs.update(
-            {'class': 'form-control', 'placeholder': 'Confirm New Password'}
+        self.fields["new_password2"].widget.attrs.update(
+            {"class": "form-control", "placeholder": "Confirm New Password"}
         )

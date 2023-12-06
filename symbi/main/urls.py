@@ -52,22 +52,28 @@ urlpatterns = [
     # Search and Discovery
     path("discover/", views.DiscoverPageView.as_view(), name="discover"),
     # path("discover/", views.search_view, name="discover"),
-
     # Settings
     path(
         "settings/<slug:username>",
         views.SettingsPageView.as_view(),
         name="settings",
     ),
-    path("delete-account/", views.DeleteUserAccountView.as_view(), name='delete_account'),
-    path('change-password/', views.ChangePasswordView.as_view(), name='change_password'),
-    path('change-password-done/', views.ChangePasswordDoneView.as_view(), name='change_password_done'),
-
+    path(
+        "delete-account/", views.DeleteUserAccountView.as_view(), name="delete_account"
+    ),
+    path(
+        "change-password/", views.ChangePasswordView.as_view(), name="change_password"
+    ),
+    path(
+        "change-password-done/",
+        views.ChangePasswordDoneView.as_view(),
+        name="change_password_done",
+    ),
     # Safety and Moderation
     path(
         "profile/<slug:blocker>/block/<slug:blocked_user>",
         views.BlockUserView.as_view(),
-        name='block_user',
+        name="block_user",
     ),
     path(
         "blocked-users/",
