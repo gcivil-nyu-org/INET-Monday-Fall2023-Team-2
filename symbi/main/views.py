@@ -393,7 +393,8 @@ def delete_account(request):
         return render(request, "main/delete_account.html", context)
 
 
-class BlockUserView(generic.View):
+@method_decorator(login_required, name="dispatch")
+class BlockUserView(LoginRequiredMixin, generic.View):
     def get(self, request, *args, **kwargs):
         current_user = get_object_or_404(SocialUser, username=self.request.user)
         user_to_block = get_object_or_404(
@@ -424,6 +425,15 @@ class BlockUserView(generic.View):
                 "main:profile_page", kwargs={"username": user_to_block.username}
             )
         )
+        
+    def dispatch(self, request, *args, **kwargs):
+        # Check if the logged-in user can access the page being requested
+        viewed_username = self.kwargs["blocked_user"]
+        if self.request.user.username == viewed_username:
+            # returns 403 Forbidden page
+            return self.handle_no_permission()
+
+        return super().dispatch(request, *args, **kwargs)
 
 
 @login_required
@@ -491,7 +501,6 @@ def blocked_users(request, pk):
     return render(request, template_name, context)
 
 
-@method_decorator(login_required, name="dispatch")
 class BlockedUsersPageView(DetailView):
     model = SocialUser
     template_name = "main/blocked_users.html"
@@ -509,7 +518,7 @@ class BlockedUsersPageView(DetailView):
 
 
 @method_decorator(login_required, name="dispatch")
-class SettingsPageView(generic.DetailView):
+class SettingsPageView(LoginRequiredMixin, generic.DetailView):
     model = SocialUser
     template_name = "main/settings.html"
 
@@ -521,6 +530,15 @@ class SettingsPageView(generic.DetailView):
         context["current_user"] = self.request.user
 
         return context
+        
+    def dispatch(self, request, *args, **kwargs):
+        # Check if the logged-in user can access the page being requested
+        viewed_username = self.kwargs["username"]
+        if self.request.user.username != viewed_username:
+            # returns 403 Forbidden page
+            return self.handle_no_permission()
+
+        return super().dispatch(request, *args, **kwargs)
 
 
 @method_decorator(login_required, name="dispatch")
