@@ -150,3 +150,9 @@ INTERNAL_IPS = ["127.0.0.1"]
 ALLOW_DELETED_USERS = True
 
 # NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
+
+# Pusher Keys
+PUSHER_APP_ID = "1720063"
+PUSHER_KEY = "01c526d625d364381708"
+PUSHER_SECRET = "27e7bed23bb744de9a6c"
+PUSHER_CLUSTER = "mt1"

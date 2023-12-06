@@ -3,14 +3,24 @@ from django.views import generic
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import LoginView
+from django.utils import timezone
+from django.db.models import Q
+from django.contrib.auth.views import LoginView, PasswordChangeView
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+from .signals import user_blocked
+from django.views.generic import DeleteView, TemplateView, DetailView
 
 from posts.models import ActivityPost
-from .models import SocialUser, Connection, Notification
-from .forms import SignupForm, LoginForm, EditProfileForm
+from .models import SocialUser, Connection, Notification, InterestTag, Block
+from .forms import (
+    SignupForm,
+    LoginForm,
+    SearchForm,
+    EditProfileForm,
+    ChangePasswordForm,
+)
 
 
 class LandingPageView(generic.View):
@@ -44,7 +54,11 @@ class SignupView(generic.FormView):
         form = self.form_class(request.POST)
 
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.save()
+            form.save_m2m()
+            user.tags.set(form.cleaned_data["interests"])
+            user.save()
 
             login(request, user)
 
@@ -73,11 +87,18 @@ class HomePageView(LoginRequiredMixin, generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Get posts where the users interests is in the posts tags
-        context["interests_posts"] = ActivityPost.objects.filter(
+        # Get posts where the user's interests are in the post tags
+        interests_posts = ActivityPost.objects.filter(
             tags__in=self.request.user.tags.all(),
             status=ActivityPost.PostStatus.ACTIVE,
         )
+        # Fetch users blocked by the logged-in user and users who have blocked the logged-in user
+        blocked_users = Block.get_blocked_users(self.request.user)
+        blocking_users = Block.get_blocking_users(self.request.user)
+
+        context["interests_posts"] = interests_posts.exclude(
+            poster__in=blocked_users
+        ).exclude(poster__in=blocking_users)
         user_connections = Connection.get_active_connections(self.request.user)
         connected_users = [
             connection.receiver
@@ -116,6 +137,8 @@ class ProfilePageView(LoginRequiredMixin, generic.DetailView):
         context["connection"] = Connection.get_connection(
             self.request.user, self.object
         )
+        context["is_blocked"] = Block.get_blocked_status(self.request.user, self.object)
+
         return context
 
 
@@ -145,6 +168,7 @@ class EditProfileView(LoginRequiredMixin, generic.UpdateView):
     def get_object(self, queryset=None):
         return get_object_or_404(SocialUser, username=self.kwargs["username"])
 
+
     def dispatch(self, request, *args, **kwargs):
         # Check if the logged-in user can access the page being requested
         viewed_username = self.kwargs["username"]
@@ -153,6 +177,25 @@ class EditProfileView(LoginRequiredMixin, generic.UpdateView):
             return self.handle_no_permission()
 
         return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        user = form.save(commit=False)
+        user.tags.set(form.cleaned_data["interests"])
+        user.save()
+        form.save_m2m()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        for field, errors in form.errors.items():
+            for error in errors:
+                parts = field.split("_")
+                if len(parts) > 1:
+                    field = f"{parts[0].capitalize()} {parts[1].capitalize()}"
+                else:
+                    field = field.capitalize()
+                messages.error(self.request, f"{field}: {error}")
+
+        return super().form_invalid(form)
 
 
 @method_decorator(login_required, name="dispatch")
@@ -165,10 +208,18 @@ class DiscoverPageView(LoginRequiredMixin, generic.ListView):
 
         button_action = self.request.GET.get("action")
 
+        # Fetch users blocked by the logged-in user and users who have blocked the logged-in user
+        blocked_users = Block.get_blocked_users(self.request.user)
+        blocking_users = Block.get_blocking_users(self.request.user)
+
         if button_action == "clear" or query is None:
-            object_list = ActivityPost.objects.order_by("-timestamp")[:50]
+            object_list = ActivityPost.objects.filter(
+                ~Q(poster__in=blocked_users) & ~Q(poster__in=blocking_users)
+            ).order_by("-timestamp")[:50]
         else:
-            object_list = ActivityPost.get_posts_by_search(query)
+            object_list = ActivityPost.get_posts_by_search(query).filter(
+                ~Q(poster__in=blocked_users) & ~Q(poster__in=blocking_users)
+            )
 
         return object_list
 
@@ -329,15 +380,161 @@ class NotificationsPageView(LoginRequiredMixin, generic.DetailView):
 @login_required
 def delete_account(request):
     if request.method == "POST":
-        user = SocialUser.objects.get(pk=request.user.pk)
+        current_user = request.user
 
         if "cancel" in request.POST:
             return redirect("main:home")
         else:
-            user.delete()
-            return redirect("login")
+            current_user.delete()
+            logout(request)
+            return redirect("main:landing")
     else:
         context = {
             "title": "Delete Account",
         }
         return render(request, "main/delete_account.html", context)
+
+
+class BlockUserView(generic.View):
+    def get(self, request, *args, **kwargs):
+        current_user = get_object_or_404(SocialUser, username=self.request.user)
+        user_to_block = get_object_or_404(
+            SocialUser, username=self.kwargs["blocked_user"]
+        )
+
+        if current_user and user_to_block:
+            # Check if the user is already blocked
+            is_blocked = Block.objects.filter(
+                blocker=current_user, blocked_user=user_to_block
+            ).exists()
+
+            if is_blocked:
+                # If already blocked, unblock the user
+                Block.objects.filter(
+                    blocker=current_user, blocked_user=user_to_block
+                ).delete()
+            else:
+                # If not blocked, then block the user
+                Block.objects.create(blocker=current_user, blocked_user=user_to_block)
+                # Trigger the 'user_blocked' signal upon blocking
+                user_blocked.send(
+                    sender=Block, blocker=current_user, blocked_user=user_to_block
+                )
+
+        return redirect(
+            reverse_lazy(
+                "main:profile_page", kwargs={"username": user_to_block.username}
+            )
+        )
+
+
+@login_required
+def block_user(request, pk):
+    current_user = request.user
+    user_to_block = get_object_or_404(SocialUser, pk=pk)
+
+    is_blocked = Block.objects.get_blocked_status(
+        blocker=current_user, blocked_user=user_to_block
+    )
+
+    if is_blocked:
+        # user_to_block is already blocked
+        blocking_relation = Block.objects.get(
+            blocker=current_user, blocked=user_to_block
+        )
+        blocking_relation.delete()
+        return redirect(
+            reverse_lazy(
+                "main:profile_page", kwargs={"username": user_to_block.username}
+            )
+        )
+    else:
+        # block user_to_block
+        Block.objects.create(blocker=current_user, blocked_user=user_to_block)
+        return redirect(
+            reverse_lazy(
+                "main:profile_page", kwargs={"username": user_to_block.username}
+            )
+        )
+
+
+class DeleteUserAccountView(LoginRequiredMixin, DeleteView):
+    model = SocialUser
+    template_name = "main/delete_account.html"
+    success_url = reverse_lazy("main:landing")
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(SocialUser, username=self.request.user.username)
+
+
+@login_required
+def blocked_users(request, pk):
+    template_name = "main/blocked_users.html"
+    current_user = request.user
+    blocked_users = Block.get_blocked_users(blocker=current_user)
+
+    # Sort blocked users by timestamp in descending order.
+    blocked_users.sort(key=lambda x: x.timestamp, reverse=True)
+
+    # Format timestamp for display
+    time_differences = []
+    now = timezone.now()
+    for blocked_user in blocked_users:
+        time_difference = now - blocked_user.timestamp
+        time_difference = format_time_difference(time_difference)
+        time_differences.append(time_difference)
+
+    zipped_blocked_users = zip(blocked_users, time_differences)
+
+    context = {
+        "current_user": current_user,
+        "zipped_blocked_users": zipped_blocked_users,
+    }
+    return render(request, template_name, context)
+
+
+@method_decorator(login_required, name="dispatch")
+class BlockedUsersPageView(DetailView):
+    model = SocialUser
+    template_name = "main/blocked_users.html"
+
+    def get_object(self, queryset=None):
+        return None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        current_user = self.request.user
+        blocked_users = Block.objects.filter(blocker=current_user)
+        context["blocked_users"] = blocked_users
+
+        return context
+
+
+@method_decorator(login_required, name="dispatch")
+class SettingsPageView(generic.DetailView):
+    model = SocialUser
+    template_name = "main/settings.html"
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(SocialUser, username=self.kwargs.get("username"))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["current_user"] = self.request.user
+
+        return context
+
+
+@method_decorator(login_required, name="dispatch")
+class ChangePasswordView(PasswordChangeView):
+    form_class = ChangePasswordForm
+    template_name = "main/change_password.html"
+    success_url = reverse_lazy("main:change_password_done")
+
+    def form_valid(self, form):
+        return super().form_valid(form)
+
+
+@method_decorator(login_required, name="dispatch")
+class ChangePasswordDoneView(TemplateView):
+    template_name = "main/change_password_done.html"

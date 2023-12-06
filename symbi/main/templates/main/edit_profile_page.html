@@ -7,6 +7,13 @@
         <h2 class="text-2xl font-semibold mb-6">Edit Your Profile</h2>
         <form method="post">
             {% csrf_token %}
+            {% if messages %}
+                <ul class="bg-red-100 border border-red-400 rounded text-red-700 p-2 mb-4">
+                    {% for message in messages %}
+                        <li>{{ message }}</li>{% endfor %}
+                </ul>
+            {% endif %}
+
             <div class="flex mb-4">
                 <div class="w-1/2 pr-2">
                     <label for="{{ form.username.id_for_label }}"
@@ -63,7 +70,8 @@
                 {% endfor %}
             </div>
             <button type="submit"
-                    class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-700">Save</button>
+                    class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-700">Save
+            </button>
         </form>
     </div>
 {% endblock content %}
