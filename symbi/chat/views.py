@@ -38,15 +38,14 @@ class ChatRoomView(LoginRequiredMixin, generic.DetailView):
             sender=request.user, chat_room=chat_room, content=message
         )
         return redirect("chat:chat_room", pk=chat_room.pk)
-        
-            
+
     def dispatch(self, request, *args, **kwargs):
         # Check if the logged-in user can access the page being requested
         chat_room = get_object_or_404(ChatRoom, pk=kwargs["pk"])
         if not chat_room.members.filter(username=self.request.user.username).exists():
             # returns 403 Forbidden page
             return self.handle_no_permission()
-            
+
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -70,13 +69,12 @@ class ChatRoomCreateView(LoginRequiredMixin, generic.View):
             new_chat.members.add(requester)
             new_chat.members.add(receiver)
             return redirect(reverse_lazy("chat:chat_room", kwargs={"pk": new_chat.pk}))
-            
+
     def dispatch(self, request, *args, **kwargs):
         # Check if the logged-in user can access the page being requested
         requester = get_object_or_404(SocialUser, username=self.kwargs["requester"])
-        receiver = get_object_or_404(SocialUser, username=self.kwargs["receiver"])
         if self.request.user.username != requester.username:
             # returns 403 Forbidden page
             return self.handle_no_permission()
-            
+
         return super().dispatch(request, *args, **kwargs)
