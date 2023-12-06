@@ -1,10 +1,10 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-
-# from django.utils.text import slugify
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.urls import reverse
+from datetime import date
 
 
 class InterestTag(models.Model):
@@ -18,6 +18,13 @@ class InterestTag(models.Model):
         return self.name
 
 
+def validate_age(value):
+    age = (date.today() - value).days // 365
+
+    if age < 18:
+        raise ValidationError("You must be at least 18 years to sign up for Symbi.")
+
+
 class SocialUser(AbstractUser):
     class Pronouns(models.IntegerChoices):
         SHE = 1, _("She/Her")
@@ -29,7 +36,7 @@ class SocialUser(AbstractUser):
     email = models.EmailField(unique=True, default="@nyu.edu")
     full_name = models.CharField(max_length=50, default="")
     pronouns = models.IntegerField(default=Pronouns.OTHER, choices=Pronouns.choices)
-    date_of_birth = models.DateField(null=True)
+    date_of_birth = models.DateField(null=True, validators=[validate_age])
     major = models.CharField(max_length=100, default="undeclared")
     tags = models.ManyToManyField(InterestTag, related_name="tags")
     profile_picture = models.ImageField(
@@ -39,7 +46,6 @@ class SocialUser(AbstractUser):
 
     def get_absolute_url(self):
         return reverse("main:profile_page", kwargs={"username": self.username})
-        # return reverse('main:profile_page', kwargs={'username': slugify(self.username)})
 
 
 class Notification(models.Model):
@@ -147,3 +153,33 @@ class Connection(models.Model):
 
     def __str__(self):
         return f"{self.requester} - {self.receiver}"
+
+
+class Block(models.Model):
+    blocker = models.ForeignKey(
+        SocialUser, on_delete=models.CASCADE, related_name="blocked_users"
+    )
+    blocked_user = models.ForeignKey(
+        SocialUser, on_delete=models.CASCADE, related_name="blocking_users"
+    )
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    # users cannot block each other more than once
+    class Meta:
+        unique_together = ("blocker", "blocked_user")
+
+    # Check if current_user has blocked user_to_block
+    @classmethod
+    def get_blocked_status(cls, user1, user2):
+        return cls.objects.filter(blocker=user1, blocked_user=user2).exists()
+
+    @classmethod
+    def get_blocked_users(cls, user):
+        return user.blocked_users.all().order_by("timestamp").values("blocked_user")
+
+    @classmethod
+    def get_blocking_users(cls, user):
+        return user.blocking_users.all().values("blocker")
+
+    def __str__(self):
+        return f"{self.blocker} - {self.blocked_user}"
