@@ -1,5 +1,3 @@
-{% load main_customfilters %}
-{% load username_customfilters %}
 {% if messages %}
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -15,7 +13,8 @@
         });
     </script>
 {% endif %}
-
+{% load main_customfilters %}
+{% load username_customfilters %}
 <div class="rounded-xl bg-white mx-2 my-3">
     <div class="flex flex-wrap items-start">
         <a href="{% url 'main:profile_page' comment.commentPoster.username %}"

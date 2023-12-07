@@ -7,7 +7,7 @@ from django.contrib import messages
 
 from main.models import SocialUser, Block
 from .models import ActivityPost, Comment
-from .forms import NewPostForm, EditPostForm
+from .forms import NewPostForm, EditPostForm, EditCommentForm
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -172,17 +172,20 @@ class PostDetailsView(LoginRequiredMixin, generic.DetailView):
         if new_comment:
             poster = SocialUser(username=self.kwargs["poster"])
             post = ActivityPost(poster=poster, pk=self.kwargs["pk"])
-            taggedUsername = [
-                word[1:] for word in new_comment.split() if word.startswith("@")
-            ]
-            taggedUsers = SocialUser.objects.filter(username__in=taggedUsername)
-            comment = Comment.objects.create(
-                commentPoster=request.user,
-                post=post,
-                text=new_comment,
-                timestamp=timezone.now(),
-            )
-            comment.taggedUsers.set(taggedUsers)
+            if new_comment.isspace():
+                messages.error(request, "You cannot leave an empty comment.")
+            else:
+                taggedUsername = [
+                    word[1:] for word in new_comment.split() if word.startswith("@")
+                ]
+                taggedUsers = SocialUser.objects.filter(username__in=taggedUsername)
+                comment = Comment.objects.create(
+                    commentPoster=request.user,
+                    post=post,
+                    text=new_comment,
+                    timestamp=timezone.now(),
+                )
+                comment.taggedUsers.set(taggedUsers)
 
         return redirect(
             reverse_lazy(
@@ -275,19 +278,22 @@ class EditCommentView(LoginRequiredMixin, generic.UpdateView):
     context_object_name = "edited_comment"
     fields = ["text"]
 
-    def get_object(self, queryset=None):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         post_poster = SocialUser.objects.filter(
             username=self.kwargs["post_poster"]
         ).first()
         comment_poster = SocialUser.objects.filter(
             username=self.kwargs["comment_poster"]
         ).first()
-        self.post = ActivityPost(poster=post_poster, pk=self.kwargs["post_id"])
+        post = ActivityPost(poster=post_poster, pk=self.kwargs["post_id"])
         comment = Comment.objects.get(
             commentPoster=comment_poster,
-            pk=self.kwargs["comment_id"],
+            post=post,
+            pk=self.kwargs["pk"],
         )
-        return comment
+        context["edited_comment"] = comment
+        return context
 
     def form_valid(self, form):
         current_user = self.request.user
@@ -299,12 +305,34 @@ class EditCommentView(LoginRequiredMixin, generic.UpdateView):
 
         return redirect(self.get_success_url())
 
+    def post(self, request, *args, **kwargs):
+        post_poster = SocialUser.objects.filter(
+            username=self.kwargs["post_poster"]
+        ).first()
+        comment_poster = SocialUser.objects.filter(
+            username=self.kwargs["comment_poster"]
+        ).first()
+        post = ActivityPost(poster=post_poster, pk=self.kwargs["post_id"])
+        comment = Comment.objects.get(
+            commentPoster=comment_poster,
+            post=post,
+            pk=self.kwargs["pk"],
+        )
+        comment.text = request.POST.get("edited_comment")
+        comment.save()
+        return redirect(self.get_success_url())
+
     def get_success_url(self):
+        post = get_object_or_404(
+            ActivityPost,
+            poster__username=self.kwargs["poster"],
+            pk=self.kwargs["post_id"],
+        )
         return reverse_lazy(
             "posts:post_details",
             kwargs={
-                "poster": self.post.poster.username,
-                "pk": self.post.id,
+                "poster": post.poster.username,
+                "pk": post.id,
             },
         )
 
