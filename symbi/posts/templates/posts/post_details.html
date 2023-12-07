@@ -14,21 +14,24 @@
             <div class="flex flex-wrap justify-self-end items-center">
                 <div class="flex items-center justify-items-start mr-2 mb-2">
                     <!-- SHARE -->
-                    <div class="relative inline-flex items-center justify-center py-2 overflow-hidden font-medium text-green-500 transition duration-300 ease-out border-2 border-green-500 rounded-full shadow-md group w-12 h-12 m-1">
-                        <span class="absolute flex items-center justify-center w-full h-full text-green-500 transition-all duration-300 ease group-hover:bg-green-500 group-hover:text-white">
-                            <!-- green background with white icon -->
-                            <button id="copyLinkBtn">
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                     fill="none"
-                                     viewBox="0 0 24 24"
-                                     stroke-width="1.5"
-                                     stroke="currentColor"
-                                     class="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
-                                </svg>
-                            </button>
-                        </span>
-                    </div>
+                    {% if post.status == post.PostStatus.ACTIVE %}
+                        <div class="relative inline-flex items-center justify-center py-2 overflow-hidden font-medium text-green-500 transition duration-300 ease-out border-2 border-green-500 rounded-full shadow-md group w-12 h-12 m-1">
+                            <span class="absolute flex items-center justify-center w-full h-full text-green-500 transition-all duration-300 ease group-hover:bg-green-500 group-hover:text-white">
+                                <!-- green background with white icon -->
+                                <button id="copyLinkBtn">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         stroke-width="1.5"
+                                         stroke="currentColor"
+                                         class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+                                    </svg>
+                                </button>
+                            </span>
+                        </div>
+                    {% endif %}
+                    
                     {% if user == post.poster %}
                         <!-- EDIT -->
                         <a href="{% url 'posts:edit_post' poster=post.poster pk=post.id %}"
@@ -47,21 +50,23 @@
                             </span>
                         </a>
                         <!-- ARCHIVE -->
-                        <a href="{% url 'posts:archive_post' poster=post.poster pk=post.id %}"
-                           class="relative inline-flex items-center justify-center py-2 overflow-hidden font-medium text-violet-500 transition duration-300 ease-out border-2 border-violet-500 rounded-full shadow-md group w-12 h-12 m-1">
-                            <span class="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 ease">
-                                <!-- White background with purple icon -->
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                  <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-                                </svg>
-                            </span>
-                            <span class="absolute flex items-center justify-center w-full h-full text-violet-500 transition-all duration-300 ease group-hover:bg-violet-500 group-hover:text-white">
-                                <!-- purple background with white gear -->
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                  <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-                                </svg>
-                            </span>
-                        </a>
+                        {% if post.status == post.PostStatus.ACTIVE %}
+                            <a href="{% url 'posts:archive_post' poster=post.poster pk=post.id %}"
+                               class="relative inline-flex items-center justify-center py-2 overflow-hidden font-medium text-violet-500 transition duration-300 ease-out border-2 border-violet-500 rounded-full shadow-md group w-12 h-12 m-1">
+                                <span class="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 ease">
+                                    <!-- White background with purple icon -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                      <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                                    </svg>
+                                </span>
+                                <span class="absolute flex items-center justify-center w-full h-full text-violet-500 transition-all duration-300 ease group-hover:bg-violet-500 group-hover:text-white">
+                                    <!-- purple background with white gear -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                      <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                                    </svg>
+                                </span>
+                            </a>
+                        {% endif %}
                         <!-- DELETE -->
                         <a href="{% url 'posts:delete_post' post.id %}"
                            class="relative inline-flex items-center justify-center py-2 overflow-hidden font-medium text-red-500 transition duration-300 ease-out border-2 border-red-500 rounded-full shadow-md group w-12 h-12 m-1">

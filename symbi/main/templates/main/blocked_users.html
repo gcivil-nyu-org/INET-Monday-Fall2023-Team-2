@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}
+    Blocked Users
+{% endblock title %}
+{% block content %}
+    <div class="m-20 mt-5 overflow-y-auto">
+        <h1 class="text-3xl mb-5 text-center">Blocked Users</h1>
+        {% if blocked_users %}
+            {% for blocked_user in blocked_users %}
+                {% include "main/blocked_user_card.html" with blocked_user=blocked_user %}
+            {% endfor %}
+        {% else %}
+            <p class="text-center text-gray-500">You haven't blocked anybody yet, but the night is young!</p>
+        {% endif %}
+    </div>
+{% endblock content %}

@@ -16,7 +16,8 @@
             </svg>
             <span>Back</span>
         </a>
-        <div class="flex flex-col flex-grow h-0 p-4 overflow-auto">
+        <div class="flex flex-col flex-grow h-0 p-4 overflow-auto"
+             id="chat-container">
             {% for message in messages %}
                 {% include "chat/member_message.html" with message=message %}
                 {% include "chat/user_message.html" with message=message %}
@@ -45,4 +46,14 @@
             </div>
         </form>
     </div>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script>
+        var pusher = new Pusher("01c526d625d364381708", { cluster: "mt1" });
+        var channel = pusher.subscribe("chat");
+        channel.bind("message", function(data) {
+            location.reload();
+        })
+        const chatContainer = document.getElementById("chat-container");
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    </script>
 {% endblock content %}

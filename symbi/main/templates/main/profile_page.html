@@ -46,7 +46,7 @@
                                     </a>
                                 </div>
                                 <div class="flex justify-between items-center ml-3">
-                                    <a href="{% url 'main:edit_profile_page' user.username %}"
+                                    <a href="{% url 'main:settings' user.username %}"
                                        class="relative inline-flex items-center justify-center py-2 overflow-hidden font-medium text-[#ff6a45] transition duration-300 ease-out border-2 border-[#ff6a45] rounded-full shadow-md group w-12 h-12">
                                         <span class="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 ease">
                                             <!-- White background with orange gear -->
@@ -67,6 +67,26 @@
                                 </div>
                             </div>
                         {% else %}
+                            {% if is_blocked %}
+                            {% comment %} Unblock button {% endcomment %}
+                                <div class="flex justify-between items-center my-5 px-6">
+                                    <a href="{% url 'main:block_user' blocker=user.username blocked_user=profile.username %}"
+                                       class="px-4 py-2 ml-3 mt-2 relative inline-flex items-center justify-center p-4 px-6 py-3 overflow-hidden font-medium text-[#ff6a45] transition duration-300 ease-out border-2 border-[#ff6a45] rounded-full shadow-md group">
+                                        <span class="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 -translate-x-full bg-[#ff6a45] group-hover:translate-x-0 ease">
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                 fill="none"
+                                                 viewBox="0 0 24 24"
+                                                 stroke-width="1.5"
+                                                 stroke="currentColor"
+                                                 class="w-6 h-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                                            </svg>
+                                        </span>
+                                        <span class="absolute flex items-center justify-center w-full h-full text-[#ff6a45] transition-all duration-300 transform group-hover:translate-x-full ease">Unblock</span>
+                                        <span class="relative invisible">Unblock</span>
+                                    </a>
+                                </div>
+                            {% else %}
                             {% comment %} Connection, Chat, Block buttons {% endcomment %}
                             <div class="flex items-center mt-5">
                                 <div class="flex flex-wrap justify-center items-center">
@@ -129,7 +149,7 @@
                                         </svg>
                                         <span class="relative">Chat</span>
                                     </a>
-                                    <a href="#"
+                                    <a href="{% url 'main:block_user' request.user.username profile.username %}"
                                        class="px-4 py-2 ml-3 mt-2 inline-flex items-center justify-center text-base font-medium text-center text-red-500 border border-red-500 rounded-lg shadow-sm cursor-pointer hover:text-red-900 bg-white">
                                         <svg xmlns="http://www.w3.org/2000/svg"
                                              fill="none"
@@ -146,6 +166,7 @@
                         {% endif %}
                     </div>
                 </div>
+                {% endif %}
                 {% if user == profile %}
                 <div class="flex flex-wrap mx-5" id="tabs-id">
                     <div class="w-full">

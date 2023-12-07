@@ -153,3 +153,33 @@ class Connection(models.Model):
 
     def __str__(self):
         return f"{self.requester} - {self.receiver}"
+
+
+class Block(models.Model):
+    blocker = models.ForeignKey(
+        SocialUser, on_delete=models.CASCADE, related_name="blocked_users"
+    )
+    blocked_user = models.ForeignKey(
+        SocialUser, on_delete=models.CASCADE, related_name="blocking_users"
+    )
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    # users cannot block each other more than once
+    class Meta:
+        unique_together = ("blocker", "blocked_user")
+
+    # Check if current_user has blocked user_to_block
+    @classmethod
+    def get_blocked_status(cls, user1, user2):
+        return cls.objects.filter(blocker=user1, blocked_user=user2).exists()
+
+    @classmethod
+    def get_blocked_users(cls, user):
+        return user.blocked_users.all().order_by("timestamp").values("blocked_user")
+
+    @classmethod
+    def get_blocking_users(cls, user):
+        return user.blocking_users.all().values("blocker")
+
+    def __str__(self):
+        return f"{self.blocker} - {self.blocked_user}"
