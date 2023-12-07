@@ -1,18 +1,18 @@
 {% extends 'main/base.html' %}
 
 {% block content %}
-<h1>Edit Comment</h1>
-<br>
-<br>
+    <h1>Edit Comment</h1>
+    <br>
+    <br>
 
-{% if user == commentPoster %}
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Save changes</button>
-    </form>
-{% else %}
-    <p>You are not the comment poster.</p>
-{% endif %}
+    {% if user == edit_comment.commentPoster %}
+        <form method="POST" action="{% url 'posts:edit_comment' post_poster=comment.post.poster.username post_id=comment.post.id comment_poster=comment.commentPoster.username comment_id=comment.id %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Save changes</button>
+        </form>
+    {% else %}
+        <p>You are not the comment poster.</p>
+    {% endif %}
 
 {% endblock %}

@@ -6,10 +6,11 @@ from django.shortcuts import redirect, get_object_or_404
 
 from main.models import SocialUser
 from .models import ActivityPost, Comment
-from .forms import NewPostForm, EditPostForm
+from .forms import NewPostForm, EditPostForm, EditCommentForm
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
 
 
 @method_decorator(login_required, name="dispatch")
@@ -115,17 +116,20 @@ class PostDetailsView(LoginRequiredMixin, generic.DetailView):
         if new_comment:
             poster = SocialUser(username=self.kwargs["poster"])
             post = ActivityPost(poster=poster, pk=self.kwargs["pk"])
-            taggedUsername = [
-                word[1:] for word in new_comment.split() if word.startswith("@")
-            ]
-            taggedUsers = SocialUser.objects.filter(username__in=taggedUsername)
-            comment = Comment.objects.create(
-                commentPoster=request.user,
-                post=post,
-                text=new_comment,
-                timestamp=timezone.now(),
-            )
-            comment.taggedUsers.set(taggedUsers)
+            if new_comment.isspace():
+                messages.error(request, "You cannot leave an empty comment.")
+            else:
+                taggedUsername = [
+                    word[1:] for word in new_comment.split() if word.startswith("@")
+                ]
+                taggedUsers = SocialUser.objects.filter(username__in=taggedUsername)
+                comment = Comment.objects.create(
+                    commentPoster=request.user,
+                    post=post,
+                    text=new_comment,
+                    timestamp=timezone.now(),
+                )
+                comment.taggedUsers.set(taggedUsers)
 
         return redirect(
             reverse_lazy(
@@ -180,41 +184,97 @@ class DeleteCommentView(LoginRequiredMixin, generic.View):
 class EditCommentView(LoginRequiredMixin, generic.UpdateView):
     model = Comment
     template_name = "posts/edit_comment.html"
-    context_object_name = "edited_comment"
-    fields = ["text"]
+    # context_object_name = "edited_comment"
+    form_class = EditCommentForm
 
-    def get_object(self, queryset=None):
+    # def get_object(self, queryset=None):
+    #     post_poster = SocialUser.objects.filter(
+    #         username=self.kwargs["post_poster"]
+    #     ).first()
+    #     comment_poster = SocialUser.objects.filter(
+    #         username=self.kwargs["comment_poster"]
+    #     ).first()
+    #     self.post = ActivityPost(poster=post_poster, pk=self.kwargs["post_id"])
+    #     comment = Comment.objects.get(
+    #         commentPoster=comment_poster,
+    #         post=self.post,
+    #         pk=self.kwargs["comment_id"],
+    #     )
+    #     return comment
+    #
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context['form'] = self.get_form()
+    #     return context
+    #
+    # def post(self, request, *args, **kwargs):
+    #     form = self.get_form()
+    #     if form.is_valid():
+    #         return self.form.valid(form)
+    #     else:
+    #         return self.form_invalid(form)
+    #
+    # def form_valid(self, form):
+    #     current_user = self.request.user
+    #     comment_user = self.object.commentPoster
+    #     if current_user == comment_user:
+    #         edited_comment = form.cleaned_data["text"]
+    #         self.object.text = edited_comment
+    #         taggedUsername = [
+    #             word[1:] for word in edited_comment.split() if word.startswith("@")
+    #         ]
+    #         taggedUsers = SocialUser.objects.filter(username__in=taggedUsername)
+    #         self.object.taggedUsers.set(taggedUsers)
+    #         self.object.save()
+    #     return redirect(self.get_success_url())
+    #
+    def get_success_url(self):
+        post = get_object_or_404(
+            ActivityPost,
+            poster__username=self.kwargs["poster"],
+            pk=self.kwargs["post_id"],
+        )
+        return reverse_lazy(
+            "posts:post_details",
+            kwargs={
+                "poster": post.poster.username,
+                "pk": post.id,
+            },
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         post_poster = SocialUser.objects.filter(
             username=self.kwargs["post_poster"]
         ).first()
         comment_poster = SocialUser.objects.filter(
             username=self.kwargs["comment_poster"]
         ).first()
-        self.post = ActivityPost(poster=post_poster, pk=self.kwargs["post_id"])
+        post = ActivityPost(poster=post_poster, pk=self.kwargs["post_id"])
         comment = Comment.objects.get(
             commentPoster=comment_poster,
-            pk=self.kwargs["comment_id"],
+            post=post,
+            pk=self.kwargs["pk"],
         )
-        return comment
+        context["edited_comment"] = comment
+        return context
 
-    def form_valid(self, form):
-        current_user = self.request.user
-        comment_user = self.object.commentPoster
-        if current_user == comment_user:
-            edited_comment = form.cleaned_data["text"]
-            self.object.text = edited_comment
-            self.object.save()
-
+    def post(self, request, *args, **kwargs):
+        post_poster = SocialUser.objects.filter(
+            username=self.kwargs["post_poster"]
+        ).first()
+        comment_poster = SocialUser.objects.filter(
+            username=self.kwargs["comment_poster"]
+        ).first()
+        post = ActivityPost(poster=post_poster, pk=self.kwargs["post_id"])
+        comment = Comment.objects.get(
+            commentPoster=comment_poster,
+            post=post,
+            pk=self.kwargs["pk"],
+        )
+        comment.text = request.POST.get("edited_comment")
+        comment.save()
         return redirect(self.get_success_url())
-
-    def get_success_url(self):
-        return reverse_lazy(
-            "posts:post_details",
-            kwargs={
-                "poster": self.post.poster.username,
-                "pk": self.post.id,
-            },
-        )
 
 
 # OLD FUNCTIONS **************************************************
