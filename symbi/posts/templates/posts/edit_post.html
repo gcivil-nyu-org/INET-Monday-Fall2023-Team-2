@@ -3,7 +3,7 @@
     Edit Post
 {% endblock title %}
 {% block content %}
-    <div class="relative py-3 sm:max-w-xl sm:mx-auto shadow-2xl">
+    <div class="bg-white rounded-lg shadow-lg p-8 m-10">
         <div class="relative px-4 py-10 bg-white mx-8 md:mx-0 rounded-3xl sm:p-10">
             <form action="{% url 'posts:edit_post' poster=post.poster pk=post.id %}"
                   method="post">
@@ -14,7 +14,7 @@
                             <li>{{ message }}</li>{% endfor %}
                     </ul>
                 {% endif %}
-                <div class="max-w-md mx-auto">
+                <div class="mx-auto">
                     <div class="flex items-center space-x-5">
                         <div class="block pl-2 font-semibold text-xl self-start text-gray-700">
                             <h2 class="leading-relaxed">Edit Post</h2>
@@ -58,12 +58,34 @@
                                 </svg>
                                 Cancel
                             </a>
-                            <button type="submit"
-                                    name="action"
-                                    value="post"
-                                    class="bg-blue-500 flex justify-center items-center w-full text-white px-4 py-3 rounded-md focus:outline-none">
-                                Save
-                            </button>
+                            {% if post.status == post.PostStatus.ACTIVE %}
+                                <button type="submit"
+                                        name="action"
+                                        value="post"
+                                        class="bg-blue-500 flex justify-center items-center w-full text-white px-4 py-3 rounded-md focus:outline-none">
+                                    Save
+                                </button>
+                            {% elif post.status == post.PostStatus.DRAFT %}
+                                <button type="submit"
+                                        name="action"
+                                        value="draft"
+                                        class="flex justify-center items-center w-full text-black border-black border px-4 py-3 rounded-md focus:outline-none">
+                                    Save To Drafts
+                                </button>
+                                <button type="submit"
+                                        name="action"
+                                        value="post"
+                                        class="bg-blue-500 flex justify-center items-center w-full text-white px-4 py-3 rounded-md focus:outline-none">
+                                    Post
+                                </button>
+                            {% elif post.status == post.PostStatus.ARCHIVED %}
+                                <button type="submit"
+                                        name="action"
+                                        value="post"
+                                        class="bg-blue-500 flex justify-center items-center w-full text-white px-4 py-3 rounded-md focus:outline-none">
+                                    Repost
+                                </button>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
