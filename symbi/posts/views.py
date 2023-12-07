@@ -7,7 +7,7 @@ from django.contrib import messages
 
 from main.models import SocialUser, Block
 from .models import ActivityPost, Comment
-from .forms import NewPostForm, EditPostForm, EditCommentForm
+from .forms import NewPostForm, EditPostForm
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
