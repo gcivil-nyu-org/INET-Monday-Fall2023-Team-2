@@ -3,40 +3,14 @@
     Blocked Users
 {% endblock title %}
 {% block content %}
-<div class="overflow-y-auto">
-    <h1 class="text-3xl mb-5 text-center">Blocked Users</h1>
+    <div class="m-20 mt-5 overflow-y-auto">
+        <h1 class="text-3xl mb-5 text-center">Blocked Users</h1>
         {% if blocked_users %}
             {% for blocked_user in blocked_users %}
-                <li class="flex justify-between gap-x-6 py-5">
-                    <div class="flex min-w-0 gap-x-4">
-                        <div class="flex flex-col p-8 mb-5 bg-white shadow-lg hover:shodow-xl rounded-2xl overflow-auto">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                <div class="flex flex-col ml-3">
-                                    <div class="font-medium text-2xl leading-none">{{ blocked_user.blocked_user.username|capfirst }}</div>
-                                    <div class="text-gray-600">Blocked on: {{ blocked_user.blocked_user.timestamp.date }}</div>
-                                </div>
-                                </div>
-                            <div class="flex">
-                                <a href="{% url 'main:profile_page' username=blocked_user.blocked_user.username %}"
-                                    class="w-40 inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white rounded-lg shadow-sm cursor-pointer bg-yellow-500">
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke-width="1.5"
-                                            stroke="currentColor"
-                                            class="w-6 h-6">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
-                                    </svg>
-                                    <span class="relative">View Profile</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </li>
+                {% include "main/blocked_user_card.html" with blocked_user=blocked_user %}
             {% endfor %}
         {% else %}
-            <p class="text-center text-gray-500">You have not blocked any users</p>
+            <p class="text-center text-gray-500">You haven't blocked anybody yet, but the night is young!</p>
         {% endif %}
-    <div>   
-{% endblock content %} 
+    </div>
+{% endblock content %}
