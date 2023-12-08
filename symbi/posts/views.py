@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
 
-from main.models import SocialUser, Block
+from main.models import SocialUser, Block, Notification
 from .models import ActivityPost, Comment
 from .forms import NewPostForm, EditPostForm
 from django.contrib.auth.decorators import login_required
@@ -170,8 +170,9 @@ class PostDetailsView(LoginRequiredMixin, generic.DetailView):
     def post(self, request, *args, **kwargs):
         new_comment = self.request.POST.get("new_comment")
         if new_comment:
-            poster = SocialUser(username=self.kwargs["poster"])
+            poster = get_object_or_404(SocialUser, username=self.kwargs["poster"])
             post = ActivityPost(poster=poster, pk=self.kwargs["pk"])
+            post_id = self.kwargs["pk"]
             if new_comment.isspace():
                 messages.error(request, "You cannot leave an empty comment.")
             else:
@@ -186,6 +187,34 @@ class PostDetailsView(LoginRequiredMixin, generic.DetailView):
                     timestamp=timezone.now(),
                 )
                 comment.taggedUsers.set(taggedUsers)
+                if request.user != poster:
+                    content = f"@{request.user} posted a new comment on your post."
+                    Notification.objects.create(
+                        recipient_user=poster,
+                        from_user=request.user,
+                        content=content,
+                        type=Notification.NotificationType.NEW_COMMENT,
+                        url=reverse(
+                            "posts:post_details",
+                            kwargs={"poster": poster, "pk": post_id},
+                        ),
+                    )
+
+                for user in taggedUsers:
+                    if user != request.user:
+                        content = (
+                            f"@{request.user} tagged you in a post: {comment.text}"
+                        )
+                        Notification.objects.create(
+                            recipient_user=user,
+                            from_user=request.user,
+                            content=content,
+                            type=Notification.NotificationType.NEW_COMMENT,
+                            url=reverse(
+                                "posts:post_details",
+                                kwargs={"poster": poster, "pk": post_id},
+                            ),
+                        )
 
         return redirect(
             reverse_lazy(
