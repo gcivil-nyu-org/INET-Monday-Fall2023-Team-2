@@ -57,27 +57,6 @@ class MainViewArchivedPostTest(TestCase):
         self.assertNotContains(response, "Archived Post")
 
 
-# class MainViewPostedPostTest(TestCase):
-#     def setUp(self):
-#         self.user = SocialUser.objects.create_user(
-#             username="testuser", password="testpassword"
-#         )
-#         self.client.login(username="testuser", password="testpassword")
-
-#         # Create a posted post
-#         ActivityPost.objects.create(
-#             poster=self.user,
-#             title="Posted Post",
-#             description="This post is posted.",
-#             status=ActivityPost.PostStatus.ACTIVE,
-#         )
-
-#     def test_main_view_posted_post(self):
-#         response = self.client.get(reverse("main:home"))
-#         self.assertEqual(response.status_code, 200)
-#         # Check that the posted post is present in the response
-#         self.assertContains(response, "Posted Post")
-
 
 class MainViewDraftedPostTest(TestCase):
     def setUp(self):
@@ -101,104 +80,81 @@ class MainViewDraftedPostTest(TestCase):
         self.assertNotContains(response, "Drafted Post")
 
 
-# class MainViewMultiplePostTests(TestCase):
-#     def setUp(self):
-#         # Create a user
-#         self.user = SocialUser.objects.create_user(
-#             username="testuser", password="testpassword"
-#         )
-#         self.client.login(username="testuser", password="testpassword")
+class MainAppTests(TestCase):
+    def setUp(self):
+        # Create a test user
+        self.test_user = SocialUser.objects.create_user(
+            username='testuser',
+            password='testpassword'
+        )
 
-#         # Create an archived post
-#         ActivityPost.objects.create(
-#             poster=self.user,
-#             title="Archived Post",
-#             description="This post is archived.",
-#             status=ActivityPost.PostStatus.ARCHIVED,
-#         )
+    def test_home_page_view(self):
+        # Test that the home page returns a 200 status code for an authenticated user
+        self.client.login(username='testuser', password='testpassword')
+        response = self.client.get(reverse('main:home'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'main/home.html')
 
-#         # Create a posted post
-#         ActivityPost.objects.create(
-#             poster=self.user,
-#             title="Posted Post",
-#             description="This post is posted.",
-#             status=ActivityPost.PostStatus.ACTIVE,
-#         )
+    def test_login_view(self):
+        # Test that the login view returns a 200 status code
+        response = self.client.get(reverse('main:login'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'main/login.html')
 
-#         # Create a drafted post
-#         ActivityPost.objects.create(
-#             poster=self.user,
-#             title="Drafted Post",
-#             description="This post is drafted.",
-#             status=ActivityPost.PostStatus.DRAFT,
-#         )
+        # Test a successful login
+        response = self.client.post(reverse('main:login'), {'username': 'testuser', 'password': 'testpassword'})
+        self.assertEqual(response.status_code, 302)  # 302 is the HTTP status code for a redirect
+        self.assertRedirects(response, reverse('main:home'))
 
-#     def test_main_view_multiple_post(self):
-#         response = self.client.get(reverse("main:home"))
-#         self.assertEqual(response.status_code, 200)
-#         # Check that the only Posted Post is displayed
-#         self.assertNotContains(response, "Drafted Post")
-#         self.assertContains(response, "Posted Post")
-#         self.assertNotContains(response, "Archived Post")
+    def test_signup_view(self):
+        # Test that the signup view returns a 200 status code
+        response = self.client.get(reverse('main:signup'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'main/signup.html')
+
+        # Test a successful signup
+        response = self.client.post(reverse('main:signup'), {
+            'username': 'newuser',
+            'email': 'newuser@nyu.edu',
+            'password1': 'newpassword',
+            'password2': 'newpassword',
+            # Add other required fields for signup
+        })
+        self.assertEqual(response.status_code, 200)
+
+    def test_logout_view(self):
+        # Test that the logout view logs out the user and redirects to the landing page
+        self.client.login(username='testuser', password='testpassword')
+        response = self.client.get(reverse('main:logout'))
+        self.assertEqual(response.status_code, 302)  # 302 is the HTTP status code for a redirect
+        self.assertRedirects(response, reverse('main:landing'))
+        # You may also want to test cases where logout fails
+
+    def test_profile_page_view(self):
+        # Test that the profile page view returns a 200 status code for an authenticated user
+        self.client.login(username='testuser', password='testpassword')
+        response = self.client.get(reverse('main:profile_page', kwargs={'username': 'testuser'}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'main/profile_page.html')
+
+    def test_edit_profile_view(self):
+        # Test that the edit profile view returns a 200 status code for an authenticated user
+        self.client.login(username='testuser', password='testpassword')
+        response = self.client.get(reverse('main:edit_profile_page', kwargs={'username': 'testuser'}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'main/edit_profile_page.html')
+
+        # Test a successful profile edit
+        response = self.client.post(reverse('main:edit_profile_page', kwargs={'username': 'testuser'}), {
+            # Add fields to update
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(reverse('main:profile_page', kwargs={'username': 'testuser'}), response.url)
+
+        # You may also want to test cases where profile edit fails
+
+    def tearDown(self):
+        # Clean up after the tests if needed
+        pass
 
 
-# class NotificationViewTests(TestCase):
-#     def setUp(self):
-#         # Create two users
-#         self.user1 = SocialUser.objects.create_user(
-#             username="user1", password="testpassword1"
-#         )
-#         self.user2 = SocialUser.objects.create_user(
-#             username="user2", password="testpassword2"
-#         )
-
-#         # Log in the users
-#         self.client.login(username="user1", password="testpassword1")
-
-#         # Create a connection request notification
-#         self.connection_request_notification = Notification.objects.create(
-#             receiver=self.user1,
-#             requester=self.user2,
-#             content="Connection request from user2",
-#             type=Notification.NotificationType.CONNECTION_REQUEST,
-#             timestamp=timezone.now(),
-#         )
-
-#     def test_notification_view_connection_request(self):
-#         # Test accessing the notifications view
-#         response = self.client.get(
-#             reverse("main:notifications", kwargs={"pk": self.user1.pk})
-#         )
-#         self.assertEqual(response.status_code, 200)
-#         self.assertContains(response, "Connection request from user2")
-#         self.assertContains(response, "Accept")
-
-
-# class ConnectionTests(TestCase):
-#     def setUp(self):
-#         # Create a user
-#         self.user = SocialUser.objects.create_user(
-#             username="testuser", password="testpassword"
-#         )
-
-#         # Log in the user
-#         self.client.login(username="testuser", password="testpassword")
-
-#     def test_connections_view(self):
-#         # Create a connection
-#         connected_user = SocialUser.objects.create_user(
-#             username="connecteduser", password="testpassword"
-#         )
-#         Connection.objects.create(
-#             requester=self.user,
-#             receiver=connected_user,
-#             status=Connection.ConnectionStatus.CONNECTED,
-#             timestamp=timezone.now(),
-#         )
-
-#         # Test accessing the connections view
-#         response = self.client.get(
-#             reverse("main:connections", kwargs={"pk": self.user.pk})
-#         )
-#         self.assertEqual(response.status_code, 200)
-#         self.assertContains(response, "connecteduser")
