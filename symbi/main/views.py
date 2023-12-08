@@ -4,15 +4,16 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from django.db.models import Q
+from django.db.models import Q, Count, OuterRef, Subquery
 from django.contrib.auth.views import LoginView, PasswordChangeView
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from .signals import user_blocked
 from django.views.generic import DeleteView, TemplateView, DetailView
+from django.contrib.contenttypes.models import ContentType
 
-from posts.models import ActivityPost
+from posts.models import ActivityPost, Comment, Report
 from .models import SocialUser, Connection, Notification, Block, UserReport
 from .forms import (
     SignupForm,
@@ -20,6 +21,9 @@ from .forms import (
     EditProfileForm,
     ChangePasswordForm,
 )
+from django.conf import settings
+
+threshold = settings.REPORT_COUNT_THRESHOLD
 
 
 class LandingPageView(generic.View):
@@ -557,46 +561,55 @@ class ChangePasswordDoneView(TemplateView):
     template_name = "main/change_password_done.html"
 
 
-
-def user_reports_view(request):
-    user_id = request.user.id  # Assuming 'user_id' is the ID of the user you want to retrieve reports for
-
-    # Fetch all reports made by the user
-    
-    reported_posts = UserReport.objects.filter(
-        reporter_id=user_id, reported_post__isnull=False
-    ).select_related('reported_post')
-
-    reported_comments = UserReport.objects.filter(
-        reporter_id=user_id, reported_comment__isnull=False
-    ).select_related('reported_comment__post')
-    print("Reported Posts:")
-    for report in reported_posts:
-        print(f"Report ID: {report.id}")
-        print(f"Reporter: {report.reporter}")
-        print(f"Reported Post Title: {report.reported_post.title}")
-        # Print other relevant details you want to see
-
-    # Printing details for reported comments
-    print("\nReported Comments:")
-    for report in reported_comments:
-        print(f"Report ID: {report.id}")
-        print(f"Reporter: {report.reporter}")
-        print(f"Reported Comment Text: {report.reported_comment.text}")
-        
-        
-class UserReportedItemsView(DetailView):
-    template_name = "main/user_reports.html"
+class UserReportsView(DetailView):
     model = UserReport
-    context_object_name = 'user_reports'
+    template_name = "main/user_reports.html"
+
+    def get_object(self, queryset=None):
+        return None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user_reports = UserReport.objects.filter(reporter_id=self.kwargs.get('pk'))
+        current_user = self.request.user
 
-        reported_comments = user_reports.filter(report_category=UserReport.ReportCategory.COMMENT).select_related('reported_comment__user')
-        reported_posts = user_reports.filter(report_category=UserReport.ReportCategory.POST).select_related('reported_post__user')
+        reported_posts = (
+            UserReport.objects.filter(
+                reporter=current_user,
+                content_type=ContentType.objects.get_for_model(ActivityPost),
+            )
+            .annotate(
+                count=Subquery(
+                    Report.objects.filter(
+                        reported_object_id=OuterRef("object_id"),
+                        report_category=OuterRef("report_category"),
+                    )
+                    .values("reported_object_id")
+                    .annotate(c=Count("*"))
+                    .values("c")
+                )
+            )
+            .filter(count__lt=threshold)
+        )
 
-        context['reported_comments'] = reported_comments
-        context['reported_posts'] = reported_posts
+        reported_comments = (
+            UserReport.objects.filter(
+                reporter=current_user,
+                content_type=ContentType.objects.get_for_model(Comment),
+            )
+            .annotate(
+                count=Subquery(
+                    Report.objects.filter(
+                        reported_object_id=OuterRef("object_id"),
+                        report_category=OuterRef("report_category"),
+                    )
+                    .values("reported_object_id")
+                    .annotate(c=Count("*"))
+                    .values("c")
+                )
+            )
+            .filter(count__lt=threshold)
+        )
+
+        context["reported_comments"] = reported_comments
+        context["reported_posts"] = reported_posts
         return context

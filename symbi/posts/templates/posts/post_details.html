@@ -213,11 +213,6 @@
                 </div> 
             {% endfor %} 
         {% endif %}
-        
-
-
-
-
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 var copyLinkBtn = document.getElementById('copyLinkBtn');
@@ -237,8 +232,6 @@
                     alert('Post link copied to clipboard!');
                 });
             });
-
-
             document.addEventListener("DOMContentLoaded", () => {
                 const openReportModalComment = document.querySelectorAll("[id^='openReportModalComment']");
                 const closeReportModalComment = document.querySelectorAll("[id^='closeReportModalComment']");
@@ -255,27 +248,13 @@
                         reportModalComment[index].classList.add("hidden");
                     });
                 });
-            
-                // Handling the report submission for comments
                 const reportCommentButtons = document.querySelectorAll(".report-comment-button");
                 reportCommentButtons.forEach((button, index) => {
                     button.addEventListener("click", async () => {
-                        // Perform AJAX request or handle report logic here for the specific comment
-                        const commentId = button.getAttribute("id").split("_")[1]; // Extract comment ID
-                        // Perform reporting logic for the comment with ID 'commentId'
-                        // You can open the report modal or handle reporting logic directly here
-                        // Example: Fetch and display a report modal for reporting the comment
+                        const commentId = button.getAttribute("id").split("_")[1];
                     });
                 });
             });
-            
-
-
-
-
-
-
-
             document.addEventListener("DOMContentLoaded", () => {
                 const openReportModal = document.getElementById("openReportModalPost");
                 const closeReportModal = document.getElementById("closeReportModalPost");
@@ -291,5 +270,4 @@
             });   
         </script>
     </div>
-
 {% endblock content %}

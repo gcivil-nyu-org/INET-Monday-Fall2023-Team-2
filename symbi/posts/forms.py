@@ -119,10 +119,10 @@ class EditPostForm(forms.ModelForm):
 class ReportForm(forms.ModelForm):
     class Meta:
         model = Report
-        fields = [ 'reason'] 
+        fields = ["reason"]
 
     reason = forms.ChoiceField(choices=Report.Reason.choices)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['reason'].choices = Report.Reason.choices
+        self.fields["reason"].choices = Report.Reason.choices

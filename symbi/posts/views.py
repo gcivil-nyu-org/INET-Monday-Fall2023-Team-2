@@ -12,7 +12,9 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
-REPORT_COUT_THRESHOLD = 2
+from django.conf import settings
+
+threshold = settings.REPORT_COUNT_THRESHOLD
 
 
 @method_decorator(login_required, name="dispatch")
@@ -159,7 +161,7 @@ class PostDetailsView(LoginRequiredMixin, generic.DetailView):
         context["comments"] = comments.exclude(commentPoster__in=blocked_users).exclude(
             commentPoster__in=blocking_users
         )
-        context['report_form'] = ReportForm()
+        context["report_form"] = ReportForm()
 
         return context
 
@@ -189,28 +191,34 @@ class PostDetailsView(LoginRequiredMixin, generic.DetailView):
                 },
             )
         )
-        
+
     # method to handle reporting a post
     def post(self, request, *args, **kwargs):
-        post = get_object_or_404(ActivityPost, pk=self.kwargs['pk'])
-        
+        post = get_object_or_404(ActivityPost, pk=self.kwargs["pk"])
+
         # Check conditions to show the report button
-        if post.status == ActivityPost.PostStatus.ACTIVE and request.user != post.poster:
-            if request.method == 'POST':
+        if (
+            post.status == ActivityPost.PostStatus.ACTIVE
+            and request.user != post.poster
+        ):
+            if request.method == "POST":
                 report_form = ReportForm(request.POST)
                 if report_form.is_valid():
-                    report_category_input = 1 # Change this according to your category
-                    reason_input = report_form.cleaned_data['reason']
-                    report_count = Report.objects.filter(
-                        reported_object_id=post.id,
-                        report_category=report_category_input
-                    ).count() + 1
+                    report_category_input = 1  # Change this according to your category
+                    reason_input = report_form.cleaned_data["reason"]
+                    report_count = (
+                        Report.objects.filter(
+                            reported_object_id=post.id,
+                            report_category=report_category_input,
+                        ).count()
+                        + 1
+                    )
                     reporter = SocialUser.objects.get(username=request.user.username)
                     content_type = ContentType.objects.get_for_model(ActivityPost)
                     existing_report = UserReport.objects.filter(
                         reporter=reporter, content_type=content_type, object_id=post.id
                     ).first()
-                    
+
                     if existing_report:
                         return HttpResponseRedirect(reverse("main:discover"))
                     else:
@@ -219,18 +227,18 @@ class PostDetailsView(LoginRequiredMixin, generic.DetailView):
                             reporter=reporter,
                             report_category=report_category_input,
                             content_type=content_type,
-                            object_id=post.id
+                            object_id=post.id,
                         )
                         user_report.save()
                         report = Report(
                             report_category=report_category_input,
                             reason=reason_input,
                             report_count=report_count,
-                            reported_object_id=post.id
+                            reported_object_id=post.id,
                         )
                         report.save()
 
-                        if report_count >= REPORT_COUT_THRESHOLD:
+                        if report_count >= threshold:
                             post.delete()
                         return HttpResponseRedirect(reverse("main:discover"))
             return HttpResponseRedirect(reverse("main:discover"))
@@ -447,112 +455,20 @@ def delete_comment(request, post_id, comment_id):
     return HttpResponseRedirect(reverse("posts:post_details_view", args=[post_id]))
 
 
-# class ReportPostView(LoginRequiredMixin, generic.View):
-#     def post(self, request, post_id):
-#         post = get_object_or_404(ActivityPost, pk=post_id)
-#         report_form = ReportForm(request.POST)
-        
-#         if report_form.is_valid():
-#             report_category_input = 1
-#             reason_input = report_form.cleaned_data['reason']
-#             report_count = Report.objects.filter(
-#                 reported_object_id=post_id, report_category=report_category_input
-#             ).count() + 1
-            
-#             reporter = SocialUser.objects.get(username=request.user.username)
-#             existing_report = UserReport.objects.filter(
-#                 reporter=reporter, reported_post=post
-#             ).first()
-            
-#             if existing_report:
-#                 return HttpResponseRedirect(reverse("main:discover"))
-#             else:
-#                 user_report = UserReport(
-#                     reporter=reporter,
-#                     reported_post=post,
-#                     report_category=report_category_input
-#                 )
-#                 user_report.save()
-#                 report = Report(
-#                     report_category=report_category_input,
-#                     reason=reason_input,
-#                     report_count=report_count,
-#                     reporter=reporter,
-#                     reported_object_id=post_id
-#                 )
-#                 report.save()
-
-#                 # Check if the post has been reported more than 5 times
-#                 if report_count > 2:
-#                     post.delete()
-                
-#                 return HttpResponseRedirect(reverse("main:discover"))
-        
-#         return HttpResponseRedirect(reverse("main:discover"))
-    
-#     def get(self, request, post_id):
-#         # Initial GET request to report a post
-#         report_form = ReportForm()
-#         return HttpResponseRedirect(reverse("main:discover"))
-
-
-
-# @login_required
-# def report_post(request, post_id):
-#     post = get_object_or_404(ActivityPost, pk=post_id)
-#     if request.method == 'POST':
-#         report_form = ReportForm(request.POST)
-#         if report_form.is_valid():
-#             report_category_input = 1
-#             reason_input = report_form.cleaned_data['reason']
-#             report_count = Report.objects.filter(reported_object_id=post_id,
-#                                                  report_category=report_category_input).count() + 1
-#             reporter = SocialUser.objects.get(username=request.user.username) 
-#             existing_report = UserReport.objects.filter(
-#                 reporter=reporter, reported_post=post
-#             ).first()
-#             if existing_report:
-#                 return HttpResponseRedirect(reverse("main:discover"))
-#             else: 
-#                 user_report = UserReport(
-#                     reporter=reporter,
-#                     reported_post=post,
-#                     report_category=report_category_input
-#                 )
-#                 user_report.save()
-#                 report = Report(
-#                     report_category=report_category_input,
-#                     reason=reason_input,
-#                     report_count=report_count,
-#                     reporter=reporter,
-#                     reported_object_id=post_id
-#                 )
-#                 report.save()
-
-#                 # Check if the post has been reported more than 5 times
-#                 if report_count > 2:
-#                     post.delete()   
-#                 return HttpResponseRedirect(reverse("main:discover"))
-#                 # Redirect or return response after reporting
-#     else:
-#         # Initial GET request to report a post
-#         report_form = ReportForm()
-#     return HttpResponseRedirect(reverse("main:discover"))
-
-
-
 @login_required
 def report_comment(request, post_id, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
-    if request.method == 'POST':
+    if request.method == "POST":
         report_form = ReportForm(request.POST)
         if report_form.is_valid():
             report_category_input = Report.ReportCategory.COMMENT
-            reason_input = report_form.cleaned_data['reason']
-            report_count = Report.objects.filter(
-                reported_object_id=comment_id,
-                report_category=report_category_input
-            ).count() + 1
+            reason_input = report_form.cleaned_data["reason"]
+            report_count = (
+                Report.objects.filter(
+                    reported_object_id=comment_id, report_category=report_category_input
+                ).count()
+                + 1
+            )
 
             content_type = ContentType.objects.get_for_model(Comment)
             reporter = SocialUser.objects.get(username=request.user.username)
@@ -567,20 +483,19 @@ def report_comment(request, post_id, comment_id):
                     reporter=reporter,
                     report_category=report_category_input,
                     content_type=content_type,
-                    object_id=comment_id
+                    object_id=comment_id,
                 )
                 user_report.save()
                 report = Report(
                     report_category=report_category_input,
                     reason=reason_input,
                     report_count=report_count,
-                    reported_object_id=comment_id
+                    reported_object_id=comment_id,
                 )
                 report.save()
 
-                if report_count >= REPORT_COUT_THRESHOLD:
+                if report_count >= threshold:
                     comment.delete()
-                
                 return HttpResponseRedirect(reverse("main:discover"))
 
     else:

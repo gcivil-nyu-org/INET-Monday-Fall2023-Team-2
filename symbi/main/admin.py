@@ -42,5 +42,5 @@ class BlockAdmin(admin.ModelAdmin):
 
 @admin.register(UserReport)
 class UserReportAdmin(admin.ModelAdmin):
-    list_display = ['reporter', 'content_type', 'object_id', 'report_category']
-    search_fields = ['reporter', 'content_type', 'object_id', 'report_category']
+    list_display = ["reporter", "content_type", "object_id", "report_category"]
+    search_fields = ["reporter", "content_type", "object_id", "report_category"]
