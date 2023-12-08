@@ -4,22 +4,26 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from django.db.models import Q
+from django.db.models import Q, Count, OuterRef, Subquery
 from django.contrib.auth.views import LoginView, PasswordChangeView
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from .signals import user_blocked
 from django.views.generic import DeleteView, TemplateView, DetailView
+from django.contrib.contenttypes.models import ContentType
 
-from posts.models import ActivityPost
-from .models import SocialUser, Connection, Notification, Block
+from posts.models import ActivityPost, Comment, Report
+from .models import SocialUser, Connection, Notification, Block, UserReport
 from .forms import (
     SignupForm,
     LoginForm,
     EditProfileForm,
     ChangePasswordForm,
 )
+from django.conf import settings
+
+threshold = settings.REPORT_COUNT_THRESHOLD
 
 
 class LandingPageView(generic.View):
@@ -574,3 +578,57 @@ class ChangePasswordView(PasswordChangeView):
 @method_decorator(login_required, name="dispatch")
 class ChangePasswordDoneView(TemplateView):
     template_name = "main/change_password_done.html"
+
+
+class UserReportsView(DetailView):
+    model = UserReport
+    template_name = "main/user_reports.html"
+
+    def get_object(self, queryset=None):
+        return None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        current_user = self.request.user
+
+        reported_posts = (
+            UserReport.objects.filter(
+                reporter=current_user,
+                content_type=ContentType.objects.get_for_model(ActivityPost),
+            )
+            .annotate(
+                count=Subquery(
+                    Report.objects.filter(
+                        reported_object_id=OuterRef("object_id"),
+                        report_category=OuterRef("report_category"),
+                    )
+                    .values("reported_object_id")
+                    .annotate(c=Count("*"))
+                    .values("c")
+                )
+            )
+            .filter(count__lt=threshold)
+        )
+
+        reported_comments = (
+            UserReport.objects.filter(
+                reporter=current_user,
+                content_type=ContentType.objects.get_for_model(Comment),
+            )
+            .annotate(
+                count=Subquery(
+                    Report.objects.filter(
+                        reported_object_id=OuterRef("object_id"),
+                        report_category=OuterRef("report_category"),
+                    )
+                    .values("reported_object_id")
+                    .annotate(c=Count("*"))
+                    .values("c")
+                )
+            )
+            .filter(count__lt=threshold)
+        )
+
+        context["reported_comments"] = reported_comments
+        context["reported_posts"] = reported_posts
+        return context

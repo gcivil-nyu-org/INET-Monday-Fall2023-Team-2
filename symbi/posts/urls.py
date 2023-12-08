@@ -51,4 +51,9 @@ urlpatterns = [
     #     views.delete_comment,
     #     name="delete_comment",
     # ),
+    path(
+        "<int:post_id>/report_comment/<int:comment_id>/",
+        views.report_comment,
+        name="report_comment",
+    ),
 ]

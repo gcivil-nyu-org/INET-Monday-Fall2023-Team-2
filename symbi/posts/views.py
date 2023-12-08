@@ -5,12 +5,16 @@ from django.utils import timezone
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
 
-from main.models import SocialUser, Block, Notification
-from .models import ActivityPost, Comment
-from .forms import NewPostForm, EditPostForm
+from main.models import SocialUser, Block, Notification, UserReport
+from .models import ActivityPost, Comment, Report
+from .forms import NewPostForm, EditPostForm, ReportForm
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.contenttypes.models import ContentType
+from django.conf import settings
+
+threshold = settings.REPORT_COUNT_THRESHOLD
 
 
 @method_decorator(login_required, name="dispatch")
@@ -148,23 +152,17 @@ class PostDetailsView(LoginRequiredMixin, generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        # Fetch comments related to the post (replace 'self.object' with the appropriate reference)
         comments = Comment.objects.filter(post=self.object).order_by("-timestamp")
-
-        # users blocked by the logged-in user
         blocked_users = Block.objects.filter(blocker=self.request.user).values_list(
             "blocked_user", flat=True
         )
-
-        # users who have blocked the logged-in user
         blocking_users = Block.objects.filter(
             blocked_user=self.request.user
         ).values_list("blocker", flat=True)
-
         context["comments"] = comments.exclude(commentPoster__in=blocked_users).exclude(
             commentPoster__in=blocking_users
         )
+        context["report_form"] = ReportForm()
 
         return context
 
@@ -216,15 +214,65 @@ class PostDetailsView(LoginRequiredMixin, generic.DetailView):
                             ),
                         )
 
-        return redirect(
-            reverse_lazy(
-                "posts:post_details",
-                kwargs={
-                    "poster": poster.username,
-                    "pk": post.id,
-                },
+            return redirect(
+                reverse_lazy(
+                    "posts:post_details",
+                    kwargs={
+                        "poster": poster.username,
+                        "pk": post.id,
+                    },
+                )
             )
-        )
+
+        # method to handle reporting a post
+        post = get_object_or_404(ActivityPost, pk=self.kwargs["pk"])
+        # Check conditions to show the report button
+        if (
+            post.status == ActivityPost.PostStatus.ACTIVE
+            and request.user != post.poster
+        ):
+            if request.method == "POST":
+                report_form = ReportForm(request.POST)
+                if report_form.is_valid():
+                    report_category_input = 1  # Change this according to your category
+                    reason_input = report_form.cleaned_data["reason"]
+                    report_count = (
+                        Report.objects.filter(
+                            reported_object_id=post.id,
+                            report_category=report_category_input,
+                        ).count()
+                        + 1
+                    )
+                    reporter = SocialUser.objects.get(username=request.user.username)
+                    content_type = ContentType.objects.get_for_model(ActivityPost)
+                    existing_report = UserReport.objects.filter(
+                        reporter=reporter, content_type=content_type, object_id=post.id
+                    ).first()
+
+                    if existing_report:
+                        return HttpResponseRedirect(reverse("main:discover"))
+                    else:
+                        content_type = ContentType.objects.get_for_model(ActivityPost)
+                        user_report = UserReport(
+                            reporter=reporter,
+                            report_category=report_category_input,
+                            content_type=content_type,
+                            object_id=post.id,
+                        )
+                        user_report.save()
+                        report = Report(
+                            report_category=report_category_input,
+                            reason=reason_input,
+                            report_count=report_count,
+                            reported_object_id=post.id,
+                        )
+                        report.save()
+
+                        if report_count >= threshold:
+                            post.delete()
+                        return HttpResponseRedirect(reverse("main:discover"))
+            return HttpResponseRedirect(reverse("main:discover"))
+        return HttpResponseRedirect(reverse("main:discover"))
 
     def dispatch(self, request, *args, **kwargs):
         # Check if the logged-in user can access the page being requested
@@ -460,3 +508,52 @@ def delete_comment(request, post_id, comment_id):
     if current_comment.commentPoster_id == current_user.id:
         current_comment.delete()
     return HttpResponseRedirect(reverse("posts:post_details_view", args=[post_id]))
+
+
+@login_required
+def report_comment(request, post_id, comment_id):
+    comment = get_object_or_404(Comment, pk=comment_id)
+    if request.method == "POST":
+        report_form = ReportForm(request.POST)
+        if report_form.is_valid():
+            report_category_input = Report.ReportCategory.COMMENT
+            reason_input = report_form.cleaned_data["reason"]
+            report_count = (
+                Report.objects.filter(
+                    reported_object_id=comment_id, report_category=report_category_input
+                ).count()
+                + 1
+            )
+
+            content_type = ContentType.objects.get_for_model(Comment)
+            reporter = SocialUser.objects.get(username=request.user.username)
+            existing_report = UserReport.objects.filter(
+                reporter=reporter, content_type=content_type, object_id=comment_id
+            ).first()
+            if existing_report:
+                return HttpResponseRedirect(reverse("main:discover"))
+            else:
+                content_type = ContentType.objects.get_for_model(Comment)
+                user_report = UserReport(
+                    reporter=reporter,
+                    report_category=report_category_input,
+                    content_type=content_type,
+                    object_id=comment_id,
+                )
+                user_report.save()
+                report = Report(
+                    report_category=report_category_input,
+                    reason=reason_input,
+                    report_count=report_count,
+                    reported_object_id=comment_id,
+                )
+                report.save()
+
+                if report_count >= threshold:
+                    comment.delete()
+                return HttpResponseRedirect(reverse("main:discover"))
+
+    else:
+        report_form = ReportForm()
+
+    return HttpResponseRedirect(reverse("main:discover"))
