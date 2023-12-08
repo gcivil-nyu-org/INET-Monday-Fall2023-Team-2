@@ -1,4 +1,4 @@
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views import generic
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login, logout
@@ -274,6 +274,9 @@ class RequestConnectionView(LoginRequiredMixin, generic.View):
                 from_user=connection.requester,
                 content=notification_content,
                 type=Notification.NotificationType.CONNECTION_REQUEST,
+                url=reverse(
+                    "main:profile_page", kwargs={"username": connection.requester}
+                ),
             )
             print(notification.content)
             connection.notification = notification
