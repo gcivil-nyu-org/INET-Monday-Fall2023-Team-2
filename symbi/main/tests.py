@@ -1,13 +1,118 @@
 from django.test import TestCase
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from posts.models import ActivityPost
+from django.contrib.auth import authenticate
 
 # from django.utils import timezone
 # from .models import SocialUser, Connection, Notification
 from .models import SocialUser
 
 
-# Create your tests here.
+class LandingPageViewTest(TestCase):
+    def setUp(self):
+        self.testuser = SocialUser.objects.create_user(
+            username="testuser", email="testuser@nyu.edu", password="testpassword"
+        )
+
+    def test_authenticated_user(self):
+        self.client.login(username="testuser", password="testpassword")
+        response = self.client.get(reverse_lazy("main:landing"))
+        # Checks if properly redirects to home when logged in
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse_lazy("main:home"))
+
+    def test_unauthenticated_user(self):
+        response = self.client.get(reverse_lazy("main:landing"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "main/landing.html")
+
+
+class LoginViewTest(TestCase):
+    def setUp(self):
+        self.testuser = SocialUser.objects.create_user(
+            username="testuser", email="testuser@nyu.edu", password="testpassword"
+        )
+
+    def test_login_template(self):
+        response = self.client.get(reverse_lazy("main:login"))
+
+        # Check if properly shows login template
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "main/login.html")
+
+    def test_login_form_invalid(self):
+        response = self.client.post(
+            reverse_lazy("main:login"),
+            {"username": "testuser", "password": "wrongpassword"},
+        )
+
+        # Check that the user isn't redirected to home
+        self.assertEqual(response.status_code, 200)
+
+        # Check that error messages are shown
+        self.assertContains(
+            response,
+            "Please enter a correct username and password. Note that both fields may be case-sensitive.",
+        )
+
+    def test_login_form_valid(self):
+        response = self.client.post(
+            reverse_lazy("main:login"),
+            {"username": "testuser", "password": "testpassword"},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse_lazy("main:home"))
+
+
+class SignupViewTest(TestCase):
+    def test_signup_template(self):
+        response = self.client.get(reverse_lazy("main:signup"))
+
+        # Check if properly shows signup template
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "main/signup.html")
+
+    def test_signup_form_valid(self):
+        user_data = {
+            "username": "testuser",
+            "email": "testuser@nyu.edu",
+            "full_name": "test user",
+            "pronouns": SocialUser.Pronouns.HE,
+            "date_of_birth": "1990-01-01",
+            "major": "Computer Science",
+            "interests": [],
+            "password1": "testpass123",
+            "password2": "testpass123",
+        }
+
+        response = self.client.post(reverse_lazy("main:signup"), user_data)
+
+        # Check if redirected to home
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse_lazy("main:home"))
+
+        # Check that the user is added to the database
+        self.assertTrue(SocialUser.objects.filter(username="testuser").exists())
+
+        # Check that the user is logged in
+        logged_in_user = authenticate(username="testuser", password="testpass123")
+        self.assertIsNotNone(logged_in_user)
+        self.assertTrue(logged_in_user.is_authenticated)
+
+    def test_signup_form_invalid(self):
+        response = self.client.post(reverse_lazy("main:signup"), {})
+
+        # Check that the user isn't redirected to home
+        self.assertEqual(response.status_code, 200)
+
+        # Check that error messages are shown
+        self.assertContains(
+            response,
+            "This field is required.",
+        )
+
+
 class MainViewNoPostTest(TestCase):
     def setUp(self):
         self.user = SocialUser.objects.create_user(
