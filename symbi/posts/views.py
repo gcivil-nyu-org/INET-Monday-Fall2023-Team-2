@@ -37,7 +37,6 @@ class CreatePostView(LoginRequiredMixin, generic.CreateView):
             self.object.status = ActivityPost.PostStatus.DRAFT
         elif action == "post":
             self.object.status = ActivityPost.PostStatus.ACTIVE
-
         self.object.save()
 
         return super().form_valid(form)
@@ -88,6 +87,11 @@ class EditPostView(LoginRequiredMixin, generic.UpdateView):
         post.title = request.POST.get("title")
         post.description = request.POST.get("description")
         post.tags.set(request.POST.getlist("tags"))
+        action = self.request.POST.get("action")
+        if action == "draft":
+            post.status = ActivityPost.PostStatus.DRAFT
+        elif action == "post":
+            post.status = ActivityPost.PostStatus.ACTIVE
         post.save()
         return redirect(self.get_success_url())
 
