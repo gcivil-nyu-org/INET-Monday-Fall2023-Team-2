@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import ActivityPost
+from .models import ActivityPost, Comment
 from main.models import InterestTag
 
 
@@ -114,3 +114,19 @@ class EditPostForm(forms.ModelForm):
                 "Description must be at least 10 characters long."
             )
         return description
+
+
+class EditCommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ["edited_comment"]
+
+    edited_comment = forms.CharField(
+        widget=forms.Textarea(
+            attrs={
+                "class": """px-4 py-2 border focus:ring-gray-500 focus:border-gray-900
+                 w-full sm:text-sm border-gray-300 rounded-md focus:outline-none text-gray-600""",
+                "name": "edited_comment",
+            }
+        )
+    )
