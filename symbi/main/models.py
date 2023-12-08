@@ -5,6 +5,9 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.urls import reverse
 from datetime import date
+from django.conf import settings
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 
 class InterestTag(models.Model):
@@ -183,3 +186,22 @@ class Block(models.Model):
 
     def __str__(self):
         return f"{self.blocker} - {self.blocked_user}"
+
+
+class UserReport(models.Model):
+    class ReportCategory(models.IntegerChoices):
+        POST = 1
+        COMMENT = 2
+        NO_CATEGORY = 0
+
+    reporter = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    report_category = models.IntegerField(
+        choices=ReportCategory.choices, default=ReportCategory.NO_CATEGORY
+    )
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    reported_object = GenericForeignKey("content_type", "object_id")
+
+    class Meta:
+        unique_together = ["reporter", "content_type", "object_id", "report_category"]

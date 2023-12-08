@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import ActivityPost
+from .models import ActivityPost, Report
 from main.models import InterestTag
 
 
@@ -114,3 +114,15 @@ class EditPostForm(forms.ModelForm):
                 "Description must be at least 10 characters long."
             )
         return description
+
+
+class ReportForm(forms.ModelForm):
+    class Meta:
+        model = Report
+        fields = ["reason"]
+
+    reason = forms.ChoiceField(choices=Report.Reason.choices)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["reason"].choices = Report.Reason.choices

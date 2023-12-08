@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}
+    User Reports
+{% endblock title %}
+{% block content %}
+    <div class="m-20 mt-5 overflow-auto">
+        <div class="justify-center">
+            <div class="container mx-auto mt-10 mb-10 overflow-scroll">
+                <div class="overflow-y-auto">
+                    <h1 class="text-3xl mb-5 text-center">Reported Posts</h1>
+                    {% for post in reported_posts %}
+                        <div class="flex mb-3">    
+                            <div>
+                                <p class="font-medium">Reported Post: {{ post.reported_object.title }}</p>
+                                <p class="text-gray-600 text-sm">Post Author: {{ post.reported_object.poster.username }}</p>
+                                <p class="text-gray-600 text-sm">Reported On: {{ post.reported_object.timestamp }}</p>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="text-center text-gray-500">No reported posts.</p>
+                    {% endfor %}
+                </div>
+                <div class="my-8"></div>
+                <div class="overflow-y-auto">
+                    <h1 class="text-3xl mb-5 text-center">Reported Comments</h1>
+                    {% for comment in reported_comments %}
+                        <div class="flex mb-3">
+                            <div>
+                                <p class="text-gray-800">{{ comment.reported_object.text }}</p>
+                                <p class="text-gray-600 text-sm mt-1">Comment Author: {{ comment.reported_object.commentPoster.username }}</p>
+                                <p class="text-gray-600 text-sm">Reported On: {{ comment.reported_object.timestamp }}</p>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="text-center text-gray-500">No reported comments.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
