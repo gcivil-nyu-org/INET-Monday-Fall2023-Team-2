@@ -27,11 +27,30 @@
                         class="flex items-center text-sm text-gray-500 hover:scale-110 font-medium mt-1">
                     Reply
                 </button>
+                <button id="openReportModalComment_{{ comment.id }}"
+                        class="flex items-center text-sm text-gray-500 hover:scale-110 font-medium mt-1">
+                    Report Comment
+                </button>
             {% endif %}
         </div>
     </div>
 </div>
 
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const openReportModal = document.getElementById("openReportModalComment");
+      const closeReportModal = document.getElementById("closeReportModalComment");
+      const reportModal = document.getElementById("reportModalComment");
+  
+      openReportModal.addEventListener("click", () => {
+        reportModal.classList.remove("hidden");
+      });
+  
+      closeReportModal.addEventListener("click", () => {
+        reportModal.classList.add("hidden");
+      });
+    });
+</script>
 
         
         

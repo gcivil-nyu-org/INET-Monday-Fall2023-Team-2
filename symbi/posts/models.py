@@ -6,7 +6,7 @@ from django.conf import settings
 # from django.db.models.signals import post_save
 # from django.dispatch import receiver
 
-from main.models import InterestTag
+from main.models import InterestTag, SocialUser
 
 
 class ActivityPost(models.Model):
@@ -74,3 +74,30 @@ class Comment(models.Model):
 #             f"{instance.post.title}: {instance.text}",
 #             type=Notification.NotificationType.NEW_COMMENT,
 #         )
+
+
+
+
+class Report(models.Model): 
+    class ReportCategory(models.IntegerChoices):
+        POST = 1, _("post")
+        COMMENT = 2, _("comment")
+    
+    class Reason(models.IntegerChoices):
+        HATE_SPEECH_OR_SYMBOLS = 1, _("Hate speech or symbols")
+        ABUSE_AND_HARASSMENT = 2, _("Abuse and harassment")
+        VIOLENCE_OR_DANGEROUS_ORGANIZATIONS = 3, _("Violence or dangerous organizations")
+        PRIVACY = 4, _("Privacy")
+        SPAM = 5, _("Spam")
+        SENSITIVE_OR_DISTURBING_MEDIA = 6, _("Sensitive or Disturbing Media")
+        SCAMS_OR_FRAUD = 7, _("Scams or Fraud")
+        FALSE_INFORMATION = 8, _("False information")
+    
+    # stores the primary key of object being reported
+    reported_object_id = models.PositiveIntegerField()
+    report_count = models.IntegerField(default=1)
+    
+    # tracks number of times an object has been reported
+    report_category = models.IntegerField(choices=ReportCategory.choices) 
+    reason = models.IntegerField(choices=Reason.choices)
+    timestamp = models.DateTimeField(auto_now_add=True)
