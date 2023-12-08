@@ -212,11 +212,15 @@ class DiscoverPageView(LoginRequiredMixin, generic.ListView):
 
         if button_action == "clear" or query is None:
             object_list = ActivityPost.objects.filter(
-                ~Q(poster__in=blocked_users) & ~Q(poster__in=blocking_users)
+                Q(status=ActivityPost.PostStatus.ACTIVE)
+                & ~Q(poster__in=blocked_users)
+                & ~Q(poster__in=blocking_users)
             ).order_by("-timestamp")[:50]
         else:
             object_list = ActivityPost.get_posts_by_search(query).filter(
-                ~Q(poster__in=blocked_users) & ~Q(poster__in=blocking_users)
+                Q(status=ActivityPost.PostStatus.ACTIVE)
+                & ~Q(poster__in=blocked_users)
+                & ~Q(poster__in=blocking_users)
             )
 
         return object_list
