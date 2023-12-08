@@ -115,7 +115,6 @@ class EditPostForm(forms.ModelForm):
             )
         return description
 
-
 class EditCommentForm(forms.ModelForm):
     class Meta:
         model = Comment
