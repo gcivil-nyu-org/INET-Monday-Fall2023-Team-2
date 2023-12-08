@@ -1,4 +1,4 @@
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views import generic
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login, logout
@@ -216,11 +216,15 @@ class DiscoverPageView(LoginRequiredMixin, generic.ListView):
 
         if button_action == "clear" or query is None:
             object_list = ActivityPost.objects.filter(
-                ~Q(poster__in=blocked_users) & ~Q(poster__in=blocking_users)
+                Q(status=ActivityPost.PostStatus.ACTIVE)
+                & ~Q(poster__in=blocked_users)
+                & ~Q(poster__in=blocking_users)
             ).order_by("-timestamp")[:50]
         else:
             object_list = ActivityPost.get_posts_by_search(query).filter(
-                ~Q(poster__in=blocked_users) & ~Q(poster__in=blocking_users)
+                Q(status=ActivityPost.PostStatus.ACTIVE)
+                & ~Q(poster__in=blocked_users)
+                & ~Q(poster__in=blocking_users)
             )
 
         return object_list
@@ -274,6 +278,9 @@ class RequestConnectionView(LoginRequiredMixin, generic.View):
                 from_user=connection.requester,
                 content=notification_content,
                 type=Notification.NotificationType.CONNECTION_REQUEST,
+                url=reverse(
+                    "main:profile_page", kwargs={"username": connection.requester}
+                ),
             )
             print(notification.content)
             connection.notification = notification
@@ -554,6 +561,18 @@ class ChangePasswordView(PasswordChangeView):
 
     def form_valid(self, form):
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        for field, errors in form.errors.items():
+            for error in errors:
+                if field == "new_password1":
+                    msg = f"New Password: {error}"
+                elif field == "new_password2":
+                    msg = f"Confirm Password: {error}"
+                else:
+                    msg = f'{" ".join(field.split("_")).title()}: {error}'
+                messages.error(self.request, msg)
+        return super().form_invalid(form)
 
 
 @method_decorator(login_required, name="dispatch")

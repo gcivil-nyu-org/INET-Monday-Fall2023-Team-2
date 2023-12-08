@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
 
-from main.models import SocialUser, Block, UserReport
+from main.models import SocialUser, Block, Notification, UserReport
 from .models import ActivityPost, Comment, Report
 from .forms import NewPostForm, EditPostForm, ReportForm
 from django.contrib.auth.decorators import login_required
@@ -96,6 +96,7 @@ class EditPostView(LoginRequiredMixin, generic.UpdateView):
             post.status = ActivityPost.PostStatus.DRAFT
         elif action == "post":
             post.status = ActivityPost.PostStatus.ACTIVE
+            post.timestamp = timezone.now()
         post.save()
         return redirect(self.get_success_url())
 
@@ -168,19 +169,50 @@ class PostDetailsView(LoginRequiredMixin, generic.DetailView):
     def post(self, request, *args, **kwargs):
         new_comment = self.request.POST.get("new_comment")
         if new_comment:
-            poster = SocialUser(username=self.kwargs["poster"])
+            poster = get_object_or_404(SocialUser, username=self.kwargs["poster"])
             post = ActivityPost(poster=poster, pk=self.kwargs["pk"])
-            taggedUsername = [
-                word[1:] for word in new_comment.split() if word.startswith("@")
-            ]
-            taggedUsers = SocialUser.objects.filter(username__in=taggedUsername)
-            comment = Comment.objects.create(
-                commentPoster=request.user,
-                post=post,
-                text=new_comment,
-                timestamp=timezone.now(),
-            )
-            comment.taggedUsers.set(taggedUsers)
+            post_id = self.kwargs["pk"]
+            if new_comment.isspace():
+                messages.error(request, "You cannot leave an empty comment.")
+            else:
+                taggedUsername = [
+                    word[1:] for word in new_comment.split() if word.startswith("@")
+                ]
+                taggedUsers = SocialUser.objects.filter(username__in=taggedUsername)
+                comment = Comment.objects.create(
+                    commentPoster=request.user,
+                    post=post,
+                    text=new_comment,
+                    timestamp=timezone.now(),
+                )
+                comment.taggedUsers.set(taggedUsers)
+                if request.user != poster:
+                    content = f"@{request.user} posted a new comment on your post."
+                    Notification.objects.create(
+                        recipient_user=poster,
+                        from_user=request.user,
+                        content=content,
+                        type=Notification.NotificationType.NEW_COMMENT,
+                        url=reverse(
+                            "posts:post_details",
+                            kwargs={"poster": poster, "pk": post_id},
+                        ),
+                    )
+                for user in taggedUsers:
+                    if user != request.user:
+                        content = (
+                            f"@{request.user} tagged you in a post: {comment.text}"
+                        )
+                        Notification.objects.create(
+                            recipient_user=user,
+                            from_user=request.user,
+                            content=content,
+                            type=Notification.NotificationType.NEW_COMMENT,
+                            url=reverse(
+                                "posts:post_details",
+                                kwargs={"poster": poster, "pk": post_id},
+                            ),
+                        )
 
         return redirect(
             reverse_lazy(
@@ -325,19 +357,22 @@ class EditCommentView(LoginRequiredMixin, generic.UpdateView):
     context_object_name = "edited_comment"
     fields = ["text"]
 
-    def get_object(self, queryset=None):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         post_poster = SocialUser.objects.filter(
             username=self.kwargs["post_poster"]
         ).first()
         comment_poster = SocialUser.objects.filter(
             username=self.kwargs["comment_poster"]
         ).first()
-        self.post = ActivityPost(poster=post_poster, pk=self.kwargs["post_id"])
+        post = ActivityPost(poster=post_poster, pk=self.kwargs["post_id"])
         comment = Comment.objects.get(
             commentPoster=comment_poster,
-            pk=self.kwargs["comment_id"],
+            post=post,
+            pk=self.kwargs["pk"],
         )
-        return comment
+        context["edited_comment"] = comment
+        return context
 
     def form_valid(self, form):
         current_user = self.request.user
@@ -349,12 +384,34 @@ class EditCommentView(LoginRequiredMixin, generic.UpdateView):
 
         return redirect(self.get_success_url())
 
+    def post(self, request, *args, **kwargs):
+        post_poster = SocialUser.objects.filter(
+            username=self.kwargs["post_poster"]
+        ).first()
+        comment_poster = SocialUser.objects.filter(
+            username=self.kwargs["comment_poster"]
+        ).first()
+        post = ActivityPost(poster=post_poster, pk=self.kwargs["post_id"])
+        comment = Comment.objects.get(
+            commentPoster=comment_poster,
+            post=post,
+            pk=self.kwargs["pk"],
+        )
+        comment.text = request.POST.get("edited_comment")
+        comment.save()
+        return redirect(self.get_success_url())
+
     def get_success_url(self):
+        post = get_object_or_404(
+            ActivityPost,
+            poster__username=self.kwargs["poster"],
+            pk=self.kwargs["post_id"],
+        )
         return reverse_lazy(
             "posts:post_details",
             kwargs={
-                "poster": self.post.poster.username,
-                "pk": self.post.id,
+                "poster": post.poster.username,
+                "pk": post.id,
             },
         )
 

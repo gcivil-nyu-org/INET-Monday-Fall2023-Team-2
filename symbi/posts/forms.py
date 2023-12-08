@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import ActivityPost, Report
+from .models import ActivityPost, Comment, Report
 from main.models import InterestTag
 
 
@@ -126,3 +126,19 @@ class ReportForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["reason"].choices = Report.Reason.choices
+
+
+class EditCommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ["edited_comment"]
+
+    edited_comment = forms.CharField(
+        widget=forms.Textarea(
+            attrs={
+                "class": """px-4 py-2 border focus:ring-gray-500 focus:border-gray-900
+                 w-full sm:text-sm border-gray-300 rounded-md focus:outline-none text-gray-600""",
+                "name": "edited_comment",
+            }
+        )
+    )

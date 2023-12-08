@@ -55,6 +55,7 @@ class Notification(models.Model):
     class NotificationType(models.IntegerChoices):
         CONNECTION_REQUEST = 1, _("Connection Request")
         NEW_COMMENT = 2, _("New Comment")
+        TAGGED = 3, _("Tagged")
 
     recipient_user = models.ForeignKey(
         SocialUser, on_delete=models.CASCADE, related_name="recipient_user"
@@ -66,6 +67,7 @@ class Notification(models.Model):
     timestamp = models.DateTimeField("timestamp", default=timezone.now)
     is_read = models.BooleanField(default=False)
     type = models.IntegerField(choices=NotificationType.choices)
+    url = models.TextField()
 
     # Get all notifications for a user
     @classmethod
