@@ -80,4 +80,5 @@ urlpatterns = [
         views.BlockedUsersPageView.as_view(),
         name="blocked_users",
     ),
+    path("user-reports/", views.UserReportsView.as_view(), name="user_reports"),
 ]

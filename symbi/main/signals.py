@@ -2,7 +2,7 @@ from django.dispatch import Signal, receiver
 from django.db.models.signals import post_save
 from .models import Block, Connection
 from posts.models import Comment
-from chat.models import ChatRoom
+from chat.models import ChatRoom, Message
 
 # restrictions imposed on a blocked_user by implementing two actions:
 #   1. Removing all existing communications between blocker and blocked_user
@@ -49,9 +49,17 @@ def remove_existing_communications(instance, created, **kwargs):
             if chat_room.members.count() >= 3:
                 # blocker is the creator of ChatRoom
                 if chat_room.creator == blocker:
+                    # Delete blocked user's messages
+                    messages = Message.get_messages(chat_room).filter(
+                        sender=blocked_user
+                    )
+                    messages.delete()
                     # Remove blocked_user from ChatRoom
                     chat_room.members.remove(blocked_user)
                 else:
+                    # Delete blocker's messages
+                    messages = Message.get_messages(chat_room).filter(sender=blocker)
+                    messages.delete()
                     # Remove blocker from ChatRoom
                     chat_room.members.remove(blocker)
             else:  # ChatRoom is a DirectMessage
