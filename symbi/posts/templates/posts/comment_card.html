@@ -38,10 +38,6 @@
                 {% endwith %}
             </div>
             {% if comment.commentPoster != user %}
-                <button type="button"
-                        class="flex items-center text-sm text-gray-500 hover:scale-110 font-medium mt-1">
-                    Reply
-                </button>
                 <button id="openReportModalComment_{{ comment.id }}"
                         class="flex items-center text-sm text-gray-500 hover:scale-110 font-medium mt-1">
                     Report Comment
@@ -54,19 +50,6 @@
 
 <div class="flex items-center mt-4 space-x-4">
     {% if comment.commentPoster == user %}
-        <button id="edit_comment" class="flex items-center text-sm text-gray-500 hover:underline font-medium">
-            <a href="{% url 'posts:edit_comment' post_poster=comment.post.poster.username post_id=comment.post.id comment_poster=comment.commentPoster.username pk=comment.id %}">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     fill="none"
-                     viewBox="0 0 24 24"
-                     stroke-width="1.5"
-                     stroke="currentColor"
-                     class="mr-1.5 w-5 h-5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
-                </svg>
-                Edit Comment
-            </a>
-        </button>
         <a href="{% url 'posts:delete_comment' post_poster=comment.post.poster.username post_id=comment.post.id comment_poster=comment.commentPoster.username comment_id=comment.id %}"
            class="flex items-center text-sm text-gray-500 hover:underline font-medium">
             <svg xmlns="http://www.w3.org/2000/svg"
