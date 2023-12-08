@@ -558,6 +558,18 @@ class ChangePasswordView(PasswordChangeView):
     def form_valid(self, form):
         return super().form_valid(form)
 
+    def form_invalid(self, form):
+        for field, errors in form.errors.items():
+            for error in errors:
+                if field == "new_password1":
+                    msg = f"New Password: {error}"
+                elif field == "new_password2":
+                    msg = f"Confirm Password: {error}"
+                else:
+                    msg = f'{" ".join(field.split("_")).title()}: {error}'
+                messages.error(self.request, msg)
+        return super().form_invalid(form)
+
 
 @method_decorator(login_required, name="dispatch")
 class ChangePasswordDoneView(TemplateView):
