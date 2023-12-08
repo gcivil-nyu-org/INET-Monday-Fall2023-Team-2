@@ -1,25 +1,29 @@
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views import generic
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from django.db.models import Q
+from django.db.models import Q, Count, OuterRef, Subquery
 from django.contrib.auth.views import LoginView, PasswordChangeView
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from .signals import user_blocked
 from django.views.generic import DeleteView, TemplateView, DetailView
+from django.contrib.contenttypes.models import ContentType
 
-from posts.models import ActivityPost
-from .models import SocialUser, Connection, Notification, Block
+from posts.models import ActivityPost, Comment, Report
+from .models import SocialUser, Connection, Notification, Block, UserReport
 from .forms import (
     SignupForm,
     LoginForm,
     EditProfileForm,
     ChangePasswordForm,
 )
+from django.conf import settings
+
+threshold = settings.REPORT_COUNT_THRESHOLD
 
 
 class LandingPageView(generic.View):
@@ -36,7 +40,6 @@ class LoginView(LoginView):
     success_url = reverse_lazy("main:home")
 
     def form_invalid(self, form):
-        print(form.errors.as_json())
         for field, errors in form.errors.items():
             for error in errors:
                 messages.error(self.request, error)
@@ -212,11 +215,15 @@ class DiscoverPageView(LoginRequiredMixin, generic.ListView):
 
         if button_action == "clear" or query is None:
             object_list = ActivityPost.objects.filter(
-                ~Q(poster__in=blocked_users) & ~Q(poster__in=blocking_users)
+                Q(status=ActivityPost.PostStatus.ACTIVE)
+                & ~Q(poster__in=blocked_users)
+                & ~Q(poster__in=blocking_users)
             ).order_by("-timestamp")[:50]
         else:
             object_list = ActivityPost.get_posts_by_search(query).filter(
-                ~Q(poster__in=blocked_users) & ~Q(poster__in=blocking_users)
+                Q(status=ActivityPost.PostStatus.ACTIVE)
+                & ~Q(poster__in=blocked_users)
+                & ~Q(poster__in=blocking_users)
             )
 
         return object_list
@@ -270,6 +277,9 @@ class RequestConnectionView(LoginRequiredMixin, generic.View):
                 from_user=connection.requester,
                 content=notification_content,
                 type=Notification.NotificationType.CONNECTION_REQUEST,
+                url=reverse(
+                    "main:profile_page", kwargs={"username": connection.requester}
+                ),
             )
             print(notification.content)
             connection.notification = notification
@@ -551,7 +561,73 @@ class ChangePasswordView(PasswordChangeView):
     def form_valid(self, form):
         return super().form_valid(form)
 
+    def form_invalid(self, form):
+        for field, errors in form.errors.items():
+            for error in errors:
+                if field == "new_password1":
+                    msg = f"New Password: {error}"
+                elif field == "new_password2":
+                    msg = f"Confirm Password: {error}"
+                else:
+                    msg = f'{" ".join(field.split("_")).title()}: {error}'
+                messages.error(self.request, msg)
+        return super().form_invalid(form)
+
 
 @method_decorator(login_required, name="dispatch")
 class ChangePasswordDoneView(TemplateView):
     template_name = "main/change_password_done.html"
+
+
+class UserReportsView(DetailView):
+    model = UserReport
+    template_name = "main/user_reports.html"
+
+    def get_object(self, queryset=None):
+        return None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        current_user = self.request.user
+
+        reported_posts = (
+            UserReport.objects.filter(
+                reporter=current_user,
+                content_type=ContentType.objects.get_for_model(ActivityPost),
+            )
+            .annotate(
+                count=Subquery(
+                    Report.objects.filter(
+                        reported_object_id=OuterRef("object_id"),
+                        report_category=OuterRef("report_category"),
+                    )
+                    .values("reported_object_id")
+                    .annotate(c=Count("*"))
+                    .values("c")
+                )
+            )
+            .filter(count__lt=threshold)
+        )
+
+        reported_comments = (
+            UserReport.objects.filter(
+                reporter=current_user,
+                content_type=ContentType.objects.get_for_model(Comment),
+            )
+            .annotate(
+                count=Subquery(
+                    Report.objects.filter(
+                        reported_object_id=OuterRef("object_id"),
+                        report_category=OuterRef("report_category"),
+                    )
+                    .values("reported_object_id")
+                    .annotate(c=Count("*"))
+                    .values("c")
+                )
+            )
+            .filter(count__lt=threshold)
+        )
+
+        context["reported_comments"] = reported_comments
+        context["reported_posts"] = reported_posts
+        return context

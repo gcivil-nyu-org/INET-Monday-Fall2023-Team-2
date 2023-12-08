@@ -22,7 +22,7 @@ urlpatterns = [
     ),
     path("post/<int:post_id>/delete/", views.delete_post, name="delete_post"),
     path(
-        "post/<slug:post_poster>/<int:post_id>/comment/edit/<slug:comment_poster>/<int:comment_id>/",
+        "post/<slug:post_poster>/<int:post_id>/comment/edit/<slug:comment_poster>/<int:pk>/",
         views.EditCommentView.as_view(),
         name="edit_comment",
     ),
@@ -41,14 +41,19 @@ urlpatterns = [
     #     views.edit_comment,
     #     name="edit_comment_request",
     # ),
+    # path(
+    #     "<int:post_id>/edit_comment/<int:pk>/",
+    #     views.EditCommentView.as_view(),
+    #     name="edit_comment",
+    # ),
+    # path(
+    #     "<int:post_id>/delete_comment/<int:comment_id>/",
+    #     views.delete_comment,
+    #     name="delete_comment",
+    # ),
     path(
-        "<int:post_id>/edit_comment/<int:pk>/",
-        views.EditCommentView.as_view(),
-        name="edit_comment",
-    ),
-    path(
-        "<int:post_id>/delete_comment/<int:comment_id>/",
-        views.delete_comment,
-        name="delete_comment",
+        "<int:post_id>/report_comment/<int:comment_id>/",
+        views.report_comment,
+        name="report_comment",
     ),
 ]

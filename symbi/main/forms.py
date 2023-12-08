@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth import authenticate
 from django.contrib.auth.forms import (
     UserCreationForm,
     AuthenticationForm,
@@ -223,3 +224,23 @@ class ChangePasswordForm(PasswordChangeForm):
         self.fields["new_password2"].widget.attrs.update(
             {"class": "form-control", "placeholder": "Confirm New Password"}
         )
+
+    def clean_new_password2(self):
+        new_password1 = self.cleaned_data.get("new_password1")
+        new_password2 = self.cleaned_data.get("new_password2")
+
+        # Check if the two new password fields match
+        if new_password1 and new_password2:
+            if new_password1 != new_password2:
+                raise forms.ValidationError("The two new password fields didn't match.")
+
+        return new_password2
+
+    def clean_old_password(self):
+        old_password = self.cleaned_data.get("old_password")
+        user = authenticate(username=self.user.username, password=old_password)
+
+        if not user:
+            raise forms.ValidationError("The old password is incorrect.")
+
+        return old_password
