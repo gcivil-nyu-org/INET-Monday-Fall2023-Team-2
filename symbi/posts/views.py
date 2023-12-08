@@ -92,6 +92,7 @@ class EditPostView(LoginRequiredMixin, generic.UpdateView):
             post.status = ActivityPost.PostStatus.DRAFT
         elif action == "post":
             post.status = ActivityPost.PostStatus.ACTIVE
+            post.timestamp = timezone.now()
         post.save()
         return redirect(self.get_success_url())
 
