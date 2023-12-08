@@ -214,20 +214,18 @@ class PostDetailsView(LoginRequiredMixin, generic.DetailView):
                             ),
                         )
 
-        return redirect(
-            reverse_lazy(
-                "posts:post_details",
-                kwargs={
-                    "poster": poster.username,
-                    "pk": post.id,
-                },
+            return redirect(
+                reverse_lazy(
+                    "posts:post_details",
+                    kwargs={
+                        "poster": poster.username,
+                        "pk": post.id,
+                    },
+                )
             )
-        )
 
-    # method to handle reporting a post
-    def post(self, request, *args, **kwargs):
+        # method to handle reporting a post
         post = get_object_or_404(ActivityPost, pk=self.kwargs["pk"])
-
         # Check conditions to show the report button
         if (
             post.status == ActivityPost.PostStatus.ACTIVE
