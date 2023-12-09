@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.urls import reverse, reverse_lazy
 from posts.models import ActivityPost
 from django.contrib.auth import authenticate
+from django.utils import timezone
 
 # from django.utils import timezone
 # from .models import SocialUser, Connection, Notification
@@ -246,6 +247,11 @@ class SignalTests(TestCase):
 
     def test_remove_connection_on_block(self):
         # Create a block instance
+        Connection.objects.create(
+            requester=self.blocker,
+            receiver=self.blocked_user,
+            status=Connection.ConnectionStatus.REQUESTED,
+        )
         block_instance = Block.objects.create(
             blocker=self.blocker, blocked_user=self.blocked_user
         )
@@ -260,6 +266,18 @@ class SignalTests(TestCase):
 
     def test_remove_comments_on_block(self):
         # Create a block instance
+        post = ActivityPost.objects.create(
+            poster=self.blocked_user,
+            title="Archived Post",
+            description="This post is archived.",
+            status=ActivityPost.PostStatus.ARCHIVED,
+        )
+        comment = Comment.objects.create(
+            commentPoster=self.blocker,
+            post=post,
+            text="new_comment",
+            timestamp=timezone.now(),
+        )
         block_instance = Block.objects.create(
             blocker=self.blocker, blocked_user=self.blocked_user
         )
@@ -298,6 +316,9 @@ class SignalTests(TestCase):
 
     def test_remove_chat_rooms_on_block(self):
         # Create a block instance
+        new_chat = ChatRoom.objects.create(creator=self.blocker)
+        new_chat.members.add(self.blocker)
+        new_chat.members.add(self.blocked_user)
         block_instance = Block.objects.create(
             blocker=self.blocker, blocked_user=self.blocked_user
         )
