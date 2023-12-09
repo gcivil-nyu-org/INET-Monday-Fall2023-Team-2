@@ -79,7 +79,7 @@ class ChatRoomViewTestCase(TestCase):
 
         # Simulate a POST request to add a new message
         message_text = "New message text"
-        response = self.client.post(
+        _ = self.client.post(
             reverse("chat:chat_room", kwargs={"pk": self.chat_room.pk}),
             {"message": message_text},
         )
