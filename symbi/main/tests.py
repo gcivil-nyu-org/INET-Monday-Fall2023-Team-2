@@ -243,7 +243,7 @@ class SignalTests(TestCase):
         self.blocked_user = SocialUser.objects.create_user(
             username="blockedUser", password="testpassword", email="blockeruser@nyu.edu"
         )
-        Connection.object.create()
+        
 
     def test_remove_connection_on_block(self):
         # Create a block instance
