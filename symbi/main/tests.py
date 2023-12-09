@@ -244,7 +244,6 @@ class SignalTests(TestCase):
             username="blockedUser", password="testpassword", email="blockeruser@nyu.edu"
         )
 
-
     def test_remove_connection_on_block(self):
         # Create a block instance
         block_instance = Block.objects.create(
