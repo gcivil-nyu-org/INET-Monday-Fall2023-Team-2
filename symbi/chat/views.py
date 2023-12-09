@@ -55,24 +55,27 @@ class ChatRoomView(LoginRequiredMixin, generic.DetailView):
         return context
 
     def post(self, request, *args, **kwargs):
-        message_text = request.POST.get("message")
-        chat_room = get_object_or_404(ChatRoom, pk=kwargs["pk"])
-        new_message = Message(
-            chat_room=chat_room, sender=request.user, content=message_text
-        )
-        new_message.save()
-        pusher.trigger(
-            "chat",
-            "message",
-            {
-                "id": new_message.id,
-                "message": new_message.content,
-                "username": new_message.sender.username,
-                "chat_room": new_message.chat_room.id,
-                "created": new_message.created.strftime("%b %d %Y, %I:%M %p"),
-            },
-        )
-        return JsonResponse({"success": "Message sent successfully"})
+        message_text = request.POST.get("message").strip()
+        if message_text:
+            chat_room = get_object_or_404(ChatRoom, pk=kwargs["pk"])
+            new_message = Message(
+                chat_room=chat_room, sender=request.user, content=message_text
+            )
+            new_message.save()
+            pusher.trigger(
+                "chat",
+                "message",
+                {
+                    "id": new_message.id,
+                    "message": new_message.content,
+                    "username": new_message.sender.username,
+                    "chat_room": new_message.chat_room.id,
+                    "created": new_message.created.strftime("%b %d %Y, %I:%M %p"),
+                },
+            )
+            return JsonResponse({"success": "Message sent successfully"})
+        else:
+            return JsonResponse({"error": "Message cannot be empty"}, status=400)
 
     def dispatch(self, request, *args, **kwargs):
         # Check if the logged-in user can access the page being requested
