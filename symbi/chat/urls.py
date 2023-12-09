@@ -10,4 +10,5 @@ urlpatterns = [
         views.ChatRoomCreateView.as_view(),
         name="chat_room_create",
     ),
+    path("get_message_html/", views.get_message_html, name="get_message_html"),
 ]

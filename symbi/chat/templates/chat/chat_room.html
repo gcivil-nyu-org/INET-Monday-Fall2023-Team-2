@@ -23,13 +23,13 @@
                 {% include "chat/user_message.html" with message=message %}
             {% endfor %}
         </div>
-        <form method="post">
+        <form method="post" id="chat-form">
             {% csrf_token %}
             <div class="bg-white p-4 flex flex-row items-center">
                 <input type="text"
                        name="message"
                        placeholder="Send a message"
-                       class="flex w-full border rounded-xl focus:outline-none focus:border-indigo-300 pl-4 h-10" />
+                       class="flex w-full border rounded-xl focus:outline-none focus:border-indigo-300 pl-4 h-10"/>
                 <button type="submit"
                         class="flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 rounded-xl text-white px-4 h-10 py-1 ml-4">
                     <span>Send</span>
@@ -39,7 +39,8 @@
                              stroke="currentColor"
                              viewBox="0 0 24 24"
                              xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                         </svg>
                     </span>
                 </button>
@@ -48,11 +49,42 @@
     </div>
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script>
-        var pusher = new Pusher("01c526d625d364381708", { cluster: "mt1" });
+        var pusher = new Pusher("01c526d625d364381708", {cluster: "mt1"});
         var channel = pusher.subscribe("chat");
-        channel.bind("message", function(data) {
-            location.reload();
-        })
+        var currentUser = "{{ current_user }}";
+
+        channel.bind('message', function (data) {
+            const chatContainer = document.getElementById("chat-container");
+
+            fetch(`/chat/get_message_html/?type=${data.username}&content=${data.id}`)
+                .then(response => response.text())
+                .then(html => {
+                    const chatContainer = document.getElementById("chat-container");
+                    chatContainer.innerHTML += html;
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                });
+        });
+
+
+        document.getElementById('chat-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            fetch('', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementsByName('message')[0].value = '';
+                })
+                .catch(error => console.error('Error:', error));
+        });
+
+        // Auto-scroll to the latest message
         const chatContainer = document.getElementById("chat-container");
         chatContainer.scrollTop = chatContainer.scrollHeight;
     </script>
