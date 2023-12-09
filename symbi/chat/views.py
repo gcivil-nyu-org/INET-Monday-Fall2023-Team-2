@@ -1,15 +1,16 @@
 from django.shortcuts import get_object_or_404, redirect
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 import django.views.generic as generic
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
+from django.http import JsonResponse, HttpResponse
 from pusher import Pusher
 
 from .models import ChatRoom, Message
 from main.models import SocialUser
-
 
 pusher = Pusher(
     app_id=settings.PUSHER_APP_ID,
@@ -30,6 +31,18 @@ class ChatRoomListView(LoginRequiredMixin, generic.ListView):
         return context
 
 
+def get_message_html(request):
+    message_sender = request.GET.get("type")
+    message_id = request.GET.get("content")
+    message = Message.objects.get(pk=message_id)
+    context = {"message": message, "user": request.user}
+    if message_sender == request.user.username:
+        html = render_to_string("chat/user_message.html", context)
+    else:
+        html = render_to_string("chat/member_message.html", context)
+    return HttpResponse(html)
+
+
 @method_decorator(login_required, name="dispatch")
 class ChatRoomView(LoginRequiredMixin, generic.DetailView):
     model = ChatRoom
@@ -38,26 +51,31 @@ class ChatRoomView(LoginRequiredMixin, generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["messages"] = Message.get_messages(self.object)
+        context["current_user"] = self.request.user.username
         return context
 
     def post(self, request, *args, **kwargs):
-        message_text = request.POST.get("message")
-        chat_room = get_object_or_404(ChatRoom, pk=kwargs["pk"])
-        new_message = Message(
-            chat_room=chat_room, sender=request.user, content=message_text
-        )
-        new_message.save()
-        pusher.trigger(
-            "chat",
-            "message",
-            {
-                "message": new_message.content,
-                "username": new_message.sender.username,
-                "chat_room": new_message.chat_room.id,
-                "created": new_message.created.strftime("%b %d %Y, %I:%M %p"),
-            },
-        )
-        return redirect("chat:chat_room", pk=chat_room.pk)
+        message_text = request.POST.get("message").strip()
+        if message_text:
+            chat_room = get_object_or_404(ChatRoom, pk=kwargs["pk"])
+            new_message = Message(
+                chat_room=chat_room, sender=request.user, content=message_text
+            )
+            new_message.save()
+            pusher.trigger(
+                "chat",
+                "message",
+                {
+                    "id": new_message.id,
+                    "message": new_message.content,
+                    "username": new_message.sender.username,
+                    "chat_room": new_message.chat_room.id,
+                    "created": new_message.created.strftime("%b %d %Y, %I:%M %p"),
+                },
+            )
+            return JsonResponse({"success": "Message sent successfully"})
+        else:
+            return JsonResponse({"error": "Message cannot be empty"}, status=400)
 
     def dispatch(self, request, *args, **kwargs):
         # Check if the logged-in user can access the page being requested
