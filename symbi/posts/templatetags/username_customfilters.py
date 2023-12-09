@@ -12,5 +12,5 @@ def taggedUsers(text, taggedUsers):
             matchingUsers = taggedUsers.filter(username=username)
             for user in matchingUsers:
                 profileUrl = user.get_absolute_url()
-                words[i] = f'<a href="{profileUrl}">@{username}</a>'
+                words[i] = f'<a href="{profileUrl}"><strong>@{username}</strong></a>'
     return " ".join(words)
