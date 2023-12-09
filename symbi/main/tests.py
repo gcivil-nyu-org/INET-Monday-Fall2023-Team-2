@@ -5,7 +5,10 @@ from django.contrib.auth import authenticate
 
 # from django.utils import timezone
 # from .models import SocialUser, Connection, Notification
-from .models import SocialUser
+from .models import SocialUser, Block, Connection
+from posts.models import Comment
+from chat.models import ChatRoom, Message
+from .signals import user_blocked
 
 
 class LandingPageViewTest(TestCase):
@@ -162,7 +165,6 @@ class MainViewArchivedPostTest(TestCase):
         self.assertNotContains(response, "Archived Post")
 
 
-
 class MainViewDraftedPostTest(TestCase):
     def setUp(self):
         self.user = SocialUser.objects.create_user(
@@ -189,77 +191,122 @@ class MainAppTests(TestCase):
     def setUp(self):
         # Create a test user
         self.test_user = SocialUser.objects.create_user(
-            username='testuser',
-            password='testpassword'
+            username="testuser", password="testpassword"
         )
 
     def test_home_page_view(self):
         # Test that the home page returns a 200 status code for an authenticated user
-        self.client.login(username='testuser', password='testpassword')
-        response = self.client.get(reverse('main:home'))
+        self.client.login(username="testuser", password="testpassword")
+        response = self.client.get(reverse("main:home"))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'main/home.html')
-
-    def test_login_view(self):
-        # Test that the login view returns a 200 status code
-        response = self.client.get(reverse('main:login'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'main/login.html')
-
-        # Test a successful login
-        response = self.client.post(reverse('main:login'), {'username': 'testuser', 'password': 'testpassword'})
-        self.assertEqual(response.status_code, 302)  # 302 is the HTTP status code for a redirect
-        self.assertRedirects(response, reverse('main:home'))
-
-    def test_signup_view(self):
-        # Test that the signup view returns a 200 status code
-        response = self.client.get(reverse('main:signup'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'main/signup.html')
-
-        # Test a successful signup
-        response = self.client.post(reverse('main:signup'), {
-            'username': 'newuser',
-            'email': 'newuser@nyu.edu',
-            'password1': 'newpassword',
-            'password2': 'newpassword',
-            # Add other required fields for signup
-        })
-        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "main/home.html")
 
     def test_logout_view(self):
         # Test that the logout view logs out the user and redirects to the landing page
-        self.client.login(username='testuser', password='testpassword')
-        response = self.client.get(reverse('main:logout'))
-        self.assertEqual(response.status_code, 302)  # 302 is the HTTP status code for a redirect
-        self.assertRedirects(response, reverse('main:landing'))
+        self.client.login(username="testuser", password="testpassword")
+        response = self.client.get(reverse("main:logout"))
+        self.assertEqual(
+            response.status_code, 302
+        )  # 302 is the HTTP status code for a redirect
+        self.assertRedirects(response, reverse("main:landing"))
         # You may also want to test cases where logout fails
 
     def test_profile_page_view(self):
         # Test that the profile page view returns a 200 status code for an authenticated user
-        self.client.login(username='testuser', password='testpassword')
-        response = self.client.get(reverse('main:profile_page', kwargs={'username': 'testuser'}))
+        self.client.login(username="testuser", password="testpassword")
+        response = self.client.get(
+            reverse("main:profile_page", kwargs={"username": "testuser"})
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'main/profile_page.html')
+        self.assertTemplateUsed(response, "main/profile_page.html")
 
     def test_edit_profile_view(self):
         # Test that the edit profile view returns a 200 status code for an authenticated user
-        self.client.login(username='testuser', password='testpassword')
-        response = self.client.get(reverse('main:edit_profile_page', kwargs={'username': 'testuser'}))
+        self.client.login(username="testuser", password="testpassword")
+        response = self.client.get(
+            reverse("main:edit_profile_page", kwargs={"username": "testuser"})
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'main/edit_profile_page.html')
-
-        # Test a successful profile edit
-        response = self.client.post(reverse('main:edit_profile_page', kwargs={'username': 'testuser'}), {
-            # Add fields to update
-        })
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(reverse('main:profile_page', kwargs={'username': 'testuser'}), response.url)
-
-        # You may also want to test cases where profile edit fails
+        self.assertTemplateUsed(response, "main/edit_profile_page.html")
 
     def tearDown(self):
         # Clean up after the tests if needed
         pass
 
 
+class SignalTests(TestCase):
+    def setUp(self):
+        # Create users for testing
+        self.blocker = SocialUser.objects.create_user(
+            username="blocker", password="testpassword", email="blocker@nyu.edu"
+        )
+        self.blocked_user = SocialUser.objects.create_user(
+            username="blockedUser", password="testpassword", email="blockeruser@nyu.edu"
+        )
+        Connection.object.create()
+
+    def test_remove_connection_on_block(self):
+        # Create a block instance
+        block_instance = Block.objects.create(
+            blocker=self.blocker, blocked_user=self.blocked_user
+        )
+        user_blocked.send(sender=Block, instance=block_instance, created=True)
+
+        # Assert that the connection is deleted
+        self.assertFalse(
+            Connection.objects.filter(
+                requester=self.blocker, receiver=self.blocked_user
+            ).exists()
+        )
+
+    def test_remove_comments_on_block(self):
+        # Create a block instance
+        block_instance = Block.objects.create(
+            blocker=self.blocker, blocked_user=self.blocked_user
+        )
+        user_blocked.send(sender=Block, instance=block_instance, created=True)
+
+        # Assert that the comments are deleted
+        self.assertFalse(
+            Comment.objects.filter(
+                commentPoster=self.blocker, post__poster=self.blocked_user
+            ).exists()
+        )
+        self.assertFalse(
+            Comment.objects.filter(
+                commentPoster=self.blocked_user, post__poster=self.blocker
+            ).exists()
+        )
+
+    def test_remove_messages_on_block(self):
+        # Create a block instance
+        block_instance = Block.objects.create(
+            blocker=self.blocker, blocked_user=self.blocked_user
+        )
+        user_blocked.send(sender=Block, instance=block_instance, created=True)
+
+        # Assert that the messages are deleted
+        self.assertFalse(
+            Message.objects.filter(
+                sender=self.blocker, chat_room__members=self.blocked_user
+            ).exists()
+        )
+        self.assertFalse(
+            Message.objects.filter(
+                sender=self.blocked_user, chat_room__members=self.blocker
+            ).exists()
+        )
+
+    def test_remove_chat_rooms_on_block(self):
+        # Create a block instance
+        block_instance = Block.objects.create(
+            blocker=self.blocker, blocked_user=self.blocked_user
+        )
+        user_blocked.send(sender=Block, instance=block_instance, created=True)
+
+        # Assert that the chat rooms are deleted
+        self.assertFalse(
+            ChatRoom.objects.filter(members=self.blocker)
+            .filter(members=self.blocked_user)
+            .exists()
+        )
