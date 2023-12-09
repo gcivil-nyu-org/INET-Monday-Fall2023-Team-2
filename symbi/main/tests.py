@@ -272,7 +272,7 @@ class SignalTests(TestCase):
             description="This post is archived.",
             status=ActivityPost.PostStatus.ARCHIVED,
         )
-        comment = Comment.objects.create(
+        Comment.objects.create(
             commentPoster=self.blocker,
             post=post,
             text="new_comment",
