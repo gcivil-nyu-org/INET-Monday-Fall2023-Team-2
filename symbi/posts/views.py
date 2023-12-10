@@ -201,7 +201,7 @@ class PostDetailsView(LoginRequiredMixin, generic.DetailView):
                 for user in taggedUsers:
                     if user != request.user:
                         content = (
-                            f"@{request.user} tagged you in a post: {comment.text}"
+                            f"@{request.user} tagged you in a comment: {comment.text}"
                         )
                         Notification.objects.create(
                             recipient_user=user,

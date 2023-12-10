@@ -50,7 +50,7 @@
                             <!-- Report Form Modal -->
                             <div id="reportModalPost"
                                 class="hidden fixed inset-0 z-50 overflow-auto bg-gray-500 bg-opacity-75 flex justify-center items-center">
-                                <div class="bg-white p-8 rounded shadow-lg"> 
+                                <div class="bg-white p-8 rounded shadow-lg">
                                     <!-- Render the ReportForm -->
                                     <form id="reportForm" method="post">
                                             {% csrf_token %}
@@ -64,8 +64,8 @@
                                         </button>
                                     </form>
                                     <div class="flex justify-end">
-                                        <button id="closeReportModalPost" class="text-gray-700 hover:text-gray-900">
-                                        Close
+                                        <button id="closeReportModalPost" class="m-3 -mb-2 text-gray-700 hover:text-gray-900">
+                                        Cancel
                                         </button>
                                     </div>
                                 </div>
@@ -127,6 +127,7 @@
                 </div>
             </div>
         </div>
+        <!-- POST DETAILS -->
         <div class="flex flex-wrap w-full items-center justify-between">
             <a href="{% url 'main:profile_page' post.poster.username %}"
                class="flex items-center hover:bg-gray-100 rounded hover:text-gray-600 focus:bg-gray-100 focus:text-gray-600 mt-2">
@@ -153,18 +154,24 @@
         <div class="mt-4 mb-6">
             <div class="text-neutral-600">{{ post.description }}</div>
         </div>
-        <div class="flex justify-between items-center mt-5 mb-4">
-            <h2 class="text-lg font-semibold text-gray-700 border-t w-full pt-2">Comments</h2>
-        </div>
-        <div>
-            {% if comments %}
-                {% for comment in comments %}
-                    {% include "posts/comment_card.html" with comment=comment %}
-                {% endfor %}
-            {% else %}
-                <p>No comments yet! Add one to start the conversation.</p>
-            {% endif %}
-        </div>
+        <!-- COMMENTS -->
+        <!-- DRAFT POSTS CANNOT HAVE ANY COMMENTS -->
+        {% if post.status != post.PostStatus.DRAFT %}
+            <div class="flex justify-between items-center mt-5 mb-4">
+                <h2 class="text-lg font-semibold text-gray-700 border-t w-full pt-2">Comments</h2>
+            </div>
+            <div>
+                {% if comments %}
+                    {% for comment in comments %}
+                        {% include "posts/comment_card.html" with comment=comment %}
+                    {% endfor %}
+                {% else %}
+                    <p>No comments yet!</p>
+                {% endif %}
+            </div>
+        {% endif %}
+        <!-- ACTIVE POSTS ALLOW NEW COMMENTS -->
+        {% if post.status == post.PostStatus.ACTIVE %}
         <form class="mt-6 mb-6" method="post">
             {% csrf_token %}
             <div class="flex justify-between w-full mb-4">
@@ -181,6 +188,7 @@
                 </button>
             </div>
         </form>
+        {% endif %}
         {% if comments %}
             {% for comment in comments %}
                 <div class="comment">
@@ -203,8 +211,8 @@
                                         </button>
                                     </form>
                                     <div class="flex justify-end">
-                                        <button id="closeReportModalComment_{{ comment.id }}" class="text-gray-700 hover:text-gray-900">
-                                        Close
+                                        <button id="closeReportModalComment_{{ comment.id }}" class="m-3 -mb-2 text-gray-700 hover:text-gray-900">
+                                        Cancel
                                         </button>
                                     </div>
                                 </div>
