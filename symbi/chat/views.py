@@ -50,6 +50,7 @@ class ChatRoomView(LoginRequiredMixin, generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["room"] = self.object
         context["messages"] = Message.get_messages(self.object)
         context["current_user"] = self.request.user.username
         return context
