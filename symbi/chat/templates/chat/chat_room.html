@@ -1,21 +1,38 @@
 {% extends "base.html" %}
+{% load chat_customfilters %}
 {% block title %}
     Chat
 {% endblock title %}
 {% block content %}
     <!--ADD CHAT PARTICIPANTS TITLE-->
     <div class="m-10 flex flex-col flex-grow w-7/8 bg-white shadow-xl rounded-lg overflow-hidden">
-        <a href="{% url 'chat:chat_room_list' %}"
-           class="flex flex-row text-indigo-500 hover:text-indigo-700 m-2">
-            <svg class="w-6 h-6"
-                 fill="none"
-                 stroke="currentColor"
-                 viewBox="0 0 24 24"
-                 xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-            <span>Back</span>
-        </a>
+        <div class="flex flex-row items-center w-full">
+            <a href="{% url 'chat:chat_room_list' %}"
+               class="flex text-indigo-500 hover:text-indigo-700 m-2 grow-0">
+                <svg class="w-6 h-6"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                <span>Back</span>
+            </a>
+            <div class="text-2xl w-full text-center font-bold text-gray-700">
+                <div>{{ room.members|make_chat_member_list:user }}</div>
+            </div>
+            <a href="#"
+               class="flex invisible text-indigo-500 hover:text-indigo-700 m-2 grow-0">
+                <svg class="w-6 h-6"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                <span>Back</span>
+            </a>
+        </div>
         <div class="flex flex-col flex-grow h-0 p-4 overflow-auto"
              id="chat-container">
             {% for message in messages %}
@@ -23,7 +40,7 @@
                 {% include "chat/user_message.html" with message=message %}
             {% endfor %}
         </div>
-        <form method="post">
+        <form method="post" id="chat-form">
             {% csrf_token %}
             <div class="bg-white p-4 flex flex-row items-center">
                 <input type="text"
@@ -48,11 +65,42 @@
     </div>
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script>
-        var pusher = new Pusher("01c526d625d364381708", { cluster: "mt1" });
+        var pusher = new Pusher("01c526d625d364381708", {cluster: "mt1"});
         var channel = pusher.subscribe("chat");
-        channel.bind("message", function(data) {
-            location.reload();
-        })
+        var currentUser = "{{ current_user }}";
+
+        channel.bind('message', function (data) {
+            const chatContainer = document.getElementById("chat-container");
+
+            fetch(`/chat/get_message_html/?type=${data.username}&content=${data.id}`)
+                .then(response => response.text())
+                .then(html => {
+                    const chatContainer = document.getElementById("chat-container");
+                    chatContainer.innerHTML += html;
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                });
+        });
+
+
+        document.getElementById('chat-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            fetch('', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementsByName('message')[0].value = '';
+                })
+                .catch(error => console.error('Error:', error));
+        });
+
+        // Auto-scroll to the latest message
         const chatContainer = document.getElementById("chat-container");
         chatContainer.scrollTop = chatContainer.scrollHeight;
     </script>

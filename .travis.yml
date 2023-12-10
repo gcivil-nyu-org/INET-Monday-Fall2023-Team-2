@@ -29,8 +29,8 @@ deploy:
   access_key_id: $AWS_ACCESS_KEY_ID
   secret_access_key: $AWS_SECRET_ACCESS_KEY
   region: $AWS_REGION
-  app: "symbi"
-  env: symbi-env
+  app: "symbi-local"
+  env: symbi-prod
   bucket_name: $AWS_BUCKET_NAME
   on:
     branch: master

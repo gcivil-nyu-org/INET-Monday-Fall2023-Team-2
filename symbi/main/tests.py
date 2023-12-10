@@ -2,10 +2,14 @@ from django.test import TestCase
 from django.urls import reverse, reverse_lazy
 from posts.models import ActivityPost
 from django.contrib.auth import authenticate
+from django.utils import timezone
 
 # from django.utils import timezone
 # from .models import SocialUser, Connection, Notification
-from .models import SocialUser
+from .models import SocialUser, Block, Connection
+from posts.models import Comment
+from chat.models import ChatRoom, Message
+from .signals import user_blocked
 
 
 class LandingPageViewTest(TestCase):
@@ -162,28 +166,6 @@ class MainViewArchivedPostTest(TestCase):
         self.assertNotContains(response, "Archived Post")
 
 
-# class MainViewPostedPostTest(TestCase):
-#     def setUp(self):
-#         self.user = SocialUser.objects.create_user(
-#             username="testuser", password="testpassword"
-#         )
-#         self.client.login(username="testuser", password="testpassword")
-
-#         # Create a posted post
-#         ActivityPost.objects.create(
-#             poster=self.user,
-#             title="Posted Post",
-#             description="This post is posted.",
-#             status=ActivityPost.PostStatus.ACTIVE,
-#         )
-
-#     def test_main_view_posted_post(self):
-#         response = self.client.get(reverse("main:home"))
-#         self.assertEqual(response.status_code, 200)
-#         # Check that the posted post is present in the response
-#         self.assertContains(response, "Posted Post")
-
-
 class MainViewDraftedPostTest(TestCase):
     def setUp(self):
         self.user = SocialUser.objects.create_user(
@@ -206,104 +188,145 @@ class MainViewDraftedPostTest(TestCase):
         self.assertNotContains(response, "Drafted Post")
 
 
-# class MainViewMultiplePostTests(TestCase):
-#     def setUp(self):
-#         # Create a user
-#         self.user = SocialUser.objects.create_user(
-#             username="testuser", password="testpassword"
-#         )
-#         self.client.login(username="testuser", password="testpassword")
+class MainAppTests(TestCase):
+    def setUp(self):
+        # Create a test user
+        self.test_user = SocialUser.objects.create_user(
+            username="testuser", password="testpassword"
+        )
 
-#         # Create an archived post
-#         ActivityPost.objects.create(
-#             poster=self.user,
-#             title="Archived Post",
-#             description="This post is archived.",
-#             status=ActivityPost.PostStatus.ARCHIVED,
-#         )
+    def test_home_page_view(self):
+        # Test that the home page returns a 200 status code for an authenticated user
+        self.client.login(username="testuser", password="testpassword")
+        response = self.client.get(reverse("main:home"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "main/home.html")
 
-#         # Create a posted post
-#         ActivityPost.objects.create(
-#             poster=self.user,
-#             title="Posted Post",
-#             description="This post is posted.",
-#             status=ActivityPost.PostStatus.ACTIVE,
-#         )
+    def test_logout_view(self):
+        # Test that the logout view logs out the user and redirects to the landing page
+        self.client.login(username="testuser", password="testpassword")
+        response = self.client.get(reverse("main:logout"))
+        self.assertEqual(
+            response.status_code, 302
+        )  # 302 is the HTTP status code for a redirect
+        self.assertRedirects(response, reverse("main:landing"))
+        # You may also want to test cases where logout fails
 
-#         # Create a drafted post
-#         ActivityPost.objects.create(
-#             poster=self.user,
-#             title="Drafted Post",
-#             description="This post is drafted.",
-#             status=ActivityPost.PostStatus.DRAFT,
-#         )
+    def test_profile_page_view(self):
+        # Test that the profile page view returns a 200 status code for an authenticated user
+        self.client.login(username="testuser", password="testpassword")
+        response = self.client.get(
+            reverse("main:profile_page", kwargs={"username": "testuser"})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "main/profile_page.html")
 
-#     def test_main_view_multiple_post(self):
-#         response = self.client.get(reverse("main:home"))
-#         self.assertEqual(response.status_code, 200)
-#         # Check that the only Posted Post is displayed
-#         self.assertNotContains(response, "Drafted Post")
-#         self.assertContains(response, "Posted Post")
-#         self.assertNotContains(response, "Archived Post")
+    def test_edit_profile_view(self):
+        # Test that the edit profile view returns a 200 status code for an authenticated user
+        self.client.login(username="testuser", password="testpassword")
+        response = self.client.get(
+            reverse("main:edit_profile_page", kwargs={"username": "testuser"})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "main/edit_profile_page.html")
 
-
-# class NotificationViewTests(TestCase):
-#     def setUp(self):
-#         # Create two users
-#         self.user1 = SocialUser.objects.create_user(
-#             username="user1", password="testpassword1"
-#         )
-#         self.user2 = SocialUser.objects.create_user(
-#             username="user2", password="testpassword2"
-#         )
-
-#         # Log in the users
-#         self.client.login(username="user1", password="testpassword1")
-
-#         # Create a connection request notification
-#         self.connection_request_notification = Notification.objects.create(
-#             receiver=self.user1,
-#             requester=self.user2,
-#             content="Connection request from user2",
-#             type=Notification.NotificationType.CONNECTION_REQUEST,
-#             timestamp=timezone.now(),
-#         )
-
-#     def test_notification_view_connection_request(self):
-#         # Test accessing the notifications view
-#         response = self.client.get(
-#             reverse("main:notifications", kwargs={"pk": self.user1.pk})
-#         )
-#         self.assertEqual(response.status_code, 200)
-#         self.assertContains(response, "Connection request from user2")
-#         self.assertContains(response, "Accept")
+    def tearDown(self):
+        # Clean up after the tests if needed
+        pass
 
 
-# class ConnectionTests(TestCase):
-#     def setUp(self):
-#         # Create a user
-#         self.user = SocialUser.objects.create_user(
-#             username="testuser", password="testpassword"
-#         )
+class SignalTests(TestCase):
+    def setUp(self):
+        # Create users for testing
+        self.blocker = SocialUser.objects.create_user(
+            username="blocker", password="testpassword", email="blocker@nyu.edu"
+        )
+        self.blocked_user = SocialUser.objects.create_user(
+            username="blockedUser", password="testpassword", email="blockeruser@nyu.edu"
+        )
 
-#         # Log in the user
-#         self.client.login(username="testuser", password="testpassword")
+    def test_remove_connection_on_block(self):
+        # Create a block instance
+        Connection.objects.create(
+            requester=self.blocker,
+            receiver=self.blocked_user,
+            status=Connection.ConnectionStatus.REQUESTED,
+        )
+        block_instance = Block.objects.create(
+            blocker=self.blocker, blocked_user=self.blocked_user
+        )
+        user_blocked.send(sender=Block, instance=block_instance, created=True)
 
-#     def test_connections_view(self):
-#         # Create a connection
-#         connected_user = SocialUser.objects.create_user(
-#             username="connecteduser", password="testpassword"
-#         )
-#         Connection.objects.create(
-#             requester=self.user,
-#             receiver=connected_user,
-#             status=Connection.ConnectionStatus.CONNECTED,
-#             timestamp=timezone.now(),
-#         )
+        # Assert that the connection is deleted
+        self.assertFalse(
+            Connection.objects.filter(
+                requester=self.blocker, receiver=self.blocked_user
+            ).exists()
+        )
 
-#         # Test accessing the connections view
-#         response = self.client.get(
-#             reverse("main:connections", kwargs={"pk": self.user.pk})
-#         )
-#         self.assertEqual(response.status_code, 200)
-#         self.assertContains(response, "connecteduser")
+    def test_remove_comments_on_block(self):
+        # Create a block instance
+        post = ActivityPost.objects.create(
+            poster=self.blocked_user,
+            title="Archived Post",
+            description="This post is archived.",
+            status=ActivityPost.PostStatus.ARCHIVED,
+        )
+        Comment.objects.create(
+            commentPoster=self.blocker,
+            post=post,
+            text="new_comment",
+            timestamp=timezone.now(),
+        )
+        block_instance = Block.objects.create(
+            blocker=self.blocker, blocked_user=self.blocked_user
+        )
+        user_blocked.send(sender=Block, instance=block_instance, created=True)
+
+        # Assert that the comments are deleted
+        self.assertFalse(
+            Comment.objects.filter(
+                commentPoster=self.blocker, post__poster=self.blocked_user
+            ).exists()
+        )
+        self.assertFalse(
+            Comment.objects.filter(
+                commentPoster=self.blocked_user, post__poster=self.blocker
+            ).exists()
+        )
+
+    def test_remove_messages_on_block(self):
+        # Create a block instance
+        block_instance = Block.objects.create(
+            blocker=self.blocker, blocked_user=self.blocked_user
+        )
+        user_blocked.send(sender=Block, instance=block_instance, created=True)
+
+        # Assert that the messages are deleted
+        self.assertFalse(
+            Message.objects.filter(
+                sender=self.blocker, chat_room__members=self.blocked_user
+            ).exists()
+        )
+        self.assertFalse(
+            Message.objects.filter(
+                sender=self.blocked_user, chat_room__members=self.blocker
+            ).exists()
+        )
+
+    def test_remove_chat_rooms_on_block(self):
+        # Create a block instance
+        new_chat = ChatRoom.objects.create(creator=self.blocker)
+        new_chat.members.add(self.blocker)
+        new_chat.members.add(self.blocked_user)
+        block_instance = Block.objects.create(
+            blocker=self.blocker, blocked_user=self.blocked_user
+        )
+        user_blocked.send(sender=Block, instance=block_instance, created=True)
+
+        # Assert that the chat rooms are deleted
+        self.assertFalse(
+            ChatRoom.objects.filter(members=self.blocker)
+            .filter(members=self.blocked_user)
+            .exists()
+        )

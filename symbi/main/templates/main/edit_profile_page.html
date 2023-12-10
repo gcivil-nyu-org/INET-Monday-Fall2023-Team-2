@@ -18,7 +18,7 @@
                 <div class="w-1/2 pr-2">
                     <label for="{{ form.username.id_for_label }}"
                            class="block text-gray-700 text-sm font-bold mb-2">Username:</label>
-                    {{ form.username }}
+                    <div class="text-gray-400">{{ form.username }}</div>
                 </div>
                 <div class="w-1/2 pl-2">
                     <label for="{{ form.full_name.id_for_label }}"
@@ -42,7 +42,7 @@
             <div class="mb-4">
                 <label for="{{ form.email.id_for_label }}"
                        class="block text-gray-700 text-sm font-bold mb-2">Email:</label>
-                {{ form.email }}
+                <div class="text-gray-400">{{ form.email }}</div>
             </div>
             <div class="mb-4">
                 <label for="{{ form.date_of_birth.id_for_label }}"
