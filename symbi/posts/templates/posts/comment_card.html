@@ -1,18 +1,3 @@
-{% if messages %}
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var messages = [
-                {% for message in messages %}
-                    "{{ message }}",
-                {% endfor %}
-            ];
-
-            for (var i = 0; i < messages.length; i++) {
-                alert(messages[i]);
-            }
-        });
-    </script>
-{% endif %}
 {% load main_customfilters %}
 {% load username_customfilters %}
 <div class="rounded-xl bg-white mx-2 my-3">
@@ -30,13 +15,13 @@
         <div class="-mt-1 ml-2">
             <div class="flex flex-wrap items-center">
                 <a href="{% url 'main:profile_page' comment.commentPoster.username %}">
-                    <div class="flex items-center text-md font-semibold text-gray-700 mr-1 hover:text-gray-500">{{ comment.commentPoster.username }}</div>
+                    <div class="flex items-center text-md font-semibold text-gray-700 mr-1 hover:text-gray-500">
+                        {{ comment.commentPoster.username }}
+                    </div>
                 </a>
                 <div class="flex fml-2">
-                   <div class="text-md leading-none text-gray-700">
-                        {% with comment_text=comment.text|taggedUsers:comment.taggedUsers %}
-                            {{ comment_text|safe }}
-                        {% endwith %}
+                    <div class="text-md leading-none text-gray-700">
+                        {% with comment_text=comment.text|taggedUsers:comment.taggedUsers %}{{ comment_text|safe }}{% endwith %}
                     </div>
                 </div>
             </div>
@@ -44,9 +29,7 @@
                 <div class="flex items-center text-sm text-gray-500">{{ comment.timestamp|format_time_difference }}</div>
                 {% if comment.commentPoster != user %}
                     <button id="openReportModalComment_{{ comment.id }}"
-                            class="ml-2 flex items-center text-sm text-gray-500 hover:text-red-500">
-                        Report
-                    </button>
+                            class="ml-2 flex items-center text-sm text-gray-500 hover:text-red-500">Report</button>
                 {% elif comment.commentPoster == user %}
                     <a href="{% url 'posts:delete_comment' post_poster=comment.post.poster.username post_id=comment.post.id comment_poster=comment.commentPoster.username comment_id=comment.id %}"
                        class="ml-1 flex items-center text-sm text-gray-500 hover:text-red-500">
