@@ -173,7 +173,7 @@ class PostDetailsView(LoginRequiredMixin, generic.DetailView):
             post = ActivityPost(poster=poster, pk=self.kwargs["pk"])
             post_id = self.kwargs["pk"]
             if new_comment.isspace():
-                messages.error(request, "You cannot leave an empty comment.")
+                pass
             else:
                 taggedUsername = [
                     word[1:] for word in new_comment.split() if word.startswith("@")
