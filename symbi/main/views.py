@@ -93,7 +93,7 @@ class HomePageView(LoginRequiredMixin, generic.ListView):
         interests_posts = ActivityPost.objects.filter(
             tags__in=self.request.user.tags.all(),
             status=ActivityPost.PostStatus.ACTIVE,
-        )
+        ).distinct()
         # Fetch users blocked by the logged-in user and users who have blocked the logged-in user
         blocked_users = Block.get_blocked_users(self.request.user)
         blocking_users = Block.get_blocking_users(self.request.user)
@@ -112,7 +112,7 @@ class HomePageView(LoginRequiredMixin, generic.ListView):
         context["connection_posts"] = ActivityPost.objects.filter(
             poster__in=connected_users,
             status=ActivityPost.PostStatus.ACTIVE,
-        )
+        ).distinct()
         return context
 
 
