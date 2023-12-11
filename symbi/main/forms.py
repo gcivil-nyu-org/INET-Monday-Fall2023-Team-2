@@ -140,7 +140,7 @@ class EditProfileForm(forms.ModelForm):
         widget=forms.TextInput(
             attrs={
                 "class": "w-full p-2 border border-gray-300 rounded",
-                "disabled": True,
+                "readonly": True,
             }
         ),
     )
@@ -148,7 +148,7 @@ class EditProfileForm(forms.ModelForm):
         widget=forms.EmailInput(
             attrs={
                 "class": "w-full p-2 border border-gray-300 rounded",
-                "disabled": True,
+                "readonly": True,
             },
         ),
     )
